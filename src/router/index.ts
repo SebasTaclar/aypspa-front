@@ -19,11 +19,6 @@ const router = createRouter({
       name: 'clients',
       component: () => import('../views/Clients.vue'),
     },
-    {
-      path: '/editBook/:id',
-      name: 'editBook',
-      component: () => import('../views/EditBook.vue'),
-    },
   ],
 })
 
