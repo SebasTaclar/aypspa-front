@@ -6,25 +6,13 @@
       <form @submit.prevent="handleLogin">
         <div class="input-group">
           <label for="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            v-model="email"
-            required
-            @invalid="setCustomValidityMessage"
-            @input="clearCustomValidityMessage"
-          />
+          <input type="email" id="email" v-model="email" required @invalid="setCustomValidityMessage"
+            @input="clearCustomValidityMessage" />
         </div>
         <div class="input-group">
           <label for="password">Contraseña</label>
-          <input
-            type="password"
-            id="password"
-            v-model="password"
-            required
-            @invalid="setCustomValidityMessage"
-            @input="clearCustomValidityMessage"
-          />
+          <input type="password" id="password" v-model="password" required @invalid="setCustomValidityMessage"
+            @input="clearCustomValidityMessage" />
         </div>
         <button type="submit">Acceder</button>
       </form>
@@ -47,7 +35,7 @@ export default defineComponent({
 
     const handleLogin = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/users', {
+        const response = await axios.get('https://aypspa-back.azurewebsites.net/api/funcGetUsers', {
           params: {
             username: email.value,
             password: password.value,
