@@ -35,8 +35,8 @@ export default defineComponent({
 
     const handleLogin = async () => {
       try {
-        const localUrl = 'http://localhost:7071/api/funcLogin';
-        const remoteUrl = 'https://aypspa-back.azurewebsites.net/api/funcLogin';
+        const localUrl = 'http://localhost:7071/api/v1/login';
+        const remoteUrl = 'https://aypspa-back.azurewebsites.net/api/v1/login';
         const isLocal = window.location.hostname === 'localhost';
         const url = isLocal ? localUrl : remoteUrl;
         const response = await axios.get(url, {
