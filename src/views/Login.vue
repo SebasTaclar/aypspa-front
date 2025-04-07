@@ -35,18 +35,20 @@ export default defineComponent({
 
     const handleLogin = async () => {
       try {
-        const response = await axios.get('https://aypspa-back.azurewebsites.net/api/funcGetUsers', {
+        const localUrl = 'http://localhost:7071/api/funcLogin';
+        const remoteUrl = 'https://aypspa-back.azurewebsites.net/api/funcLogin';
+        const isLocal = window.location.hostname === 'localhost';
+        const url = isLocal ? localUrl : remoteUrl;
+        const response = await axios.get(url, {
           params: {
             username: email.value,
             password: password.value,
           },
         })
         console.log('Login response:', response.data)
-        const data = response.data.length > 0 ? response.data[0] : {}
-        console.log('data.token:', data.token)
-        if (data.token) {
-          console.log('Token:', data.token)
-          sessionStorage.setItem('token', data.token)
+        if (response.data) {
+          console.log('Token:', response.data)
+          sessionStorage.setItem('token', response.data)
           if (!isTokenValid()) {
             sessionStorage.removeItem('token')
             alert('token invalid')
