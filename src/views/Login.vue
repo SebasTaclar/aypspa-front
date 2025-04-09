@@ -25,6 +25,7 @@ import { defineComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { isTokenValid } from '@/utils/auth'
+import { getBaseUrl } from '@/utils/apiConfig'
 
 export default defineComponent({
   name: 'LoginView',
@@ -35,10 +36,7 @@ export default defineComponent({
 
     const handleLogin = async () => {
       try {
-        const localUrl = 'http://localhost:7071/api/v1/login';
-        const remoteUrl = 'https://aypspa-back.azurewebsites.net/api/v1/login';
-        const isLocal = window.location.hostname === 'localhost';
-        const url = isLocal ? localUrl : remoteUrl;
+        const url = `${getBaseUrl()}/api/v1/login`;
         const response = await axios.get(url, {
           params: {
             username: email.value,

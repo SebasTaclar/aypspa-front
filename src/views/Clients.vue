@@ -6,13 +6,7 @@
 
       <!-- Search box and search button -->
       <div class="search-container">
-        <input
-          id="searchQuery"
-          type="text"
-          placeholder="Buscar cliente..."
-          class="search-box"
-          v-model="searchQuery"
-        />
+        <input id="searchQuery" type="text" placeholder="Buscar cliente..." class="search-box" v-model="searchQuery" />
       </div>
 
       <!-- Table for displaying client data -->
@@ -59,29 +53,16 @@
       </table>
 
       <!-- Edit Client Popup -->
-      <UpsertClientPopup
-        v-if="isUpsertPopupVisible"
-        :clientData="selectedClient"
-        :mode="popupMode"
-        @close="closeUpsertPopup"
-        @save="handleSaveClient"
-      />
+      <UpsertClientPopup v-if="isUpsertPopupVisible" :clientData="selectedClient" :mode="popupMode"
+        @close="closeUpsertPopup" @save="handleSaveClient" />
 
       <!-- Pagination Controls -->
       <div class="pagination">
-        <button
-          class="btn btn-secondary"
-          :disabled="currentPage === 1"
-          @click="changePage(currentPage - 1)"
-        >
+        <button class="btn btn-secondary" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">
           Anterior
         </button>
         <span>Página {{ currentPage }} de {{ totalPages }}</span>
-        <button
-          class="btn btn-secondary"
-          :disabled="currentPage === totalPages"
-          @click="changePage(currentPage + 1)"
-        >
+        <button class="btn btn-secondary" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">
           Siguiente
         </button>
       </div>
@@ -94,6 +75,7 @@ import { defineComponent, ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import UpsertClientPopup from '@/components/UpsertClientPopup.vue'
 import type { Client } from '@/types/ClientType'
+import { getBaseUrl } from '@/utils/apiConfig'
 
 export default defineComponent({
   name: 'ClientsView',
@@ -105,7 +87,7 @@ export default defineComponent({
     const searchQuery = ref('')
     const currentPage = ref(1)
     const totalPages = ref(1)
-    const limit = 10 // Number of records per page
+    // const limit = 10 // Number of records per page
     const isUpsertPopupVisible = ref(false)
     const selectedClient = ref<Client | null>(null)
     const popupMode = ref<'edit' | 'create'>('edit')
@@ -113,12 +95,17 @@ export default defineComponent({
     // Fetch clients from the API
     const fetchClients = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/clients', {
-          params: {
-            page: currentPage.value,
-            limit,
-            search: searchQuery.value,
+        const token = sessionStorage.getItem('token')
+        const url = `${getBaseUrl()}/api/v1/clients`;
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
+          // params: {
+          //   page: currentPage.value,
+          //   limit,
+          //   search: searchQuery.value,
+          // },
         })
         clients.value = response.data
         totalPages.value = response.data.totalPages
@@ -262,7 +249,8 @@ main {
 
 .btn-icon:hover {
   background-color: #c41616;
-  border-radius: 5px; /* Optional: Add rounded corners */
+  border-radius: 5px;
+  /* Optional: Add rounded corners */
 }
 
 .edit-btn {
