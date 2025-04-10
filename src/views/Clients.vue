@@ -92,7 +92,6 @@ export default defineComponent({
     const selectedClient = ref<Client | null>(null)
     const popupMode = ref<'edit' | 'create'>('edit')
 
-    // Fetch clients from the API
     const fetchClients = async () => {
       try {
         const token = sessionStorage.getItem('token')

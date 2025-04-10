@@ -45,6 +45,7 @@
 
 <script lang="ts">
 import type { Client } from '@/types/ClientType'
+import { getBaseUrl } from '@/utils/apiConfig'
 import axios from 'axios'
 import { defineComponent, type PropType } from 'vue'
 
@@ -98,8 +99,14 @@ export default defineComponent({
     },
     async handleCreateClient() {
       try {
-        console.log('Creating client:', this.client)
-        await axios.post('http://localhost:3000/clients', this.client)
+        console.log('Creating client:', this.client);
+        const token = sessionStorage.getItem('token')
+        const url = `${getBaseUrl()}/api/v1/clients`;
+        await axios.post(url, this.client, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
         this.$emit('save')
       } catch (error) {
         console.error('Error creating client:', error)
