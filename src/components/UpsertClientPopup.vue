@@ -90,7 +90,17 @@ export default defineComponent({
     },
     async handleEditClient() {
       try {
-        await axios.put(`http://localhost:3000/clients/${this.client.id}`, this.client)
+        console.log('Updating client:', this.client)
+        const token = sessionStorage.getItem('token')
+        const url = `${getBaseUrl()}/api/v1/clients`;
+        await axios.put(url, this.client, {
+          params: {
+            id: this.client.id,
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
         this.$emit('save')
       } catch (error) {
         console.error('Error updating client:', error)

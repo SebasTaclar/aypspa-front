@@ -38,7 +38,7 @@
               <button class="btn-icon edit-btn" @click="openEditPopup(client)">
                 <img class="icon edit" src="../../public/icons/edit.svg" alt="Edit" />
               </button>
-              <button class="btn-icon delete-btn">
+              <button class="btn-icon delete-btn" @click="deleteClient(client)">
                 <img class="icon delete" src="../../public/icons/trash.svg" alt="Delete" />
               </button>
               <button class="btn-icon view-btn">
@@ -161,6 +161,30 @@ export default defineComponent({
       isUpsertPopupVisible.value = false
     }
 
+    const deleteClient = async (client: Client) => {
+      const confirmDeletion = window.confirm(`¿Estás seguro de que deseas eliminar al cliente "${client.name}"?`)
+      if (!confirmDeletion) {
+        return
+      }
+      try {
+        const token = sessionStorage.getItem('token')
+        const url = `${getBaseUrl()}/api/v1/clients`
+        await axios.delete(url, {
+          params: {
+            id: client.id,
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        clients.value = clients.value.filter((c) => c.id !== client.id)
+        alert('Cliente eliminado exitosamente.')
+      } catch (error) {
+        console.error('Error deleting client:', error)
+        alert('Hubo un error al eliminar el cliente.')
+      }
+    }
+
     onMounted(fetchClients)
 
     return {
@@ -178,6 +202,7 @@ export default defineComponent({
       popupMode,
       openCreatePopup,
       handleSaveClient,
+      deleteClient
     }
   },
 })
