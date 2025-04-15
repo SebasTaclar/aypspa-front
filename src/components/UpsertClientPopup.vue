@@ -34,6 +34,10 @@
             <option value="No">No</option>
           </select>
         </div>
+        <div class="form-group">
+          <label for="photo">Foto</label>
+          <input id="photo" type="file" @change="onFileChange" />
+        </div>
         <button type="submit" class="btn btn-primary">Guardar</button>
         <button type="button" class="btn btn-secondary" @click="handleOverlayClick">
           Cancelar
@@ -138,6 +142,35 @@ export default defineComponent({
         this.closePopup()
       }
     },
+    async onFileChange(event: Event) {
+      const target = event.target as HTMLInputElement;
+      if (target.files && target.files.length > 0) {
+        const file = target.files[0];
+        console.log('Selected file:', file);
+
+        const token = sessionStorage.getItem('token')
+        const url = `${getBaseUrl()}/api/v1/saveFile`;
+        const response = await axios.post(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          fileName: file.name,
+          fileType: file.type,
+        });
+
+        const preSignedUrl = response.data.url;
+
+        console.log('Pre-signed URL:', preSignedUrl);
+
+        await axios.put(preSignedUrl, file, {
+
+        }).then(() => {
+          console.log('File uploaded successfully!');
+        }).catch((error) => {
+          console.error('Error uploading file:', error.response?.data || error.message);
+        });
+      }
+    }
   },
 })
 </script>
