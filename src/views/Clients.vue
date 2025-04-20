@@ -41,7 +41,7 @@
               <button class="btn-icon delete-btn" @click="deleteClient(client)">
                 <img class="icon delete" src="../../public/icons/trash.svg" alt="Delete" />
               </button>
-              <button class="btn-icon view-btn">
+              <button class="btn-icon view-btn" @click="fetchDocument(client.id)">
                 <img class="icon view" src="../../public/icons/eye.svg" alt="OpenDocument" />
               </button>
             </td>
@@ -52,9 +52,10 @@
         </tbody>
       </table>
 
-      <!-- Edit Client Popup -->
       <UpsertClientPopup v-if="isUpsertPopupVisible" :clientData="selectedClient" :mode="popupMode"
         @close="closeUpsertPopup" @save="handleSaveClient" />
+
+      <ClientDocumentPopup :visible="isDocumentPopupVisible" :imageSrc="documentUrl" @close="closeDocumentPopup" />
 
       <!-- Pagination Controls -->
       <div class="pagination">
@@ -67,6 +68,7 @@
         </button>
       </div>
     </div>
+
   </main>
 </template>
 
@@ -74,13 +76,16 @@
 import { defineComponent, ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import UpsertClientPopup from '@/components/UpsertClientPopup.vue'
+import ClientDocumentPopup from '@/components/ClientDocumentPopup.vue'
 import type { Client } from '@/types/ClientType'
 import { getBaseUrl } from '@/utils/apiConfig'
+import { getPresignedUrl } from '@/utils/fileUtils'
 
 export default defineComponent({
   name: 'ClientsView',
   components: {
     UpsertClientPopup,
+    ClientDocumentPopup,
   },
   setup() {
     const clients = ref<Client[]>([])
@@ -91,6 +96,9 @@ export default defineComponent({
     const isUpsertPopupVisible = ref(false)
     const selectedClient = ref<Client | null>(null)
     const popupMode = ref<'edit' | 'create'>('edit')
+
+    const isDocumentPopupVisible = ref(false)
+    const documentUrl = ref('')
 
     const fetchClients = async () => {
       try {
@@ -137,7 +145,7 @@ export default defineComponent({
 
     const openCreatePopup = () => {
       selectedClient.value = {
-        id: 0,
+        id: '',
         name: '',
         companyName: '',
         companyDocument: '',
@@ -146,6 +154,7 @@ export default defineComponent({
         address: '',
         creationDate: '',
         frequentClient: false,
+        photoFileName: '',
       }
       popupMode.value = 'create'
       isUpsertPopupVisible.value = true
@@ -185,6 +194,30 @@ export default defineComponent({
       }
     }
 
+    const fetchDocument = async (clientId: string) => {
+      try {
+        const fileName = `clients/${clientId}.png`
+        const preSignedUrl = await getPresignedUrl(fileName, '', 'retrieve')
+
+        documentUrl.value = preSignedUrl
+        isDocumentPopupVisible.value = true
+        console.log('Document URL:', documentUrl.value);
+        console.log('Is Document Popup Visible:', isDocumentPopupVisible.value);
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          console.error('Error fetching document:', error.response?.data || error.message)
+        } else {
+          console.error('Error fetching document:', error)
+        }
+        alert('Hubo un error al cargar el documento.')
+      }
+    }
+
+    const closeDocumentPopup = () => {
+      isDocumentPopupVisible.value = false
+      documentUrl.value = ''
+    }
+
     onMounted(fetchClients)
 
     return {
@@ -202,7 +235,11 @@ export default defineComponent({
       popupMode,
       openCreatePopup,
       handleSaveClient,
-      deleteClient
+      deleteClient,
+      fetchDocument,
+      isDocumentPopupVisible,
+      documentUrl,
+      closeDocumentPopup,
     }
   },
 })

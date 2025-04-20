@@ -1,5 +1,5 @@
 export type Client = {
-  id: number
+  id: string
   name: string
   companyName: string
   companyDocument: string
@@ -8,4 +8,5 @@ export type Client = {
   address: string
   creationDate: string
   frequentClient: boolean
+  photoFileName: string
 }

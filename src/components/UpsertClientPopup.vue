@@ -36,7 +36,7 @@
         </div>
         <div class="form-group">
           <label for="photo">Foto</label>
-          <input id="photo" type="file" @change="onFileChange" />
+          <input id="photo" type="file" @change="handleFileSelection" />
         </div>
         <button type="submit" class="btn btn-primary">Guardar</button>
         <button type="button" class="btn btn-secondary" @click="handleOverlayClick">
@@ -50,6 +50,7 @@
 <script lang="ts">
 import type { Client } from '@/types/ClientType'
 import { getBaseUrl } from '@/utils/apiConfig'
+import { getPresignedUrl } from '@/utils/fileUtils'
 import axios from 'axios'
 import { defineComponent, type PropType } from 'vue'
 
@@ -66,6 +67,11 @@ export default defineComponent({
     },
   },
   emits: ['close', 'save'],
+  data() {
+    return {
+      selectedFile: null as File | null, // Store the selected file
+    }
+  },
   computed: {
     client() {
       return {
@@ -85,18 +91,27 @@ export default defineComponent({
     closePopup() {
       this.$emit('close')
     },
-    saveClient() {
-      if (this.mode === 'edit') {
-        this.handleEditClient()
-      } else if (this.mode === 'create') {
-        this.handleCreateClient()
+    async saveClient() {
+      try {
+        if (this.selectedFile) {
+          const fileName = await this.uploadFile(this.selectedFile)
+          this.client.photoFileName = fileName
+        }
+
+        if (this.mode === 'edit') {
+          await this.handleEditClient()
+        } else if (this.mode === 'create') {
+          await this.handleCreateClient()
+        }
+      } catch (error) {
+        console.error('Error saving client:', error)
       }
     },
     async handleEditClient() {
       try {
         console.log('Updating client:', this.client)
         const token = sessionStorage.getItem('token')
-        const url = `${getBaseUrl()}/api/v1/clients`;
+        const url = `${getBaseUrl()}/api/v1/clients`
         await axios.put(url, this.client, {
           params: {
             id: this.client.id,
@@ -113,9 +128,9 @@ export default defineComponent({
     },
     async handleCreateClient() {
       try {
-        console.log('Creating client:', this.client);
+        console.log('Creating client:', this.client)
         const token = sessionStorage.getItem('token')
-        const url = `${getBaseUrl()}/api/v1/clients`;
+        const url = `${getBaseUrl()}/api/v1/clients`
         await axios.post(url, this.client, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -142,35 +157,33 @@ export default defineComponent({
         this.closePopup()
       }
     },
-    async onFileChange(event: Event) {
-      const target = event.target as HTMLInputElement;
+    handleFileSelection(event: Event) {
+      const target = event.target as HTMLInputElement
       if (target.files && target.files.length > 0) {
-        const file = target.files[0];
-        console.log('Selected file:', file);
-
-        const token = sessionStorage.getItem('token')
-        const url = `${getBaseUrl()}/api/v1/saveFile`;
-        const response = await axios.post(url, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          fileName: file.name,
-          fileType: file.type,
-        });
-
-        const preSignedUrl = response.data.url;
-
-        console.log('Pre-signed URL:', preSignedUrl);
-
-        await axios.put(preSignedUrl, file, {
-
-        }).then(() => {
-          console.log('File uploaded successfully!');
-        }).catch((error) => {
-          console.error('Error uploading file:', error.response?.data || error.message);
-        });
+        this.selectedFile = target.files[0]
+        console.log('File selected:', this.selectedFile)
       }
-    }
+    },
+
+    async uploadFile(file: File) {
+      try {
+        const fileExtension = file.name.split('.').pop()
+        const fileName = `clients/${this.client.id}.${fileExtension}`
+        const preSignedUrl = await getPresignedUrl(fileName, file.type, 'save');
+
+        await axios.put(preSignedUrl, file);
+        console.log('File uploaded successfully!');
+
+        return fileName;
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          console.error('Error uploading file:', error.response?.data || error.message)
+        } else {
+          console.error('Error uploading file:', error)
+        }
+        throw error
+      }
+    },
   },
 })
 </script>
