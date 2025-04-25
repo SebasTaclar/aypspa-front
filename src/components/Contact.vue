@@ -4,17 +4,16 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
-
-export default defineComponent({
-  name: 'ContactView',
-})
+<script setup lang="ts">
+defineOptions({
+  name: 'ContactComponent',
+});
 </script>
 
 <style scoped>
 .main-banner {
-  background-color: #c5a025; /* Blue color */
+  background-color: #c5a025;
+  /* Blue color */
   height: 33vh;
   display: flex;
   justify-content: center;

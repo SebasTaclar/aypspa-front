@@ -24,82 +24,70 @@
   </main>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import axios from 'axios'
-import { isTokenValid } from '@/utils/auth'
-import { getBaseUrl } from '@/utils/apiConfig'
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
+import { isTokenValid } from '@/utils/auth';
+import { getBaseUrl } from '@/utils/apiConfig';
 import Spinner from '@/components/Spinner.vue';
 
-export default defineComponent({
+defineOptions({
   name: 'LoginView',
-  components: { Spinner },
-  setup() {
-    const email = ref('')
-    const password = ref('')
-    const loading = ref(false)
-    const router = useRouter()
+});
 
-    const handleLogin = async () => {
-      loading.value = true
-      try {
-        const url = `${getBaseUrl()}/api/v1/login`;
-        const response = await axios.get(url, {
-          params: {
-            username: email.value,
-            password: password.value,
-          },
-        })
-        console.log('Login response:', response.data)
-        if (response.data) {
-          console.log('Token:', response.data)
-          sessionStorage.setItem('token', response.data)
-          if (!isTokenValid()) {
-            sessionStorage.removeItem('token')
-            alert('token invalid')
-          } else {
-            router.push('/')
-          }
-        } else {
-          alert('Login fallo: credenciales invalidas')
-        }
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          console.error('There was a problem with the axios operation:', error)
-          alert('Login failed: ' + error.message)
-        } else {
-          console.error('An unexpected error occurred:', error)
-          alert('Login failed: An unexpected error occurred')
-        }
-      } finally {
-        loading.value = false
+const email = ref('');
+const password = ref('');
+const loading = ref(false);
+const router = useRouter();
+
+const handleLogin = async () => {
+  loading.value = true;
+  try {
+    const url = `${getBaseUrl()}/api/v1/login`;
+    const response = await axios.get(url, {
+      params: {
+        username: email.value,
+        password: password.value,
+      },
+    });
+    console.log('Login response:', response.data);
+    if (response.data) {
+      console.log('Token:', response.data);
+      sessionStorage.setItem('token', response.data);
+      if (!isTokenValid()) {
+        sessionStorage.removeItem('token');
+        alert('token invalid');
+      } else {
+        router.push('/');
       }
-
+    } else {
+      alert('Login fallo: credenciales invalidas');
     }
-
-    const setCustomValidityMessage = (event: Event) => {
-      const target = event.target as HTMLInputElement
-      if (!target.validity.valid) {
-        target.setCustomValidity('Este campo es obligatorio.')
-      }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('There was a problem with the axios operation:', error);
+      alert('Login failed: ' + error.message);
+    } else {
+      console.error('An unexpected error occurred:', error);
+      alert('Login failed: An unexpected error occurred');
     }
+  } finally {
+    loading.value = false;
+  }
+};
 
-    const clearCustomValidityMessage = (event: Event) => {
-      const target = event.target as HTMLInputElement
-      target.setCustomValidity('')
-    }
+const setCustomValidityMessage = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (!target.validity.valid) {
+    target.setCustomValidity('Este campo es obligatorio.');
+  }
+};
 
-    return {
-      email,
-      password,
-      loading,
-      handleLogin,
-      setCustomValidityMessage,
-      clearCustomValidityMessage,
-    }
-  },
-})
+const clearCustomValidityMessage = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  target.setCustomValidity('');
+};
 </script>
 
 <style scoped>

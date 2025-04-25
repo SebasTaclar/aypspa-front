@@ -19,12 +19,10 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
-
-export default defineComponent({
-  name: 'OfferingsView',
-})
+<script setup lang="ts">
+defineOptions({
+  name: 'OfferingsComponent',
+});
 </script>
 
 <style scoped>

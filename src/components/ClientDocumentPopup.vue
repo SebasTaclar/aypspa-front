@@ -7,28 +7,25 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script setup lang="ts">
+import { defineProps, defineEmits } from 'vue';
 
-export default defineComponent({
-  name: 'ClientDocumentPopUp',
-  props: {
-    imageSrc: {
-      type: String,
-      required: false,
-    },
-    visible: {
-      type: Boolean,
-      required: true,
-    },
+defineProps({
+  imageSrc: {
+    type: String,
+    required: false,
   },
-  emits: ['close'],
-  methods: {
-    closePopup() {
-      this.$emit('close');
-    },
+  visible: {
+    type: Boolean,
+    required: true,
   },
-})
+});
+
+const emit = defineEmits(['close']);
+
+const closePopup = () => {
+  emit('close');
+};
 </script>
 
 <style scoped>

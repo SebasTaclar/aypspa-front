@@ -9,20 +9,13 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
-
-export default defineComponent({
-  name: 'MainBannerView',
-  methods: {
-    scrollToOfferings() {
-      const offeringsSection = document.getElementById('offerings')
-      if (offeringsSection) {
-        offeringsSection.scrollIntoView({ behavior: 'smooth' })
-      }
-    },
-  },
-})
+<script setup lang="ts">
+const scrollToOfferings = () => {
+  const offeringsSection = document.getElementById('offerings');
+  if (offeringsSection) {
+    offeringsSection.scrollIntoView({ behavior: 'smooth' });
+  }
+};
 </script>
 
 <style scoped>

@@ -69,180 +69,151 @@
       </div>
     </div>
 
+    <Spinner v-if="loading" />
+
   </main>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue'
-import axios from 'axios'
-import UpsertClientPopup from '@/components/UpsertClientPopup.vue'
-import ClientDocumentPopup from '@/components/ClientDocumentPopup.vue'
-import type { Client } from '@/types/ClientType'
-import { getBaseUrl } from '@/utils/apiConfig'
-import { getPresignedUrl } from '@/utils/fileUtils'
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
+import axios from 'axios';
+import UpsertClientPopup from '@/components/UpsertClientPopup.vue';
+import ClientDocumentPopup from '@/components/ClientDocumentPopup.vue';
+import type { Client } from '@/types/ClientType';
+import { getBaseUrl } from '@/utils/apiConfig';
+import { getPresignedUrl } from '@/utils/fileUtils';
+import Spinner from '@/components/Spinner.vue';
 
-export default defineComponent({
-  name: 'ClientsView',
-  components: {
-    UpsertClientPopup,
-    ClientDocumentPopup,
-  },
-  setup() {
-    const clients = ref<Client[]>([])
-    const searchQuery = ref('')
-    const currentPage = ref(1)
-    const totalPages = ref(1)
-    // const limit = 10 // Number of records per page
-    const isUpsertPopupVisible = ref(false)
-    const selectedClient = ref<Client | null>(null)
-    const popupMode = ref<'edit' | 'create'>('edit')
+defineOptions({
+  name: 'ClientView',
+});
 
-    const isDocumentPopupVisible = ref(false)
-    const documentUrl = ref('')
+const clients = ref<Client[]>([]);
+const searchQuery = ref('');
+const currentPage = ref(1);
+const totalPages = ref(1);
+const isUpsertPopupVisible = ref(false);
+const selectedClient = ref<Client | null>(null);
+const popupMode = ref<'edit' | 'create'>('edit');
+const isDocumentPopupVisible = ref(false);
+const documentUrl = ref('');
+const loading = ref(false);
 
-    const fetchClients = async () => {
-      try {
-        const token = sessionStorage.getItem('token')
-        const url = `${getBaseUrl()}/api/v1/clients`;
-        const response = await axios.get(url, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          // params: {
-          //   page: currentPage.value,
-          //   limit,
-          //   search: searchQuery.value,
-          // },
-        })
-        clients.value = response.data
-        totalPages.value = response.data.totalPages
-      } catch (error) {
-        console.error('Error fetching clients:', error)
-      }
+const fetchClients = async () => {
+  try {
+    const token = sessionStorage.getItem('token');
+    const url = `${getBaseUrl()}/api/v1/clients`;
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    clients.value = response.data;
+    totalPages.value = response.data.totalPages;
+  } catch (error) {
+    console.error('Error fetching clients:', error);
+  }
+};
+
+const filteredClients = computed(() => {
+  if (!searchQuery.value) {
+    return clients.value;
+  }
+  return clients.value.filter((client) =>
+    Object.values(client).some((value) =>
+      String(value).toLowerCase().includes(searchQuery.value.toLowerCase())
+    )
+  );
+});
+
+const changePage = (page: number) => {
+  currentPage.value = page;
+  fetchClients();
+};
+
+const openEditPopup = (client: Client) => {
+  selectedClient.value = client;
+  isUpsertPopupVisible.value = true;
+  popupMode.value = 'edit';
+};
+
+const openCreatePopup = () => {
+  selectedClient.value = {
+    id: '',
+    name: '',
+    companyName: '',
+    companyDocument: '',
+    rut: '',
+    phoneNumber: '',
+    address: '',
+    creationDate: '',
+    frequentClient: false,
+    photoFileName: '',
+  };
+  popupMode.value = 'create';
+  isUpsertPopupVisible.value = true;
+};
+
+const handleSaveClient = async () => {
+  await fetchClients();
+  isUpsertPopupVisible.value = false;
+};
+
+const closeUpsertPopup = () => {
+  isUpsertPopupVisible.value = false;
+};
+
+const deleteClient = async (client: Client) => {
+  const confirmDeletion = window.confirm(`¿Estás seguro de que deseas eliminar al cliente "${client.name}"?`);
+  if (!confirmDeletion) {
+    return;
+  }
+  try {
+    const token = sessionStorage.getItem('token');
+    const url = `${getBaseUrl()}/api/v1/clients`;
+    await axios.delete(url, {
+      params: {
+        id: client.id,
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    clients.value = clients.value.filter((c) => c.id !== client.id);
+    alert('Cliente eliminado exitosamente.');
+  } catch (error) {
+    console.error('Error deleting client:', error);
+    alert('Hubo un error al eliminar el cliente.');
+  }
+};
+
+const fetchDocument = async (clientId: string) => {
+  loading.value = true;
+  try {
+    const fileName = `clients/${clientId}.png`;
+    const preSignedUrl = await getPresignedUrl(fileName, '', 'retrieve');
+
+    documentUrl.value = preSignedUrl;
+
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('Error fetching document:', error.response?.data || error.message);
+    } else {
+      console.error('Error fetching document:', error);
     }
+    alert('Hubo un error al cargar el documento.');
+  } finally {
+    loading.value = false;
+    isDocumentPopupVisible.value = true;
+  }
+};
 
-    const filteredClients = computed(() => {
-      if (!searchQuery.value) {
-        return clients.value
-      }
-      return clients.value.filter((client) =>
-        Object.values(client).some((value) =>
-          String(value).toLowerCase().includes(searchQuery.value.toLowerCase()),
-        ),
-      )
-    })
+const closeDocumentPopup = () => {
+  isDocumentPopupVisible.value = false;
+  documentUrl.value = '';
+};
 
-    const changePage = (page: number) => {
-      currentPage.value = page
-      fetchClients()
-    }
-
-    const openEditPopup = (client: Client) => {
-      selectedClient.value = client
-      isUpsertPopupVisible.value = true
-      popupMode.value = 'edit'
-    }
-
-    const openCreatePopup = () => {
-      selectedClient.value = {
-        id: '',
-        name: '',
-        companyName: '',
-        companyDocument: '',
-        rut: '',
-        phoneNumber: '',
-        address: '',
-        creationDate: '',
-        frequentClient: false,
-        photoFileName: '',
-      }
-      popupMode.value = 'create'
-      isUpsertPopupVisible.value = true
-    }
-
-    // Handle the save event from the popup
-    const handleSaveClient = async () => {
-      await fetchClients()
-      isUpsertPopupVisible.value = false
-    }
-
-    const closeUpsertPopup = () => {
-      isUpsertPopupVisible.value = false
-    }
-
-    const deleteClient = async (client: Client) => {
-      const confirmDeletion = window.confirm(`¿Estás seguro de que deseas eliminar al cliente "${client.name}"?`)
-      if (!confirmDeletion) {
-        return
-      }
-      try {
-        const token = sessionStorage.getItem('token')
-        const url = `${getBaseUrl()}/api/v1/clients`
-        await axios.delete(url, {
-          params: {
-            id: client.id,
-          },
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        clients.value = clients.value.filter((c) => c.id !== client.id)
-        alert('Cliente eliminado exitosamente.')
-      } catch (error) {
-        console.error('Error deleting client:', error)
-        alert('Hubo un error al eliminar el cliente.')
-      }
-    }
-
-    const fetchDocument = async (clientId: string) => {
-      try {
-        const fileName = `clients/${clientId}.png`
-        const preSignedUrl = await getPresignedUrl(fileName, '', 'retrieve')
-
-        documentUrl.value = preSignedUrl
-        isDocumentPopupVisible.value = true
-        console.log('Document URL:', documentUrl.value);
-        console.log('Is Document Popup Visible:', isDocumentPopupVisible.value);
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          console.error('Error fetching document:', error.response?.data || error.message)
-        } else {
-          console.error('Error fetching document:', error)
-        }
-        alert('Hubo un error al cargar el documento.')
-      }
-    }
-
-    const closeDocumentPopup = () => {
-      isDocumentPopupVisible.value = false
-      documentUrl.value = ''
-    }
-
-    onMounted(fetchClients)
-
-    return {
-      clients,
-      searchQuery,
-      currentPage,
-      totalPages,
-      fetchClients,
-      changePage,
-      filteredClients,
-      isUpsertPopupVisible,
-      selectedClient,
-      openEditPopup,
-      closeUpsertPopup,
-      popupMode,
-      openCreatePopup,
-      handleSaveClient,
-      deleteClient,
-      fetchDocument,
-      isDocumentPopupVisible,
-      documentUrl,
-      closeDocumentPopup,
-    }
-  },
-})
+onMounted(fetchClients);
 </script>
 
 <style scoped>
