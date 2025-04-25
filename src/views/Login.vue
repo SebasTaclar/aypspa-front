@@ -14,9 +14,13 @@
           <input type="password" id="password" v-model="password" required @invalid="setCustomValidityMessage"
             @input="clearCustomValidityMessage" />
         </div>
-        <button type="submit">Acceder</button>
+        <button type="submit" :disabled="loading">
+          Acceder
+        </button>
       </form>
     </div>
+
+    <Spinner v-if="loading" />
   </main>
 </template>
 
@@ -26,15 +30,19 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { isTokenValid } from '@/utils/auth'
 import { getBaseUrl } from '@/utils/apiConfig'
+import Spinner from '@/components/Spinner.vue';
 
 export default defineComponent({
   name: 'LoginView',
+  components: { Spinner },
   setup() {
     const email = ref('')
     const password = ref('')
+    const loading = ref(false)
     const router = useRouter()
 
     const handleLogin = async () => {
+      loading.value = true
       try {
         const url = `${getBaseUrl()}/api/v1/login`;
         const response = await axios.get(url, {
@@ -64,7 +72,10 @@ export default defineComponent({
           console.error('An unexpected error occurred:', error)
           alert('Login failed: An unexpected error occurred')
         }
+      } finally {
+        loading.value = false
       }
+
     }
 
     const setCustomValidityMessage = (event: Event) => {
@@ -82,6 +93,7 @@ export default defineComponent({
     return {
       email,
       password,
+      loading,
       handleLogin,
       setCustomValidityMessage,
       clearCustomValidityMessage,
@@ -150,5 +162,10 @@ button {
 
 button:hover {
   background-color: red;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 </style>
