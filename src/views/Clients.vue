@@ -100,6 +100,7 @@ const documentUrl = ref('');
 const loading = ref(false);
 
 const fetchClients = async () => {
+  loading.value = true;
   try {
     const token = sessionStorage.getItem('token');
     const url = `${getBaseUrl()}/api/v1/clients`;
@@ -112,6 +113,8 @@ const fetchClients = async () => {
     totalPages.value = response.data.totalPages;
   } catch (error) {
     console.error('Error fetching clients:', error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -168,6 +171,7 @@ const deleteClient = async (client: Client) => {
   if (!confirmDeletion) {
     return;
   }
+  loading.value = true;
   try {
     const token = sessionStorage.getItem('token');
     const url = `${getBaseUrl()}/api/v1/clients`;
@@ -184,6 +188,8 @@ const deleteClient = async (client: Client) => {
   } catch (error) {
     console.error('Error deleting client:', error);
     alert('Hubo un error al eliminar el cliente.');
+  } finally {
+    loading.value = false;
   }
 };
 
