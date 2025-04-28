@@ -69,7 +69,7 @@ const loading = ref(false);
 
 const client = computed(() => ({
   ...clientData,
-  id: clientData?.id || `client-${Date.now()}`,
+  id: clientData?.id || `${Date.now()}`,
   creationDate:
     clientData?.creationDate ||
     new Date().toLocaleDateString('es-ES', {
