@@ -1,73 +1,82 @@
 <template>
   <main>
     <div class="container">
-      <!-- Button to create a new client -->
-      <button class="btn btn-primary" @click="openCreatePopup">Crear cliente</button>
+      <!-- Header with title and create button -->
+      <div class="header">
+        <h1>Gestión de Clientes</h1>
+        <button class="btn btn-primary" @click="openCreatePopup">Crear cliente</button>
+      </div>
 
-      <!-- Search box and search button -->
+      <!-- Search box -->
       <div class="search-container">
         <input id="searchQuery" type="text" placeholder="Buscar cliente..." class="search-box" v-model="searchQuery" />
       </div>
 
-      <!-- Table for displaying client data -->
-      <table class="client-table">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Nombre Empresa</th>
-            <th># Documento Empresa</th>
-            <th>Rut</th>
-            <th>Numero Celular</th>
-            <th>Direccion</th>
-            <th>Fecha creacion</th>
-            <th>Cliente Frecuente</th>
-            <th>Operaciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="client in filteredClients" :key="client.id">
-            <td>{{ client.name }}</td>
-            <td>{{ client.companyName }}</td>
-            <td>{{ client.companyDocument }}</td>
-            <td>{{ client.rut }}</td>
-            <td>{{ client.phoneNumber }}</td>
-            <td>{{ client.address }}</td>
-            <td>{{ client.creationDate }}</td>
-            <td>{{ client.frequentClient }}</td>
-            <td>
-              <button class="btn-icon edit-btn" @click="openEditPopup(client)">
-                <img class="icon edit" src="../../public/icons/edit.svg" alt="Edit" />
-              </button>
-              <button class="btn-icon delete-btn" @click="deleteClient(client)">
-                <img class="icon delete" src="../../public/icons/trash.svg" alt="Delete" />
-              </button>
-              <button class="btn-icon view-btn" @click="fetchDocument(client.id)">
-                <img class="icon view" src="../../public/icons/eye.svg" alt="OpenDocument" />
-              </button>
-            </td>
-          </tr>
-          <tr v-if="filteredClients.length === 0">
-            <td colspan="9" style="text-align: center">No se encontraron clientes</td>
-          </tr>
-        </tbody>
-      </table>
+      <Spinner v-if="loading" />
 
-      <UpsertClientPopup v-if="isUpsertPopupVisible" :clientData="selectedClient" :mode="popupMode"
-        @close="closeUpsertPopup" @save="handleSaveClient" />
+      <div v-else class="clients-content">
+        <!-- Table for displaying client data -->
+        <div class="clients-table-container">
+          <table class="client-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Nombre Empresa</th>
+                <th># Documento Empresa</th>
+                <th>Rut</th>
+                <th>Numero Celular</th>
+                <th>Direccion</th>
+                <th>Fecha creacion</th>
+                <th>Cliente Frecuente</th>
+                <th>Operaciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="client in filteredClients" :key="client.id">
+                <td>{{ client.name }}</td>
+                <td>{{ client.companyName }}</td>
+                <td>{{ client.companyDocument }}</td>
+                <td>{{ client.rut }}</td>
+                <td>{{ client.phoneNumber }}</td>
+                <td>{{ client.address }}</td>
+                <td>{{ client.creationDate }}</td>
+                <td>{{ client.frequentClient }}</td>
+                <td class="actions">
+                  <button class="btn-icon edit-btn" @click="openEditPopup(client)">
+                    <img class="icon edit" src="../../public/icons/edit.svg" alt="Edit" />
+                  </button>
+                  <button class="btn-icon delete-btn" @click="deleteClient(client)">
+                    <img class="icon delete" src="../../public/icons/trash.svg" alt="Delete" />
+                  </button>
+                  <button class="btn-icon view-btn" @click="fetchDocument(client.id)">
+                    <img class="icon view" src="../../public/icons/eye.svg" alt="OpenDocument" />
+                  </button>
+                </td>
+              </tr>
+              <tr v-if="filteredClients.length === 0">
+                <td colspan="9" style="text-align: center">No se encontraron clientes</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-      <ClientDocumentPopup :visible="isDocumentPopupVisible" :imageSrc="documentUrl" @close="closeDocumentPopup" />
-
-      <!-- Pagination Controls -->
-      <div class="pagination">
-        <button class="btn btn-secondary" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">
-          Anterior
-        </button>
-        <span>Página {{ currentPage }} de {{ totalPages }}</span>
-        <button class="btn btn-secondary" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">
-          Siguiente
-        </button>
+        <!-- Pagination Controls -->
+        <div class="pagination">
+          <button class="btn-pagination" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">
+            ← Anterior
+          </button>
+          <span class="pagination-info">{{ currentPage }} / {{ totalPages }}</span>
+          <button class="btn-pagination" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">
+            Siguiente →
+          </button>
+        </div>
       </div>
     </div>
+
+    <UpsertClientPopup v-if="isUpsertPopupVisible" :clientData="selectedClient" :mode="popupMode"
+      @close="closeUpsertPopup" @save="handleSaveClient" />
+
+    <ClientDocumentPopup :visible="isDocumentPopupVisible" :imageSrc="documentUrl" @close="closeDocumentPopup" />
 
     <Spinner v-if="loading" />
 
@@ -224,26 +233,44 @@ onMounted(fetchClients);
 
 <style scoped>
 main {
-  padding-top: 60px;
+  /* Remove padding-top as we'll handle it in container */
 }
 
 .container {
-  margin-left: 20px;
-  margin-right: 20px;
+  padding: 80px 20px 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+h1 {
+  color: #333;
+  margin: 0;
 }
 
 .btn {
-  margin: 10px 5px;
-  padding: 10px 15px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
 }
 
 .btn-primary {
   background-color: #007bff;
   color: white;
+  padding: 12px 20px;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
 }
 
 .search-container {
@@ -253,11 +280,29 @@ main {
 }
 
 .search-box {
-  padding: 10px;
+  padding: 12px;
   margin-right: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
   border-radius: 5px;
   font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.search-box:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.clients-content {
+  background: white;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.clients-table-container {
+  overflow-x: auto;
 }
 
 .client-table {
@@ -269,26 +314,47 @@ main {
 .client-table th,
 .client-table td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 12px;
   text-align: left;
 }
 
 .client-table th {
-  background-color: #f4f4f4;
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+}
+
+.client-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.actions {
+  display: flex;
+  gap: 2px;
 }
 
 .btn-icon {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 16px;
-  margin: 0 5px;
+  padding: 6px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.btn-icon:hover {
-  background-color: #c41616;
-  border-radius: 5px;
-  /* Optional: Add rounded corners */
+.edit-btn:hover {
+  background-color: #e3f2fd;
+}
+
+.delete-btn:hover {
+  background-color: #ffebee;
+}
+
+.view-btn:hover {
+  background-color: #e8f5e8;
 }
 
 .edit-btn {
@@ -305,5 +371,55 @@ main {
 
 .icon {
   width: 20px;
+  height: 20px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 30px;
+  padding: 20px 0;
+}
+
+.btn-pagination {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.btn-pagination:hover:not(:disabled) {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+.btn-pagination:disabled {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.pagination-info {
+  background-color: #f8f9fa;
+  color: #495057;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  border: 2px solid #e9ecef;
+  min-width: 80px;
+  text-align: center;
 }
 </style>

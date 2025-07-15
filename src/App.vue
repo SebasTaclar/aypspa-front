@@ -4,15 +4,13 @@
       <nav class="navbar">
         <RouterLink class="link-navbar home" to="/">AYPSPA</RouterLink>
         <RouterLink class="link-navbar" to="/clients">Clientes</RouterLink>
-        <RouterLink v-if="isAdminRole" class="link-navbar" to="/clients">Productos</RouterLink>
+        <RouterLink v-if="isAdminRole" class="link-navbar" to="/products">Productos</RouterLink>
         <RouterLink v-if="isAdminRole" class="link-navbar" to="/clients">Arrendamientos</RouterLink>
         <RouterLink class="link-navbar" to="/clients">Privacidad</RouterLink>
         <RouterLink class="link-navbar" to="/clients">Contacto</RouterLink>
         <RouterLink v-if="!isLoggedIn" class="link-navbar access" to="/login">Acceder</RouterLink>
         <span v-if="isLoggedIn" class="link-navbar access"> Hola, {{ username }} </span>
-        <RouterLink v-if="isLoggedIn" @click="logout" class="link-navbar" to="/"
-          >Cerrar sesión</RouterLink
-        >
+        <RouterLink v-if="isLoggedIn" @click="logout" class="link-navbar" to="/">Cerrar sesión</RouterLink>
       </nav>
     </div>
   </header>
