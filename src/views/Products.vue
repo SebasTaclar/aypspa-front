@@ -284,8 +284,9 @@ onMounted(() => {
   margin: 0;
   padding: 80px 40px 40px;
   min-height: 100vh;
-  background: linear-gradient(135deg, #333 0%, #666 100%);
+  background: var(--bg-gradient-primary);
   position: relative;
+  transition: all 0.3s ease;
 }
 
 .product-container::before {
@@ -295,10 +296,7 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image:
-    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 99, 71, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  background-image: var(--bg-gradient-accent);
   pointer-events: none;
 }
 
@@ -325,36 +323,36 @@ onMounted(() => {
 .search-box {
   width: 100%;
   padding: 16px 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-primary);
   border-radius: 12px;
-  color: white;
+  color: var(--text-primary);
   font-size: 1.1rem;
-  backdrop-filter: blur(10px);
+  backdrop-filter: var(--backdrop-blur);
   transition: all 0.3s ease;
 }
 
 .search-box::placeholder {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-muted);
 }
 
 .search-box:focus {
   outline: none;
-  border-color: rgba(255, 99, 71, 0.6);
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 0 20px rgba(255, 99, 71, 0.3);
+  border-color: var(--primary-color-alpha-60);
+  background: var(--bg-tertiary);
+  box-shadow: 0 0 20px var(--primary-color-alpha-30);
 }
 
 .header h1 {
   font-size: 2.5rem;
   font-weight: 700;
-  color: white;
-  margin: 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  color: var(--text-primary);
+  text-shadow: 2px 2px 4px var(--shadow-primary);
+  transition: color 0.3s ease;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #ff6347 0%, #ff4500 100%);
+  background: var(--primary-gradient);
   color: white;
   border: none;
   border-radius: 12px;
@@ -363,14 +361,14 @@ onMounted(() => {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 99, 71, 0.3);
+  box-shadow: 0 4px 15px var(--primary-color-alpha-30);
   backdrop-filter: blur(10px);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 99, 71, 0.4);
-  background: linear-gradient(135deg, #ff4500 0%, #ff6347 100%);
+  box-shadow: 0 6px 20px var(--primary-color-alpha-40);
+  background: var(--primary-gradient-hover);
 }
 
 .product-content {
@@ -381,12 +379,13 @@ onMounted(() => {
 }
 
 .product-table-container {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
+  background: var(--bg-secondary);
+  backdrop-filter: var(--backdrop-blur);
   border-radius: 20px;
   padding: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-primary);
+  box-shadow: 0 8px 32px var(--shadow-primary);
+  transition: all 0.3s ease;
 }
 
 .table-header {
@@ -394,11 +393,11 @@ onMounted(() => {
 }
 
 .table-header h2 {
-  color: white;
+  color: var(--text-primary);
   font-size: 1.8rem;
   font-weight: 600;
   margin: 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 2px 2px 4px var(--shadow-primary);
 }
 
 .no-data {
@@ -418,19 +417,20 @@ onMounted(() => {
 .no-data-icon {
   font-size: 4rem;
   margin-bottom: 1rem;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(2px 2px 4px var(--shadow-primary));
 }
 
 .no-data h3 {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
-  color: white;
+  color: var(--text-primary);
 }
 
 .no-data p {
   font-size: 1rem;
   opacity: 0.8;
   margin: 0;
+  color: var(--text-secondary);
 }
 
 .product-table {
@@ -440,35 +440,35 @@ onMounted(() => {
 }
 
 .product-table th {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   padding: 16px 12px;
   text-align: left;
   font-weight: 600;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  border-bottom: 2px solid var(--border-primary);
   position: sticky;
   top: 0;
-  backdrop-filter: blur(10px);
+  backdrop-filter: var(--backdrop-blur);
 }
 
 .product-table td {
   padding: 16px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
-  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-secondary);
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
 }
 
 .product-row:hover td {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--bg-secondary);
 }
 
 .product-name {
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .code-badge {
-  background: rgba(255, 99, 71, 0.8);
+  background: var(--primary-color-alpha-80);
   color: white;
   padding: 4px 12px;
   border-radius: 20px;
@@ -478,7 +478,8 @@ onMounted(() => {
 
 .price {
   font-weight: 600;
-  color: #90EE90;
+  color: #10b981;
+  /* Green that works in both themes */
 }
 
 .status-badge {
@@ -503,12 +504,12 @@ onMounted(() => {
 }
 
 .rental-badge.rented {
-  background: rgba(220, 53, 69, 0.8);
+  background: rgba(239, 68, 68, 0.8);
   color: white;
 }
 
 .rental-badge.available {
-  background: rgba(23, 162, 184, 0.8);
+  background: rgba(34, 197, 94, 0.8);
   color: white;
 }
 
@@ -520,8 +521,8 @@ onMounted(() => {
 
 .btn-edit,
 .btn-delete {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
   border-radius: 8px;
   padding: 8px;
   cursor: pointer;
@@ -529,18 +530,18 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(5px);
+  backdrop-filter: var(--backdrop-blur);
 }
 
 .btn-edit:hover {
-  background: rgba(40, 167, 69, 0.8);
-  border-color: rgba(40, 167, 69, 1);
+  background: rgba(34, 197, 94, 0.8);
+  border-color: rgba(34, 197, 94, 1);
   transform: translateY(-2px);
 }
 
 .btn-delete:hover {
-  background: rgba(220, 53, 69, 0.8);
-  border-color: rgba(220, 53, 69, 1);
+  background: rgba(239, 68, 68, 0.8);
+  border-color: rgba(239, 68, 68, 1);
   transform: translateY(-2px);
 }
 
@@ -548,7 +549,21 @@ onMounted(() => {
 .btn-delete img {
   width: 16px;
   height: 16px;
+  transition: filter 0.3s ease;
+}
+
+/* Dark theme - make icons white */
+:root[data-theme='dark'] .btn-edit img,
+:root[data-theme='dark'] .btn-delete img,
+:root:not([data-theme]) .btn-edit img,
+:root:not([data-theme]) .btn-delete img {
   filter: brightness(0) invert(1);
+}
+
+/* Light theme - make icons dark */
+:root[data-theme='light'] .btn-edit img,
+:root[data-theme='light'] .btn-delete img {
+  filter: brightness(0) invert(0.2);
 }
 
 .popup-overlay {
@@ -557,34 +572,34 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: var(--overlay-bg);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  backdrop-filter: blur(5px);
+  backdrop-filter: var(--backdrop-blur);
 }
 
 .popup-content {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
+  background: var(--bg-secondary);
+  backdrop-filter: var(--backdrop-blur);
   border-radius: 20px;
   padding: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-primary);
+  box-shadow: 0 8px 32px var(--shadow-primary);
   max-width: 500px;
   width: 90%;
 }
 
 .delete-modal h3 {
-  color: white;
+  color: var(--text-primary);
   font-size: 1.5rem;
   margin-bottom: 1rem;
   text-align: center;
 }
 
 .delete-modal p {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-secondary);
   text-align: center;
   margin-bottom: 2rem;
   font-size: 1.1rem;
@@ -618,12 +633,12 @@ onMounted(() => {
 }
 
 .btn-delete-confirm {
-  background: rgba(220, 53, 69, 0.8);
+  background: rgba(239, 68, 68, 0.8);
   color: white;
 }
 
 .btn-delete-confirm:hover:not(:disabled) {
-  background: rgba(220, 53, 69, 1);
+  background: rgba(239, 68, 68, 1);
   transform: translateY(-2px);
 }
 

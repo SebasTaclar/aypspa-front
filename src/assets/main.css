@@ -1,22 +1,112 @@
 @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 
+:root {
+  /* Brand Colors */
+  --primary-color: #9b3b32;
+  --primary-color-dark: #7a2e27;
+  --primary-color-light: #b8453a;
+
+  /* Brand Color with Alpha */
+  --primary-color-alpha-30: rgba(155, 59, 50, 0.3);
+  --primary-color-alpha-40: rgba(155, 59, 50, 0.4);
+  --primary-color-alpha-60: rgba(155, 59, 50, 0.6);
+  --primary-color-alpha-80: rgba(155, 59, 50, 0.8);
+
+  /* Gradients */
+  --primary-gradient: linear-gradient(135deg, #9b3b32 0%, #7a2e27 100%);
+  --primary-gradient-hover: linear-gradient(135deg, #7a2e27 0%, #9b3b32 100%);
+
+  /* Typography */
+  --font-family: 'Bricolage Grotesque', sans-serif;
+}
+
+/* Dark Theme Variables (Default) */
+:root,
+:root[data-theme='dark'] {
+  --bg-primary: #2d2d2d;
+  --bg-secondary: rgba(255, 255, 255, 0.1);
+  --bg-tertiary: rgba(255, 255, 255, 0.05);
+
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.9);
+  --text-muted: rgba(255, 255, 255, 0.7);
+  --text-disabled: rgba(255, 255, 255, 0.3);
+
+  --border-primary: rgba(255, 255, 255, 0.2);
+  --border-secondary: rgba(255, 255, 255, 0.1);
+
+  --shadow-primary: rgba(0, 0, 0, 0.3);
+  --shadow-secondary: rgba(0, 0, 0, 0.1);
+
+  --backdrop-blur: blur(20px);
+  --overlay-bg: rgba(0, 0, 0, 0.7);
+
+  /* Dark theme gradients */
+  --bg-gradient-primary: linear-gradient(135deg, #333 0%, #666 100%);
+  --bg-gradient-accent: radial-gradient(
+    circle at 80% 20%,
+    rgba(155, 59, 50, 0.1) 0%,
+    transparent 50%
+  );
+}
+
+/* Light Theme Variables */
+:root[data-theme='light'] {
+  --bg-primary: #f8f9fa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #ffffff;
+
+  --text-primary: #212529;
+  --text-secondary: #495057;
+  --text-muted: #6c757d;
+  --text-disabled: #adb5bd;
+
+  --border-primary: #dee2e6;
+  --border-secondary: #e9ecef;
+
+  --shadow-primary: rgba(0, 0, 0, 0.1);
+  --shadow-secondary: rgba(0, 0, 0, 0.05);
+
+  --backdrop-blur: blur(5px);
+  --overlay-bg: rgba(0, 0, 0, 0.5);
+
+  /* Light theme gradients */
+  --bg-gradient-primary: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  --bg-gradient-accent: radial-gradient(
+    circle at 80% 20%,
+    rgba(155, 59, 50, 0.05) 0%,
+    transparent 50%
+  );
+
+  /* Light theme overrides for glassmorphism */
+  --bg-secondary: rgba(255, 255, 255, 0.8);
+  --bg-tertiary: rgba(255, 255, 255, 0.6);
+  --border-primary: rgba(0, 0, 0, 0.1);
+  --border-secondary: rgba(0, 0, 0, 0.05);
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Bricolage Grotesque', sans-serif;
+  font-family: var(--font-family);
 }
 
 html,
 body {
-  font-family: 'Bricolage Grotesque', sans-serif;
-  background: #2d2d2d;
+  font-family: var(--font-family);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   min-height: 100%;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 #app {
   min-height: 100vh;
-  background: #2d2d2d;
+  background: var(--bg-primary);
+  transition: background-color 0.3s ease;
 }
 
 /* Apply font to all form elements explicitly */
@@ -24,5 +114,86 @@ input,
 button,
 select,
 textarea {
-  font-family: 'Bricolage Grotesque', sans-serif;
+  font-family: var(--font-family);
+}
+
+/* Generic primary button styling for reuse */
+.btn-primary,
+button.btn-primary {
+  background: var(--primary-gradient);
+  color: white;
+  box-shadow: 0 4px 15px var(--primary-color-alpha-30);
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: var(--font-family);
+}
+
+.btn-primary:hover:not(:disabled),
+button.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--primary-color-alpha-40);
+  background: var(--primary-gradient-hover);
+}
+
+.btn-primary:disabled,
+button.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Generic theme-aware styles */
+.bg-secondary {
+  background: var(--bg-secondary);
+}
+
+.bg-tertiary {
+  background: var(--bg-tertiary);
+}
+
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.border-primary {
+  border-color: var(--border-primary);
+}
+
+.border-secondary {
+  border-color: var(--border-secondary);
+}
+
+/* Theme transition for all elements */
+* {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* Form elements theme support */
+input,
+textarea,
+select {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
 }

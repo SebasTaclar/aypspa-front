@@ -562,8 +562,7 @@ onMounted(async () => {
   }
 
   try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // Load mock data immediately
     rents.value = mockRents
   } catch (error) {
     console.error('Error loading rents:', error)
@@ -723,8 +722,9 @@ const deleteRent = async () => {
   margin: 0;
   padding: 80px 40px 40px;
   min-height: 100vh;
-  background: linear-gradient(135deg, #333 0%, #666 100%);
+  background: var(--bg-gradient-primary);
   position: relative;
+  transition: all 0.3s ease;
 }
 
 .rent-container::before {
@@ -734,10 +734,7 @@ const deleteRent = async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image:
-    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 99, 71, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  background-image: var(--bg-gradient-accent);
   pointer-events: none;
 }
 
@@ -753,33 +750,38 @@ const deleteRent = async () => {
 }
 
 .header h1 {
-  color: white;
+  color: var(--text-primary);
   font-size: 2.5rem;
   font-weight: 700;
   margin: 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 2px 2px 4px var(--shadow-primary);
+  transition: color 0.3s ease;
 }
 
 .btn-primary {
-  background: linear-gradient(45deg, #ff6347, #ff4500);
-  border: none;
+  background: var(--primary-gradient);
   color: white;
+  border: none;
+  border-radius: 12px;
   padding: 12px 24px;
-  border-radius: 25px;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 99, 71, 0.3);
+  box-shadow: 0 4px 15px var(--primary-color-alpha-30);
+  backdrop-filter: blur(10px);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 99, 71, 0.4);
+  box-shadow: 0 6px 20px var(--primary-color-alpha-40);
+  background: var(--primary-gradient-hover);
 }
 
 .search-container {
   margin-bottom: 2rem;
-  padding: 0 2rem;
+  position: relative;
+  z-index: 1;
   max-width: 1600px;
   margin-left: auto;
   margin-right: auto;
@@ -787,25 +789,30 @@ const deleteRent = async () => {
 
 .search-box {
   width: 100%;
-  max-width: 600px;
-  padding: 15px 20px;
-  border: none;
-  border-radius: 30px;
-  font-size: 1rem;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  padding: 16px 20px;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-primary);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  backdrop-filter: var(--backdrop-blur);
   transition: all 0.3s ease;
+}
+
+.search-box::placeholder {
+  color: var(--text-muted);
 }
 
 .search-box:focus {
   outline: none;
-  transform: translateY(-2px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
-  background: white;
+  border-color: var(--primary-color-alpha-60);
+  background: var(--bg-tertiary);
+  box-shadow: 0 0 20px var(--primary-color-alpha-30);
 }
 
 .rent-content {
+  position: relative;
+  z-index: 1;
   max-width: 1600px;
   margin: 0 auto;
 }
@@ -815,18 +822,17 @@ const deleteRent = async () => {
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
   margin-bottom: 2rem;
-  padding: 0 2rem;
 }
 
 .view-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-primary);
   border-radius: 15px;
   padding: 1rem 1.5rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  color: white;
+  backdrop-filter: var(--backdrop-blur);
+  color: var(--text-primary);
   text-align: left;
   min-height: 80px;
   display: flex;
@@ -835,16 +841,16 @@ const deleteRent = async () => {
 
 .view-btn:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.4);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  background: var(--bg-tertiary);
+  border-color: var(--border-secondary);
+  box-shadow: 0 10px 25px var(--shadow-primary);
 }
 
 .view-btn.active {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: var(--bg-tertiary);
+  border-color: var(--primary-color-alpha-60);
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 25px var(--shadow-primary);
 }
 
 .btn-content {
@@ -873,12 +879,12 @@ const deleteRent = async () => {
 }
 
 .rent-table-container {
-  background: rgba(255, 255, 255, 0.98);
+  background: var(--bg-secondary);
+  backdrop-filter: var(--backdrop-blur);
   border-radius: 20px;
-  padding: 2.5rem;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-  margin: 0 2rem;
+  padding: 2rem;
+  border: 1px solid var(--border-primary);
+  box-shadow: 0 8px 32px var(--shadow-primary);
 }
 
 .table-header {
@@ -886,10 +892,11 @@ const deleteRent = async () => {
 }
 
 .table-header h2 {
-  color: #333;
+  color: var(--text-primary);
   font-size: 1.8rem;
   font-weight: 600;
   margin: 0;
+  text-shadow: 0 2px 4px var(--shadow-primary);
 }
 
 .rent-table {
@@ -899,42 +906,47 @@ const deleteRent = async () => {
 }
 
 .rent-table th {
-  background: linear-gradient(135deg, #333, #555);
-  color: white;
-  padding: 15px 12px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 16px 12px;
   text-align: left;
   font-weight: 600;
-  border: none;
-  font-size: 0.9rem;
+  border-bottom: 2px solid var(--border-primary);
+  position: sticky;
+  top: 0;
+  backdrop-filter: var(--backdrop-blur);
 }
 
 .rent-table th:first-child {
-  border-radius: 10px 0 0 0;
+  border-radius: 0;
 }
 
 .rent-table th:last-child {
-  border-radius: 0 10px 0 0;
+  border-radius: 0;
 }
 
 .rent-row {
-  border-bottom: 1px solid #e1e5e9;
   transition: all 0.3s ease;
 }
 
 .rent-row:hover {
-  background: rgba(51, 51, 51, 0.05);
-  transform: scale(1.01);
+  background: var(--bg-secondary);
+}
+
+.rent-row:hover td {
+  background: var(--bg-secondary);
 }
 
 .rent-table td {
-  padding: 15px 12px;
-  vertical-align: middle;
-  font-size: 0.9rem;
+  padding: 16px 12px;
+  border-bottom: 1px solid var(--border-secondary);
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
 }
 
 .code-badge {
-  background: linear-gradient(45deg, #333, #555);
-  color: white;
+  background: var(--bg-gradient-primary);
+  color: var(--text-primary);
   padding: 6px 12px;
   border-radius: 20px;
   font-weight: 600;
@@ -942,33 +954,33 @@ const deleteRent = async () => {
 }
 
 .code-badge.finished {
-  background: linear-gradient(45deg, #666, #888);
+  background: var(--bg-secondary);
 }
 
 .product-name {
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .quantity-badge {
-  background: #f8f9fa;
-  border: 2px solid #333;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-primary);
   padding: 4px 8px;
   border-radius: 15px;
   font-weight: 600;
   font-size: 0.8rem;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .price,
 .warranty {
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .client-name {
   font-weight: 500;
-  color: #495057;
+  color: var(--text-secondary);
 }
 
 .payment-badge {
@@ -980,23 +992,23 @@ const deleteRent = async () => {
 }
 
 .payment-badge.debit {
-  background: #e9ecef;
-  color: #333;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .payment-badge.credit {
-  background: #f8f9fa;
-  color: #333;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .payment-badge.cash {
-  background: #dee2e6;
-  color: #333;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .payment-badge.other {
-  background: #ced4da;
-  color: #333;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .actions {
@@ -1010,71 +1022,46 @@ const deleteRent = async () => {
 .btn-view,
 .btn-finish,
 .btn-print {
-  width: 35px;
-  height: 35px;
-  border: none;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
   border-radius: 8px;
+  padding: 8px;
   cursor: pointer;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
-  font-size: 1rem;
-}
-
-.btn-edit {
-  background: #f8f9fa;
-  color: #333;
-  border: 1px solid #dee2e6;
+  backdrop-filter: var(--backdrop-blur);
 }
 
 .btn-edit:hover {
-  background: #e9ecef;
-  transform: scale(1.1);
-}
-
-.btn-delete {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-.btn-delete:hover {
-  background: #f5c6cb;
-  transform: scale(1.1);
-}
-
-.btn-view {
-  background: #d1ecf1;
-  color: #0c5460;
-  border: 1px solid #bee5eb;
+  background: rgba(34, 197, 94, 0.8);
+  border-color: rgba(34, 197, 94, 1);
+  transform: translateY(-2px);
 }
 
 .btn-view:hover {
-  background: #bee5eb;
-  transform: scale(1.1);
+  background: rgba(59, 130, 246, 0.8);
+  border-color: rgba(59, 130, 246, 1);
+  transform: translateY(-2px);
 }
 
-.btn-finish {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+.btn-delete:hover {
+  background: rgba(239, 68, 68, 0.8);
+  border-color: rgba(239, 68, 68, 1);
+  transform: translateY(-2px);
 }
 
 .btn-finish:hover {
-  background: #c3e6cb;
-  transform: scale(1.1);
-}
-
-.btn-print {
-  background: #e2e3e5;
-  color: #383d41;
-  border: 1px solid #d6d8db;
+  background: rgba(34, 197, 94, 0.8);
+  border-color: rgba(34, 197, 94, 1);
+  transform: translateY(-2px);
 }
 
 .btn-print:hover {
-  background: #d6d8db;
-  transform: scale(1.1);
+  background: rgba(156, 163, 175, 0.8);
+  border-color: rgba(156, 163, 175, 1);
+  transform: translateY(-2px);
 }
 
 .btn-edit img,
@@ -1082,34 +1069,57 @@ const deleteRent = async () => {
 .btn-view img {
   width: 16px;
   height: 16px;
+  transition: filter 0.3s ease;
+}
+
+/* Dark theme - make icons white */
+:root[data-theme='dark'] .btn-edit img,
+:root[data-theme='dark'] .btn-view img,
+:root[data-theme='dark'] .btn-delete img,
+:root:not([data-theme]) .btn-edit img,
+:root:not([data-theme]) .btn-view img,
+:root:not([data-theme]) .btn-delete img {
+  filter: brightness(0) invert(1);
+}
+
+/* Light theme - make icons dark */
+:root[data-theme='light'] .btn-edit img,
+:root[data-theme='light'] .btn-view img,
+:root[data-theme='light'] .btn-delete img {
+  filter: brightness(0) invert(0.2);
 }
 
 .no-data {
   text-align: center;
   padding: 4rem 2rem;
+  color: var(--text-primary);
 }
 
 .no-data-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 20px;
+  padding: 3rem;
+  backdrop-filter: var(--backdrop-blur);
+  border: 1px solid var(--border-primary);
 }
 
 .no-data-icon {
   font-size: 4rem;
-  opacity: 0.5;
+  margin-bottom: 1rem;
+  filter: drop-shadow(2px 2px 4px var(--shadow-primary));
 }
 
 .no-data h3 {
-  color: #6c757d;
   font-size: 1.5rem;
-  margin: 0;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
 }
 
 .no-data p {
-  color: #adb5bd;
+  font-size: 1rem;
+  opacity: 0.8;
   margin: 0;
+  color: var(--text-secondary);
 }
 
 /* Modal Styles */
@@ -1117,72 +1127,86 @@ const deleteRent = async () => {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
+  right: 0;
+  bottom: 0;
+  background: var(--overlay-bg);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
-  backdrop-filter: blur(5px);
+  z-index: 9999;
+  backdrop-filter: var(--backdrop-blur);
 }
 
 .popup-content {
-  background: white;
+  background: var(--bg-secondary);
+  backdrop-filter: var(--backdrop-blur);
   border-radius: 20px;
   padding: 2rem;
+  border: 1px solid var(--border-primary);
+  box-shadow: 0 8px 32px var(--shadow-primary);
   max-width: 500px;
   width: 90%;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
 .delete-modal h3 {
-  color: #dc3545;
-  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
 .delete-modal p {
-  color: #6c757d;
-  margin: 0 0 2rem 0;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
 }
 
 .form-actions {
   display: flex;
   gap: 1rem;
-  justify-content: flex-end;
+  justify-content: center;
+}
+
+.btn-cancel,
+.btn-delete-confirm {
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
 }
 
 .btn-cancel {
-  background: #6c757d;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
 }
 
 .btn-cancel:hover {
-  background: #5a6268;
+  background: var(--bg-tertiary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px var(--shadow-secondary);
 }
 
 .btn-delete-confirm {
-  background: #dc3545;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9));
   color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .btn-delete-confirm:hover:not(:disabled) {
-  background: #c82333;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 1), rgba(220, 38, 38, 1));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
 }
 
 .btn-delete-confirm:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
 /* Responsive */

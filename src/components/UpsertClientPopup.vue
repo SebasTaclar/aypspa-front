@@ -195,56 +195,198 @@ const uploadFile = async (file: File) => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
+  backdrop-filter: blur(10px);
 }
 
 .popup-content {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 400px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 2.5rem;
+  width: 500px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.popup-content h2 {
+  color: white;
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 1.5rem;
 }
 
 label {
   display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: white;
+  font-size: 0.95rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 input,
 select {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: white;
+  font-size: 1rem;
   font-family: 'Bricolage Grotesque', sans-serif;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
-button {
-  margin-right: 10px;
-  font-family: 'Bricolage Grotesque', sans-serif;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
+input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary-color-alpha-60);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 20px var(--primary-color-alpha-30);
+}
+
+select {
   cursor: pointer;
 }
 
-button.btn-primary {
-  background-color: green;
+select option {
+  background: rgba(30, 30, 30, 0.95);
   color: white;
+  padding: 10px;
+}
+
+button {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-right: 1rem;
+  margin-top: 1rem;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+button.btn-primary {
+  background: var(--primary-gradient);
+  color: white;
+  box-shadow: 0 4px 15px var(--primary-color-alpha-30);
+}
+
+button.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--primary-color-alpha-40);
+  background: var(--primary-gradient-hover);
 }
 
 button.btn-secondary {
-  background-color: gray;
+  background: rgba(108, 117, 125, 0.8);
   color: white;
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+}
+
+button.btn-secondary:hover {
+  transform: translateY(-2px);
+  background: rgba(108, 117, 125, 1);
+  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+}
+
+.form-group:last-of-type {
+  margin-bottom: 2rem;
+}
+
+/* File input styling */
+input[type="file"] {
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+}
+
+input[type="file"]:hover {
+  border-color: var(--primary-color-alpha-60);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+input[type="file"]::-webkit-file-upload-button {
+  background: var(--primary-gradient);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-right: 10px;
+  font-weight: 600;
+}
+
+input[type="file"]::-webkit-file-upload-button:hover {
+  background: var(--primary-gradient-hover);
+}
+
+/* Scrollbar styling for modal content */
+.popup-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.popup-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.popup-content::-webkit-scrollbar-thumb {
+  background: var(--primary-color-alpha-60);
+  border-radius: 4px;
+}
+
+.popup-content::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color-alpha-80);
+}
+
+@media (max-width: 768px) {
+  .popup-content {
+    width: 95vw;
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  .popup-content h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  button {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 0.5rem;
+  }
 }
 </style>

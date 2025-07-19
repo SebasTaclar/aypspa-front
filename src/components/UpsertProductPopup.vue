@@ -49,13 +49,6 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label>
-            <input type="checkbox" v-model="localProduct.rented" />
-            Producto arrendado
-          </label>
-        </div>
-
         <div class="form-actions">
           <button type="button" @click="closePopup" class="btn-cancel">Cancelar</button>
           <button type="submit" class="btn-submit" :disabled="isSubmitting">
@@ -95,8 +88,7 @@ const localProduct = ref<Partial<Product>>({
   priceNet: 0,
   priceIva: 0,
   priceTotal: 0,
-  priceWarranty: 0,
-  rented: false
+  priceWarranty: 0
 })
 
 watch(() => props.show, (newVal) => {
@@ -112,8 +104,7 @@ watch(() => props.show, (newVal) => {
       priceNet: 0,
       priceIva: 0,
       priceTotal: 0,
-      priceWarranty: 0,
-      rented: false
+      priceWarranty: 0
     }
   }
 })
@@ -146,37 +137,43 @@ const submitForm = async () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
+  backdrop-filter: blur(10px);
 }
 
 .popup-content {
-  background: white;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 90%;
-  max-width: 600px;
-  max-height: 80vh;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 2.5rem;
+  width: 600px;
+  max-width: 90vw;
+  max-height: 90vh;
   overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 h2 {
-  margin-bottom: 25px;
-  color: #333;
+  color: white;
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
   text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 1.5rem;
 }
 
 .form-row {
   display: flex;
-  gap: 15px;
+  gap: 1rem;
 }
 
 .form-row .form-group {
@@ -185,74 +182,144 @@ h2 {
 
 label {
   display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: #555;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: white;
+  font-size: 0.95rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 input[type="text"],
 input[type="number"] {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 16px;
-  transition: border-color 0.3s ease;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: white;
+  font-size: 1rem;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+input[type="text"]::placeholder,
+input[type="number"]::placeholder {
+  color: rgba(255, 255, 255, 0.6);
 }
 
 input[type="text"]:focus,
 input[type="number"]:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: var(--primary-color-alpha-60);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 20px var(--primary-color-alpha-30);
 }
 
 input[readonly] {
-  background-color: #f8f9fa;
-  color: #6c757d;
-}
-
-input[type="checkbox"] {
-  margin-right: 8px;
-  transform: scale(1.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.7);
+  border-color: rgba(255, 255, 255, 0.1);
+  cursor: not-allowed;
 }
 
 .form-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 15px;
-  margin-top: 30px;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
 }
 
 .btn-cancel,
 .btn-submit {
-  padding: 12px 25px;
+  padding: 12px 24px;
   border: none;
-  border-radius: 5px;
+  border-radius: 12px;
   cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  min-width: 120px;
 }
 
 .btn-cancel {
-  background-color: #6c757d;
+  background: rgba(108, 117, 125, 0.8);
   color: white;
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
 }
 
 .btn-cancel:hover {
-  background-color: #5a6268;
+  transform: translateY(-2px);
+  background: rgba(108, 117, 125, 1);
+  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
 }
 
 .btn-submit {
-  background-color: #007bff;
+  background: var(--primary-gradient);
   color: white;
+  box-shadow: 0 4px 15px var(--primary-color-alpha-30);
 }
 
-.btn-submit:hover {
-  background-color: #0056b3;
+.btn-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--primary-color-alpha-40);
+  background: var(--primary-gradient-hover);
 }
 
 .btn-submit:disabled {
-  background-color: #6c757d;
+  opacity: 0.6;
   cursor: not-allowed;
+  transform: none !important;
+  background: rgba(108, 117, 125, 0.6);
+}
+
+/* Scrollbar styling for modal content */
+.popup-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.popup-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.popup-content::-webkit-scrollbar-thumb {
+  background: var(--primary-color-alpha-60);
+  border-radius: 4px;
+}
+
+.popup-content::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color-alpha-80);
+}
+
+@media (max-width: 768px) {
+  .popup-content {
+    width: 95vw;
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .btn-cancel,
+  .btn-submit {
+    width: 100%;
+  }
 }
 </style>

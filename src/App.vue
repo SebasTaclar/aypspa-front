@@ -1,18 +1,20 @@
 <template>
   <header>
-    <div class="wrapper">
-      <nav class="navbar">
-        <RouterLink class="link-navbar home" to="/">AYPSPA</RouterLink>
-        <RouterLink class="link-navbar" to="/clients">Clientes</RouterLink>
-        <RouterLink v-if="isAdminRole" class="link-navbar" to="/products">Productos</RouterLink>
-        <RouterLink v-if="isAdminRole" class="link-navbar" to="/rents">Arrendamientos</RouterLink>
-        <RouterLink class="link-navbar" to="/clients">Privacidad</RouterLink>
-        <RouterLink class="link-navbar" to="/clients">Contacto</RouterLink>
+    <nav class="navbar">
+      <RouterLink class="link-navbar home" to="/">AYPSPA</RouterLink>
+      <RouterLink v-if="isLoggedIn" class="link-navbar" to="/clients">Clientes</RouterLink>
+      <RouterLink v-if="isAdminRole" class="link-navbar" to="/products">Productos</RouterLink>
+      <RouterLink v-if="isAdminRole" class="link-navbar" to="/rents">Arrendamientos</RouterLink>
+      <RouterLink class="link-navbar" to="/clients">Privacidad</RouterLink>
+      <RouterLink class="link-navbar" to="/clients">Contacto</RouterLink>
+
+      <div class="nav-controls">
+        <ThemeToggle />
         <RouterLink v-if="!isLoggedIn" class="link-navbar access" to="/login">Acceder</RouterLink>
         <span v-if="isLoggedIn" class="link-navbar access"> Hola, {{ username }} </span>
         <RouterLink v-if="isLoggedIn" @click="logout" class="link-navbar" to="/">Cerrar sesión</RouterLink>
-      </nav>
-    </div>
+      </div>
+    </nav>
   </header>
 
   <RouterView />
@@ -23,6 +25,7 @@ import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { getTokenName, isTokenValid, userHasAdminRole } from '@/utils/auth'
 import { onMounted, ref, watch } from 'vue'
 import router from './router'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 
 const isLoggedIn = ref(false)
 const username = ref('')
@@ -60,14 +63,21 @@ watch(route, () => {
   margin: 0;
   width: 100%;
   display: flex;
-  justify-content: start;
-  gap: 20px;
+  justify-content: space-between;
   align-items: center;
   position: fixed;
   top: 0;
   left: 0;
   z-index: 1000;
   height: 60px;
+  padding: 0 20px;
+}
+
+.nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-left: auto;
 }
 
 .link-navbar {
@@ -80,18 +90,39 @@ watch(route, () => {
 }
 
 .link-navbar:hover {
-  color: #ff6347;
+  color: var(--primary-color);
   background-color: rgba(192, 192, 192, 0.3);
   border-radius: 50px;
 }
 
 .home {
   font-size: 1.5rem;
-  color: red;
+  color: var(--primary-color);
   font-weight: 1000;
 }
 
 .access {
-  margin-left: auto;
+  margin-left: 0;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 10px;
+  }
+
+  .nav-controls {
+    gap: 10px;
+  }
+
+  .link-navbar {
+    font-size: 1rem;
+    padding: 8px;
+  }
+
+  .home {
+    font-size: 1.3rem;
+  }
 }
 </style>
