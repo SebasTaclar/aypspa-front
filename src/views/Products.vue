@@ -1,5 +1,5 @@
 <template>
-  <div class="products-container">
+  <div class="product-container">
     <div class="header">
       <h1>Gestión de Productos</h1>
       <button @click="openCreateModal" class="btn-primary">
@@ -14,17 +14,30 @@
 
     <Spinner v-if="loading" />
 
-    <div v-else class="products-content">
-      <div v-if="filteredProducts.length === 0 && products.length === 0" class="no-products">
-        <p>No hay productos registrados</p>
-      </div>
+    <div v-else class="product-content">
+      <!-- Product Table -->
+      <div class="product-table-container">
+        <div class="table-header">
+          <h2>Productos Registrados ({{ filteredProducts.length }})</h2>
+        </div>
 
-      <div v-else-if="filteredProducts.length === 0 && searchQuery" class="no-products">
-        <p>No se encontraron productos que coincidan con la búsqueda</p>
-      </div>
+        <div v-if="filteredProducts.length === 0 && products.length === 0" class="no-data">
+          <div class="no-data-content">
+            <div class="no-data-icon">📦</div>
+            <h3>No hay productos registrados</h3>
+            <p>Comienza agregando tu primer producto</p>
+          </div>
+        </div>
 
-      <div v-else class="products-table-container">
-        <table class="products-table">
+        <div v-else-if="filteredProducts.length === 0 && searchQuery" class="no-data">
+          <div class="no-data-content">
+            <div class="no-data-icon">🔍</div>
+            <h3>No se encontraron productos</h3>
+            <p>No hay productos que coincidan con la búsqueda</p>
+          </div>
+        </div>
+
+        <table v-else class="product-table">
           <thead>
             <tr>
               <th>Código</th>
@@ -41,13 +54,13 @@
           </thead>
           <tbody>
             <tr v-for="product in filteredProducts" :key="product._id" class="product-row">
-              <td>{{ product.code }}</td>
-              <td>{{ product.name }}</td>
+              <td><span class="code-badge">{{ product.code }}</span></td>
+              <td class="product-name">{{ product.name }}</td>
               <td>{{ product.brand }}</td>
-              <td>${{ formatCurrency(product.priceNet) }}</td>
-              <td>${{ formatCurrency(product.priceIva) }}</td>
-              <td>${{ formatCurrency(product.priceTotal) }}</td>
-              <td>${{ formatCurrency(product.priceWarranty) }}</td>
+              <td class="price">${{ formatCurrency(product.priceNet) }}</td>
+              <td class="price">${{ formatCurrency(product.priceIva) }}</td>
+              <td class="price">${{ formatCurrency(product.priceTotal) }}</td>
+              <td class="price">${{ formatCurrency(product.priceWarranty) }}</td>
               <td>
                 <span class="status-badge status-active">Activo</span>
               </td>
@@ -265,236 +278,384 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.products-container {
-  padding: 80px 20px 20px;
-  max-width: 1400px;
-  margin: 0 auto;
+.product-container {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 80px 40px 40px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #333 0%, #666 100%);
+  position: relative;
+}
+
+.product-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 99, 71, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin: 0 auto 2rem;
+  position: relative;
+  z-index: 1;
+  max-width: 1600px;
+  width: 100%;
 }
 
 .search-container {
-  margin: 20px 0;
-  display: flex;
-  align-items: center;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+  max-width: 1600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .search-box {
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 16px;
-  width: 300px;
-  transition: border-color 0.3s ease;
-  font-family: 'Bricolage Grotesque', sans-serif;
+  width: 100%;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: white;
+  font-size: 1.1rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.search-box::placeholder {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .search-box:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: rgba(255, 99, 71, 0.6);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 20px rgba(255, 99, 71, 0.3);
 }
 
-h1 {
-  color: #333;
+.header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
   margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .btn-primary {
-  background-color: #007bff;
+  background: linear-gradient(135deg, #ff6347 0%, #ff4500 100%);
   color: white;
   border: none;
-  padding: 12px 20px;
-  border-radius: 5px;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 16px;
-  font-family: 'Bricolage Grotesque', sans-serif;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 99, 71, 0.3);
+  backdrop-filter: blur(10px);
 }
 
 .btn-primary:hover {
-  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 99, 71, 0.4);
+  background: linear-gradient(135deg, #ff4500 0%, #ff6347 100%);
 }
 
-.products-content {
-  background: white;
-  border-radius: 10px;
-  padding: 30px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+.product-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
-.no-products {
+.product-table-container {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.table-header {
+  margin-bottom: 1.5rem;
+}
+
+.table-header h2 {
+  color: white;
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.no-data {
   text-align: center;
-  padding: 40px;
-  color: #666;
-  font-size: 18px;
+  padding: 4rem 2rem;
+  color: white;
 }
 
-.products-table-container {
-  overflow-x: auto;
+.no-data-content {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 3rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.products-table {
+.no-data-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.no-data h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: white;
+}
+
+.no-data p {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin: 0;
+}
+
+.product-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin-top: 1rem;
 }
 
-.products-table th,
-.products-table td {
-  padding: 12px;
+.product-table th {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 16px 12px;
   text-align: left;
-  border: 1px solid #ddd;
-}
-
-.products-table th {
-  background-color: #f8f9fa;
   font-weight: 600;
-  color: #333;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  position: sticky;
+  top: 0;
+  backdrop-filter: blur(10px);
 }
 
-.product-row:hover {
-  background-color: #f8f9fa;
+.product-table td {
+  padding: 16px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.product-row:hover td {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.product-name {
+  font-weight: 600;
+  color: #fff;
+}
+
+.code-badge {
+  background: rgba(255, 99, 71, 0.8);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.price {
+  font-weight: 600;
+  color: #90EE90;
 }
 
 .status-badge {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .status-active {
-  background-color: #d4edda;
-  color: #155724;
+  background: rgba(40, 167, 69, 0.8);
+  color: white;
 }
 
 .rental-badge {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .rental-badge.rented {
-  background-color: #f8d7da;
-  color: #721c24;
+  background: rgba(220, 53, 69, 0.8);
+  color: white;
 }
 
 .rental-badge.available {
-  background-color: #d1ecf1;
-  color: #0c5460;
+  background: rgba(23, 162, 184, 0.8);
+  color: white;
 }
 
 .actions {
   display: flex;
-  gap: 2px;
+  gap: 8px;
+  align-items: center;
 }
 
 .btn-edit,
 .btn-delete {
-  background: none;
-  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 8px;
   cursor: pointer;
-  padding: 6px;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(5px);
 }
 
 .btn-edit:hover {
-  background-color: #e3f2fd;
+  background: rgba(40, 167, 69, 0.8);
+  border-color: rgba(40, 167, 69, 1);
+  transform: translateY(-2px);
 }
 
 .btn-delete:hover {
-  background-color: #ffebee;
+  background: rgba(220, 53, 69, 0.8);
+  border-color: rgba(220, 53, 69, 1);
+  transform: translateY(-2px);
 }
 
 .btn-edit img,
 .btn-delete img {
-  width: 20px;
-  height: 20px;
-}
-
-.delete-modal {
-  max-width: 400px;
-}
-
-.delete-modal h3 {
-  margin-bottom: 15px;
-  color: #333;
-}
-
-.delete-modal p {
-  margin-bottom: 25px;
-  color: #666;
-}
-
-.btn-delete-confirm {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 12px 25px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
-}
-
-.btn-delete-confirm:hover {
-  background-color: #c82333;
-}
-
-.btn-delete-confirm:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
-}
-
-.btn-cancel {
-  background-color: #6c757d;
-  color: white;
-  border: none;
-  padding: 12px 25px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
-}
-
-.btn-cancel:hover {
-  background-color: #5a6268;
+  width: 16px;
+  height: 16px;
+  filter: brightness(0) invert(1);
 }
 
 .popup-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
+  backdrop-filter: blur(5px);
 }
 
 .popup-content {
-  background: white;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 90%;
+}
+
+.delete-modal h3 {
+  color: white;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.delete-modal p {
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
 }
 
 .form-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 15px;
-  margin-top: 20px;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn-cancel,
+.btn-delete-confirm {
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.btn-cancel {
+  background: rgba(108, 117, 125, 0.8);
+  color: white;
+}
+
+.btn-cancel:hover {
+  background: rgba(108, 117, 125, 1);
+  transform: translateY(-2px);
+}
+
+.btn-delete-confirm {
+  background: rgba(220, 53, 69, 0.8);
+  color: white;
+}
+
+.btn-delete-confirm:hover:not(:disabled) {
+  background: rgba(220, 53, 69, 1);
+  transform: translateY(-2px);
+}
+
+.btn-delete-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 768px) {
+  .product-container {
+    padding: 70px 20px 20px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .product-table-container {
+    margin: 0;
+    padding: 1rem;
+    overflow-x: auto;
+  }
+
+  .product-table {
+    min-width: 1200px;
+  }
 }
 </style>

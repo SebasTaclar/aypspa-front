@@ -4,8 +4,25 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: 'Bricolage Grotesque', sans-serif;
 }
 
-html {
+html,
+body {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  background: #2d2d2d;
+  min-height: 100%;
+}
+
+#app {
+  min-height: 100vh;
+  background: #2d2d2d;
+}
+
+/* Apply font to all form elements explicitly */
+input,
+button,
+select,
+textarea {
   font-family: 'Bricolage Grotesque', sans-serif;
 }
