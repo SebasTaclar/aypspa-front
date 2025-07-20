@@ -184,6 +184,10 @@
         </div>
       </div>
     </div>
+
+    <!-- Upsert Rent Popup -->
+    <UpsertRentPopup v-if="showUpsertModal" :rent-data="selectedRent" :mode="upsertMode" @close="closeUpsertModal"
+      @save="handleRentSaved" />
   </div>
 </template>
 
@@ -191,8 +195,11 @@
 defineOptions({ name: 'RentView' })
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
 import type { Rent } from '@/types/RentType'
+import { getBaseUrl } from '@/utils/apiConfig'
 import Spinner from '@/components/Spinner.vue'
+import UpsertRentPopup from '@/components/UpsertRentPopup.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -205,348 +212,39 @@ const showDeleteModal = ref(false)
 const rentToDelete = ref<Rent | null>(null)
 const deleting = ref(false)
 
-// Mock data for demonstration
-const mockRents: Rent[] = [
-  // Active Rentals
-  {
-    id: '8241',
-    code: 'GEN18',
-    productName: 'GENERADOR DUCAR 7.0KVA',
-    quantity: 1,
-    totalValuePerDay: 13000,
-    clientRut: '14168240-7',
-    deliveryDate: '',
-    paymentMethod: 'debito',
-    clientName: 'DARWIN ALEJANDRO LEAL CARTER',
-    warrantyValue: 750000,
-    creationDate: '2025-07-19T13:01:00',
-    isFinished: false
-  },
-  {
-    id: '8240',
-    code: 'BET14',
-    productName: 'BETONERA 150LTS 1.5HP 220V',
-    quantity: 1,
-    totalValuePerDay: 13000,
-    clientRut: '76754541-k',
-    deliveryDate: '',
-    paymentMethod: 'debito',
-    clientName: 'HORMIBAL FRUTILLAR LIMITADA (PATRICIA GONZALEZ)',
-    warrantyValue: 650000,
-    creationDate: '2025-07-19T12:26:00',
-    isFinished: false
-  },
-  {
-    id: '8239',
-    code: 'AND127',
-    productName: 'ANDAMIOS TIPO SEGER GRIS GALVANIZADOS',
-    quantity: 4,
-    totalValuePerDay: 1500,
-    clientRut: '11309054-5',
-    deliveryDate: '',
-    paymentMethod: 'debito',
-    clientName: 'LUIS ANGULO YUNGE',
-    warrantyValue: 150000,
-    creationDate: '2025-07-19T11:23:00',
-    isFinished: false
-  },
-  {
-    id: '8243',
-    code: 'TAL25',
-    productName: 'TALADRO PERCUTOR DEWALT 1050W',
-    quantity: 2,
-    totalValuePerDay: 8000,
-    clientRut: '19485762-3',
-    deliveryDate: '',
-    paymentMethod: 'efectivo',
-    clientName: 'CONSTRUCTORA SANTA ELENA LTDA',
-    warrantyValue: 320000,
-    creationDate: '2025-07-19T14:15:00',
-    isFinished: false
-  },
-  {
-    id: '8244',
-    code: 'COMP85',
-    productName: 'COMPACTADORA REVERSIBLE 200KG',
-    quantity: 1,
-    totalValuePerDay: 15000,
-    clientRut: '22187439-k',
-    deliveryDate: '',
-    paymentMethod: 'credito',
-    clientName: 'MARIO ERNESTO SILVA GONZALEZ',
-    warrantyValue: 850000,
-    creationDate: '2025-07-19T15:30:00',
-    isFinished: false
-  },
-  {
-    id: '8245',
-    code: 'MOTO72',
-    productName: 'MOTOSIERRA STIHL MS251 45CM',
-    quantity: 1,
-    totalValuePerDay: 9500,
-    clientRut: '17293847-2',
-    deliveryDate: '',
-    paymentMethod: 'transferencia',
-    clientName: 'SERVICIOS FORESTALES DEL SUR SPA',
-    warrantyValue: 380000,
-    creationDate: '2025-07-19T16:45:00',
-    isFinished: false
-  },
-  {
-    id: '8246',
-    code: 'ESM94',
-    productName: 'ESMERIL ANGULAR 7" BOSCH',
-    quantity: 3,
-    totalValuePerDay: 4500,
-    clientRut: '15847293-7',
-    deliveryDate: '',
-    paymentMethod: 'debito',
-    clientName: 'METALURGICA AUSTRAL HERMANOS LTDA',
-    warrantyValue: 180000,
-    creationDate: '2025-07-18T09:15:00',
-    isFinished: false
-  },
-  {
-    id: '8247',
-    code: 'PIST66',
-    productName: 'PISTOLA CLAVADORA NEUMATICA',
-    quantity: 2,
-    totalValuePerDay: 7200,
-    clientRut: '13682947-5',
-    deliveryDate: '',
-    paymentMethod: 'efectivo',
-    clientName: 'CARPINTERIA MODERNA VALDIVIA',
-    warrantyValue: 240000,
-    creationDate: '2025-07-18T11:30:00',
-    isFinished: false
-  },
-  {
-    id: '8248',
-    code: 'SOLD13',
-    productName: 'SOLDADORA INVERTER 200A',
-    quantity: 1,
-    totalValuePerDay: 12000,
-    clientRut: '20394857-1',
-    deliveryDate: '',
-    paymentMethod: 'credito',
-    clientName: 'RAFAEL ANTONIO MENDEZ TORRES',
-    warrantyValue: 560000,
-    creationDate: '2025-07-18T13:45:00',
-    isFinished: false
-  },
-  {
-    id: '8249',
-    code: 'VIB88',
-    productName: 'VIBRADOR PARA CONCRETO 1.5HP',
-    quantity: 1,
-    totalValuePerDay: 10500,
-    clientRut: '18472638-9',
-    deliveryDate: '',
-    paymentMethod: 'transferencia',
-    clientName: 'HORMIGONES Y PAVIMENTOS DEL SUR',
-    warrantyValue: 450000,
-    creationDate: '2025-07-18T14:20:00',
-    isFinished: false
-  },
-  {
-    id: '8250',
-    code: 'ROT44',
-    productName: 'ROTOMARTILLO HILTI TE 60',
-    quantity: 1,
-    totalValuePerDay: 11000,
-    clientRut: '16583947-4',
-    deliveryDate: '',
-    paymentMethod: 'debito',
-    clientName: 'PERFORACIONES TECNICAS VALDIVIA',
-    warrantyValue: 520000,
-    creationDate: '2025-07-17T16:10:00',
-    isFinished: false
-  },
-  {
-    id: '8251',
-    code: 'MESA77',
-    productName: 'MESA DE TRABAJO PLEGABLE 2.5M',
-    quantity: 2,
-    totalValuePerDay: 5500,
-    clientRut: '21847395-2',
-    deliveryDate: '',
-    paymentMethod: 'efectivo',
-    clientName: 'INSTALACIONES ELECTRICAS MODERNA',
-    warrantyValue: 220000,
-    creationDate: '2025-07-17T17:25:00',
-    isFinished: false
-  },
+// Upsert modal state
+const showUpsertModal = ref(false)
+const selectedRent = ref<Rent | null>(null)
+const upsertMode = ref<'create' | 'edit'>('create')
 
-  // Finished Rentals
-  {
-    id: '8226',
-    code: 'CER1K',
-    productName: 'CORTADORA CERAMICA 100 CMS',
-    quantity: 1,
-    totalValuePerDay: 6000,
-    clientRut: '16272749-4',
-    deliveryDate: '2025-07-19T12:57:00',
-    paymentMethod: 'debito',
-    clientName: 'EXEQUIEL OZIEL AGUILAR PACHECO',
-    warrantyValue: 70000,
-    creationDate: '2025-07-17T15:04:00',
-    isFinished: true
-  },
-  {
-    id: '8232',
-    code: 'BET10K',
-    productName: 'BETONERA 150LTS',
-    quantity: 1,
-    totalValuePerDay: 13000,
-    clientRut: '26025063-9',
-    deliveryDate: '2025-07-19T12:50:00',
-    paymentMethod: 'debito',
-    clientName: 'BICHARD DUPOX',
-    warrantyValue: 650000,
-    creationDate: '2025-07-18T09:07:00',
-    isFinished: true
-  },
-  {
-    id: '8224',
-    code: 'DEM38',
-    productName: 'DEMOLEDOR 10K',
-    quantity: 1,
-    totalValuePerDay: 13000,
-    clientRut: '12342683-5',
-    deliveryDate: '2025-07-19T10:28:00',
-    paymentMethod: 'debito',
-    clientName: 'OSCAR ALEJANDRO SOTO HERNANDEZ',
-    warrantyValue: 200000,
-    creationDate: '2025-07-17T14:32:00',
-    isFinished: true
-  },
-  {
-    id: '8220',
-    code: 'GEN42',
-    productName: 'GENERADOR HONDA 5.5KVA',
-    quantity: 1,
-    totalValuePerDay: 11500,
-    clientRut: '14785629-3',
-    deliveryDate: '2025-07-18T18:30:00',
-    paymentMethod: 'credito',
-    clientName: 'EVENTOS Y PRODUCCIONES VALDIVIA',
-    warrantyValue: 580000,
-    creationDate: '2025-07-15T10:15:00',
-    isFinished: true
-  },
-  {
-    id: '8218',
-    code: 'AND99',
-    productName: 'ANDAMIOS EUROPEOS 2M',
-    quantity: 6,
-    totalValuePerDay: 2000,
-    clientRut: '19384756-8',
-    deliveryDate: '2025-07-18T16:45:00',
-    paymentMethod: 'transferencia',
-    clientName: 'PINTURA Y MANTENCIÓN INTEGRAL',
-    warrantyValue: 240000,
-    creationDate: '2025-07-14T14:20:00',
-    isFinished: true
-  },
-  {
-    id: '8215',
-    code: 'TAL67',
-    productName: 'TALADRO DE COLUMNA 16MM',
-    quantity: 1,
-    totalValuePerDay: 8500,
-    clientRut: '17495836-2',
-    deliveryDate: '2025-07-18T14:15:00',
-    paymentMethod: 'efectivo',
-    clientName: 'TALLER MECANICO LOS AROMOS',
-    warrantyValue: 340000,
-    creationDate: '2025-07-13T11:30:00',
-    isFinished: true
-  },
-  {
-    id: '8212',
-    code: 'COMP21',
-    productName: 'COMPRESOR 150L 3HP',
-    quantity: 1,
-    totalValuePerDay: 14000,
-    clientRut: '22847593-1',
-    deliveryDate: '2025-07-17T19:20:00',
-    paymentMethod: 'debito',
-    clientName: 'MAESTRANZA GENERAL VALDIVIA',
-    warrantyValue: 680000,
-    creationDate: '2025-07-12T09:45:00',
-    isFinished: true
-  },
-  {
-    id: '8208',
-    code: 'SOLD99',
-    productName: 'SOLDADORA TIG 220A',
-    quantity: 1,
-    totalValuePerDay: 15500,
-    clientRut: '15739284-6',
-    deliveryDate: '2025-07-17T15:30:00',
-    paymentMethod: 'credito',
-    clientName: 'ESTRUCTURAS METALICAS CHILE',
-    warrantyValue: 780000,
-    creationDate: '2025-07-11T13:15:00',
-    isFinished: true
-  },
-  {
-    id: '8205',
-    code: 'ESM33',
-    productName: 'ESMERIL DE BANCO 8"',
-    quantity: 1,
-    totalValuePerDay: 6500,
-    clientRut: '18562947-4',
-    deliveryDate: '2025-07-16T20:45:00',
-    paymentMethod: 'transferencia',
-    clientName: 'HERRAMIENTAS Y SERVICIOS LTDA',
-    warrantyValue: 260000,
-    creationDate: '2025-07-10T16:40:00',
-    isFinished: true
-  },
-  {
-    id: '8201',
-    code: 'VIB55',
-    productName: 'VIBRADOR CONCRETO PORTATIL',
-    quantity: 2,
-    totalValuePerDay: 9000,
-    clientRut: '20495837-7',
-    deliveryDate: '2025-07-16T17:15:00',
-    paymentMethod: 'efectivo',
-    clientName: 'CONSTRUCCIONES FAMILIARES SUR',
-    warrantyValue: 360000,
-    creationDate: '2025-07-09T12:25:00',
-    isFinished: true
-  },
-  {
-    id: '8198',
-    code: 'ROT88',
-    productName: 'ROTOMARTILLO MAKITA HR4013C',
-    quantity: 1,
-    totalValuePerDay: 10000,
-    clientRut: '16738492-5',
-    deliveryDate: '2025-07-15T16:30:00',
-    paymentMethod: 'debito',
-    clientName: 'DEMOLICIONES PROFESIONALES',
-    warrantyValue: 480000,
-    creationDate: '2025-07-08T14:50:00',
-    isFinished: true
-  },
-  {
-    id: '8195',
-    code: 'MESA22',
-    productName: 'MESA SIERRA CIRCULAR 10"',
-    quantity: 1,
-    totalValuePerDay: 12500,
-    clientRut: '19384729-9',
-    deliveryDate: '2025-07-15T13:45:00',
-    paymentMethod: 'credito',
-    clientName: 'MUEBLERIA ARTESANAL VALDIVIA',
-    warrantyValue: 625000,
-    creationDate: '2025-07-07T10:20:00',
-    isFinished: true
+// API function to fetch rents
+const fetchRents = async () => {
+  try {
+    loading.value = true
+    const token = sessionStorage.getItem('token')
+    const response = await axios.get(`${getBaseUrl()}/api/v1/rents`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (response.data?.success && response.data?.data) {
+      rents.value = response.data.data
+    } else {
+      console.error('Invalid API response format:', response.data)
+      rents.value = []
+    }
+  } catch (error) {
+    console.error('Error fetching rents:', error)
+    if (axios.isAxiosError(error)) {
+      console.error('API Error:', error.response?.data || error.message)
+    }
+    rents.value = []
+  } finally {
+    loading.value = false
   }
-]
+}
 
 onMounted(async () => {
   // Restore the view state from URL query parameter or localStorage
@@ -561,14 +259,8 @@ onMounted(async () => {
     router.replace({ query: { ...route.query, view: savedView } })
   }
 
-  try {
-    // Load mock data immediately
-    rents.value = mockRents
-  } catch (error) {
-    console.error('Error loading rents:', error)
-  } finally {
-    loading.value = false
-  }
+  // Load rents from API
+  await fetchRents()
 })
 
 // Watch for route changes to handle browser navigation
@@ -662,13 +354,33 @@ const getPaymentText = (paymentMethod: string) => {
 }
 
 const openCreateModal = () => {
-  // TODO: Implement create modal
-  console.log('Open create modal')
+  selectedRent.value = null
+  upsertMode.value = 'create'
+  showUpsertModal.value = true
 }
 
 const editRent = (rent: Rent) => {
-  // TODO: Implement edit functionality
-  console.log('Edit rent:', rent)
+  selectedRent.value = rent
+  upsertMode.value = 'edit'
+  showUpsertModal.value = true
+}
+
+const closeUpsertModal = () => {
+  showUpsertModal.value = false
+  selectedRent.value = null
+}
+
+const handleRentSaved = (savedRent: Rent) => {
+  if (upsertMode.value === 'create') {
+    // Add new rent to the beginning of the array
+    rents.value.unshift(savedRent)
+  } else {
+    // Update existing rent
+    const index = rents.value.findIndex(r => r.id === savedRent.id)
+    if (index > -1) {
+      rents.value[index] = savedRent
+    }
+  }
 }
 
 const viewImage = (rent: Rent) => {
@@ -701,7 +413,15 @@ const deleteRent = async () => {
 
   deleting.value = true
   try {
-    // TODO: Implement actual delete API call
+    const token = sessionStorage.getItem('token')
+    await axios.delete(`${getBaseUrl()}/api/v1/rents/${rentToDelete.value.id}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    // Remove from local array after successful deletion
     const index = rents.value.findIndex(r => r.id === rentToDelete.value!.id)
     if (index > -1) {
       rents.value.splice(index, 1)
@@ -709,6 +429,10 @@ const deleteRent = async () => {
     closeDeleteModal()
   } catch (error) {
     console.error('Error deleting rent:', error)
+    if (axios.isAxiosError(error)) {
+      console.error('API Error:', error.response?.data || error.message)
+    }
+    // You might want to show a user-friendly error message here
   } finally {
     deleting.value = false
   }

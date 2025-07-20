@@ -2,7 +2,7 @@
   <header>
     <nav class="navbar">
       <RouterLink class="link-navbar home" to="/">AYPSPA</RouterLink>
-      <RouterLink v-if="isLoggedIn" class="link-navbar" to="/clients">Clientes</RouterLink>
+      <RouterLink v-if="isAdminRole" class="link-navbar" to="/clients">Clientes</RouterLink>
       <RouterLink v-if="isAdminRole" class="link-navbar" to="/products">Productos</RouterLink>
       <RouterLink v-if="isAdminRole" class="link-navbar" to="/rents">Arrendamientos</RouterLink>
       <RouterLink class="link-navbar" to="/clients">Privacidad</RouterLink>

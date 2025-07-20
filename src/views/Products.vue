@@ -3,7 +3,7 @@
     <div class="header">
       <h1>Gestión de Productos</h1>
       <button @click="openCreateModal" class="btn-primary">
-        Nuevo Producto
+        Crear Producto
       </button>
     </div>
 

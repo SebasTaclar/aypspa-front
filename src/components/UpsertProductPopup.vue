@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show" class="popup-overlay" @click="closePopup">
+  <div v-if="show" class="popup-overlay" @click="handleOverlayClick">
     <div class="popup-content" @click.stop>
       <h2>{{ isEditing ? 'Editar Producto' : 'Crear Producto' }}</h2>
       <form @submit.prevent="submitForm">
@@ -50,18 +50,24 @@
         </div>
 
         <div class="form-actions">
-          <button type="button" @click="closePopup" class="btn-cancel">Cancelar</button>
+          <button type="button" @click="handleOverlayClick" class="btn-cancel">Cancelar</button>
           <button type="submit" class="btn-submit" :disabled="isSubmitting">
             {{ isSubmitting ? 'Guardando...' : (isEditing ? 'Actualizar' : 'Crear') }}
           </button>
         </div>
       </form>
     </div>
+
+    <!-- Confirmation Modal -->
+    <ConfirmationModal v-if="showConfirmation" title="¿Descartar cambios?"
+      message="¿Estás seguro de que deseas cerrar el formulario? Los cambios no guardados se perderán."
+      confirm-text="Descartar" cancel-text="Continuar editando" @confirm="confirmClose" @cancel="cancelClose" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import type { Product } from '@/types/ProductType'
 
 interface Props {
@@ -78,6 +84,10 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const isSubmitting = ref(false)
+const showConfirmation = ref(false)
+
+// Store original product data for change detection
+const originalProductData = ref<Partial<Product> | null>(null)
 
 const isEditing = computed(() => props.product !== null && props.product !== undefined)
 
@@ -95,6 +105,8 @@ watch(() => props.show, (newVal) => {
   if (newVal && props.product) {
     // Editing mode
     localProduct.value = { ...props.product }
+    originalProductData.value = { ...props.product }
+    showConfirmation.value = false // Reset confirmation modal
   } else if (newVal) {
     // Creating mode
     localProduct.value = {
@@ -106,6 +118,16 @@ watch(() => props.show, (newVal) => {
       priceTotal: 0,
       priceWarranty: 0
     }
+    originalProductData.value = {
+      name: '',
+      code: '',
+      brand: '',
+      priceNet: 0,
+      priceIva: 0,
+      priceTotal: 0,
+      priceWarranty: 0
+    }
+    showConfirmation.value = false // Reset confirmation modal
   }
 })
 
@@ -115,8 +137,27 @@ const calculateTotals = () => {
   localProduct.value.priceTotal = net + iva
 }
 
-const closePopup = () => {
+const handleOverlayClick = () => {
+  checkForChanges()
+}
+
+const checkForChanges = () => {
+  const hasChanges = JSON.stringify(localProduct.value) !== JSON.stringify(originalProductData.value)
+
+  if (hasChanges) {
+    showConfirmation.value = true
+  } else {
+    emit('close')
+  }
+}
+
+const confirmClose = () => {
+  showConfirmation.value = false
   emit('close')
+}
+
+const cancelClose = () => {
+  showConfirmation.value = false
 }
 
 const submitForm = async () => {

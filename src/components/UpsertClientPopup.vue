@@ -44,6 +44,11 @@
         </button>
       </form>
     </div>
+
+    <!-- Confirmation Modal -->
+    <ConfirmationModal v-if="showConfirmation" title="¿Descartar cambios?"
+      message="¿Estás seguro de que deseas cerrar el formulario? Los cambios no guardados se perderán."
+      confirm-text="Descartar" cancel-text="Continuar editando" @confirm="confirmClose" @cancel="cancelClose" />
   </div>
 
   <Spinner v-if="loading" />
@@ -55,6 +60,7 @@ import { getBaseUrl } from '@/utils/apiConfig';
 import { getPresignedUrl } from '@/utils/fileUtils';
 import axios from 'axios';
 import Spinner from '@/components/Spinner.vue';
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
 import type { Client } from '@/types/ClientType';
 
 const { clientData, mode } = defineProps<{
@@ -66,18 +72,75 @@ const emit = defineEmits(['close', 'save']);
 
 const selectedFile = ref<File | null>(null);
 const loading = ref(false);
+const showConfirmation = ref(false);
 
-const client = computed(() => ({
-  ...clientData,
-  id: clientData?.id || `${Date.now()}`,
-  creationDate:
-    clientData?.creationDate ||
-    new Date().toLocaleDateString('es-ES', {
+// Store original client data for change detection
+const originalClientData = ref<Client | null>(null);
+
+// Initialize original data when component loads
+if (mode === 'create') {
+  originalClientData.value = null;
+} else {
+  originalClientData.value = clientData ? { ...clientData } : null;
+}
+
+// Use reactive refs for client data instead of computed
+const client = ref({
+  id: mode === 'create' ? `${Date.now()}` : (clientData?.id || `${Date.now()}`),
+  name: mode === 'create' ? '' : (clientData?.name || ''),
+  companyName: mode === 'create' ? '' : (clientData?.companyName || ''),
+  companyDocument: mode === 'create' ? '' : (clientData?.companyDocument || ''),
+  rut: mode === 'create' ? '' : (clientData?.rut || ''),
+  phoneNumber: mode === 'create' ? '' : (clientData?.phoneNumber || ''),
+  address: mode === 'create' ? '' : (clientData?.address || ''),
+  frequentClient: mode === 'create' ? 'No' : (clientData?.frequentClient || 'No'),
+  photoFileName: mode === 'create' ? '' : (clientData?.photoFileName || ''),
+  creationDate: mode === 'create'
+    ? new Date().toLocaleDateString('es-ES', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
-    }),
-}));
+    })
+    : (clientData?.creationDate || new Date().toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }))
+});
+
+const hasChanges = computed(() => {
+  if (mode === 'create') {
+    // For create mode, check if any field has been filled (excluding id and creationDate)
+    const currentClient = client.value;
+    return !!(
+      currentClient.name.trim() ||
+      currentClient.companyName.trim() ||
+      currentClient.companyDocument.trim() ||
+      currentClient.rut.trim() ||
+      currentClient.phoneNumber.trim() ||
+      currentClient.address.trim() ||
+      currentClient.frequentClient !== 'No' ||
+      selectedFile.value
+    );
+  } else {
+    // For edit mode, compare with original data
+    if (!originalClientData.value) return false;
+
+    const current = client.value;
+    const original = originalClientData.value;
+
+    return !!(
+      current.name !== original.name ||
+      current.companyName !== original.companyName ||
+      current.companyDocument !== original.companyDocument ||
+      current.rut !== original.rut ||
+      current.phoneNumber !== original.phoneNumber ||
+      current.address !== original.address ||
+      current.frequentClient !== original.frequentClient ||
+      selectedFile.value
+    );
+  }
+});
 
 const closePopup = () => {
   emit('close');
@@ -147,18 +210,21 @@ const handleCreateClient = async () => {
 };
 
 const handleOverlayClick = async () => {
-  const hasChanges = JSON.stringify(client.value) !== JSON.stringify(clientData);
-  if (hasChanges) {
-    const confirmClose = confirm(
-      '¿Estás seguro de que deseas cerrar el formulario? Los cambios no guardados se perderán.',
-    );
-    if (confirmClose) {
-      closePopup();
-    }
+  if (hasChanges.value) {
+    showConfirmation.value = true
   } else {
     closePopup();
   }
 };
+
+const confirmClose = () => {
+  showConfirmation.value = false
+  closePopup()
+}
+
+const cancelClose = () => {
+  showConfirmation.value = false
+}
 
 const handleFileSelection = (event: Event) => {
   const target = event.target as HTMLInputElement;
