@@ -188,6 +188,10 @@
     <!-- Upsert Rent Popup -->
     <UpsertRentPopup v-if="showUpsertModal" :rent-data="selectedRent" :mode="upsertMode" @close="closeUpsertModal"
       @save="handleRentSaved" />
+
+    <!-- Client Document Popup -->
+    <ClientDocumentPopup :visible="showClientImageModal" :image-src="clientImageSrc" :client-name="clientName"
+      @close="closeClientImageModal" />
   </div>
 </template>
 
@@ -198,8 +202,10 @@ import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import type { Rent } from '@/types/RentType'
 import { getBaseUrl } from '@/utils/apiConfig'
+import { PhotoService } from '@/utils/photoService'
 import Spinner from '@/components/Spinner.vue'
 import UpsertRentPopup from '@/components/UpsertRentPopup.vue'
+import ClientDocumentPopup from '@/components/ClientDocumentPopup.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -216,6 +222,11 @@ const deleting = ref(false)
 const showUpsertModal = ref(false)
 const selectedRent = ref<Rent | null>(null)
 const upsertMode = ref<'create' | 'edit'>('create')
+
+// Client image modal state
+const showClientImageModal = ref(false)
+const clientImageSrc = ref('')
+const clientName = ref('')
 
 // API function to fetch rents
 const fetchRents = async () => {
@@ -383,9 +394,55 @@ const handleRentSaved = (savedRent: Rent) => {
   }
 }
 
-const viewImage = (rent: Rent) => {
-  // TODO: Implement image viewer
-  console.log('View image for rent:', rent)
+const viewImage = async (rent: Rent) => {
+  try {
+    const token = sessionStorage.getItem('token')
+
+    // Fetch client data by RUT to get the photo filename
+    const response = await axios.get(`${getBaseUrl()}/api/v1/clients`, {
+      params: { rut: rent.clientRut },
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (Array.isArray(response.data) && response.data.length > 0) {
+      const client = response.data[0]
+
+      // Set client name for the popup
+      clientName.value = client.name || rent.clientName || 'Cliente'
+
+      // Use the centralized photo service
+      const result = await PhotoService.fetchClientPhoto(client.id || client._id, client.photoFileName)
+
+      if (result.success) {
+        clientImageSrc.value = result.imageUrl || ''
+      } else {
+        console.error('Error fetching photo:', result.error)
+        clientImageSrc.value = ''
+      }
+
+      // Always show the modal (with or without image)
+      showClientImageModal.value = true
+    } else {
+      // Client not found - show popup with rent client name
+      clientName.value = rent.clientName || 'Cliente'
+      clientImageSrc.value = ''
+      showClientImageModal.value = true
+    }
+  } catch (error) {
+    console.error('Error fetching client image:', error)
+
+    // On error, still show the popup with the client name from rent
+    clientName.value = rent.clientName || 'Cliente'
+    clientImageSrc.value = ''
+    showClientImageModal.value = true
+  }
+}const closeClientImageModal = () => {
+  showClientImageModal.value = false
+  clientImageSrc.value = ''
+  clientName.value = ''
 }
 
 const finishRent = (rent: Rent) => {

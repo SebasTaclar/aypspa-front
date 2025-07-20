@@ -88,7 +88,8 @@
     <UpsertClientPopup v-if="isUpsertPopupVisible" :clientData="selectedClient" :mode="popupMode"
       @close="closeUpsertPopup" @save="handleSaveClient" />
 
-    <ClientDocumentPopup :visible="isDocumentPopupVisible" :imageSrc="documentUrl" @close="closeDocumentPopup" />
+    <ClientDocumentPopup :visible="isDocumentPopupVisible" :image-src="documentUrl" :client-name="selectedClientName"
+      @close="closeDocumentPopup" />
 
     <!-- Delete Confirmation Modal -->
     <div v-if="showDeleteModal" class="popup-overlay" @click="closeDeleteModal">
@@ -113,7 +114,7 @@ import UpsertClientPopup from '@/components/UpsertClientPopup.vue';
 import ClientDocumentPopup from '@/components/ClientDocumentPopup.vue';
 import type { Client } from '@/types/ClientType';
 import { getBaseUrl } from '@/utils/apiConfig';
-import { getPresignedUrl } from '@/utils/fileUtils';
+import { PhotoService } from '@/utils/photoService';
 import Spinner from '@/components/Spinner.vue';
 
 defineOptions({
@@ -129,6 +130,7 @@ const selectedClient = ref<Client | null>(null);
 const popupMode = ref<'edit' | 'create'>('edit');
 const isDocumentPopupVisible = ref(false);
 const documentUrl = ref('');
+const selectedClientName = ref('');
 const loading = ref(false);
 const showDeleteModal = ref(false);
 const clientToDelete = ref<Client | null>(null);
@@ -204,27 +206,39 @@ const closeUpsertPopup = () => {
 const fetchDocument = async (clientId: string) => {
   loading.value = true;
   try {
-    const fileName = `clients/${clientId}.png`;
-    const preSignedUrl = await getPresignedUrl(fileName, '', 'retrieve');
+    // Find the client to get their name
+    const client = clients.value.find(c => c.id === clientId);
+    selectedClientName.value = client?.name || 'Cliente';
 
-    documentUrl.value = preSignedUrl;
+    // Use the centralized photo service
+    const result = await PhotoService.fetchClientPhoto(clientId, client?.photoFileName);
 
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error('Error fetching document:', error.response?.data || error.message);
+    if (result.success) {
+      documentUrl.value = result.imageUrl || '';
     } else {
-      console.error('Error fetching document:', error);
+      console.error('Error fetching photo:', result.error);
+      documentUrl.value = '';
     }
-    alert('Hubo un error al cargar el documento.');
+
+    // Always show the popup (with or without image)
+    isDocumentPopupVisible.value = true;
+  } catch (error) {
+    console.error('Error fetching document:', error);
+
+    // On error, still show the popup with the client name
+    const client = clients.value.find(c => c.id === clientId);
+    selectedClientName.value = client?.name || 'Cliente';
+    documentUrl.value = '';
+    isDocumentPopupVisible.value = true;
   } finally {
     loading.value = false;
-    isDocumentPopupVisible.value = true;
   }
 };
 
 const closeDocumentPopup = () => {
   isDocumentPopupVisible.value = false;
   documentUrl.value = '';
+  selectedClientName.value = '';
 };
 
 const formatDate = (dateString: string) => {

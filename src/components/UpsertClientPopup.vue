@@ -57,10 +57,10 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { getBaseUrl } from '@/utils/apiConfig';
-import { getPresignedUrl } from '@/utils/fileUtils';
 import axios from 'axios';
 import Spinner from '@/components/Spinner.vue';
 import ConfirmationModal from '@/components/ConfirmationModal.vue';
+import { PhotoService } from '@/utils/photoService';
 import type { Client } from '@/types/ClientType';
 
 const { clientData, mode } = defineProps<{
@@ -235,20 +235,11 @@ const handleFileSelection = (event: Event) => {
 
 const uploadFile = async (file: File) => {
   try {
-    const fileExtension = 'png' //file.name.split('.').pop();
-    const fileName = `clients/${client.value.id}.${fileExtension}`;
-    const preSignedUrl = await getPresignedUrl(fileName, file.type, 'save');
-
-    await axios.put(preSignedUrl, file);
+    const fileName = await PhotoService.uploadClientPhoto(client.value.id, file);
     console.log('File uploaded successfully!');
-
     return fileName;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error('Error uploading file:', error.response?.data || error.message);
-    } else {
-      console.error('Error uploading file:', error);
-    }
+    console.error('Error uploading file:', error);
     throw error;
   }
 };
