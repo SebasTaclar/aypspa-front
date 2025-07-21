@@ -96,16 +96,8 @@ const client = ref({
   frequentClient: mode === 'create' ? 'No' : (clientData?.frequentClient || 'No'),
   photoFileName: mode === 'create' ? '' : (clientData?.photoFileName || ''),
   creationDate: mode === 'create'
-    ? new Date().toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    })
-    : (clientData?.creationDate || new Date().toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    }))
+    ? new Date().toISOString()
+    : (clientData?.creationDate || new Date().toISOString())
 });
 
 const hasChanges = computed(() => {

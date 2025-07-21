@@ -18,7 +18,14 @@
         </div>
 
         <div v-if="showProductWarning" class="warning-item warning-product">
-          <div class="warning-icon">⚠️</div>
+          <div class="warning-icon">
+            <!-- Simple currency SVG icon -->
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="11" cy="11" r="10" stroke="#ffc107" stroke-width="2" fill="none" />
+              <text x="11" y="15" text-anchor="middle" font-size="12" fill="#ffc107"
+                font-family="Arial, sans-serif">$</text>
+            </svg>
+          </div>
           <div class="warning-content">
             <div class="warning-title">Se creará un nuevo producto</div>
             <div class="warning-details">
@@ -339,12 +346,9 @@ const loadClientByRut = async () => {
         'Content-Type': 'application/json'
       }
     })
-
-    console.log('Client search response:', response.data) // Debug log
-
-    // Handle direct array response from API
-    if (Array.isArray(response.data) && response.data.length > 0) {
-      const client = response.data[0]
+    console.log('Client search response:', response)
+    if (Array.isArray(response.data.data) && response.data.data.length > 0) {
+      const client = response.data.data[0]
       console.log('Client found:', client) // Debug log
 
       // Client exists - update flag
@@ -600,6 +604,7 @@ const ensureClientExists = async () => {
     // If client doesn't exist, create it
     if (!Array.isArray(checkResponse.data) || checkResponse.data.length === 0) {
       const clientPayload = {
+        id: `${Date.now()}`,
         name: rent.value.clientName,
         rut: rent.value.clientRut,
         companyName: '', // Empty to be filled later
@@ -607,7 +612,8 @@ const ensureClientExists = async () => {
         phoneNumber: '', // Empty to be filled later
         address: '', // Empty to be filled later
         frequentClient: 'No',
-        photoFileName: ''
+        photoFileName: '',
+        creationDate: new Date().toISOString()
       }
 
       await axios.post(`${getBaseUrl()}/api/v1/clients`, clientPayload, {
