@@ -53,8 +53,8 @@
               <td>{{ client.address }}</td>
               <td>{{ formatDate(client.creationDate) }}</td>
               <td>
-                <span :class="['frequent-badge', client.frequentClient ? 'frequent-yes' : 'frequent-no']">
-                  {{ client.frequentClient ? 'Sí' : 'No' }}
+                <span :class="['frequent-badge', client.frequentClient === 'Si' ? 'frequent-yes' : 'frequent-no']">
+                  {{ client.frequentClient === 'Si' ? 'Sí' : 'No' }}
                 </span>
               </td>
               <td class="actions">
@@ -146,10 +146,24 @@ const fetchClients = async () => {
         Authorization: `Bearer ${token}`,
       },
     });
-    clients.value = response.data;
-    totalPages.value = response.data.totalPages;
+
+    console.log('API Response:', response.data); // Debug log
+
+    // Fix: The API returns { success: true, data: [...] }, not just the array
+    if (response.data && response.data.data) {
+      clients.value = response.data.data;
+      console.log('Mapped clients:', clients.value); // Debug log
+    } else {
+      // Fallback if the response structure is different
+      clients.value = Array.isArray(response.data) ? response.data : [];
+      console.log('Fallback clients:', clients.value); // Debug log
+    }
+
+    // Fix: totalPages might not be in the response, set a default
+    totalPages.value = response.data.totalPages || 1;
   } catch (error) {
     console.error('Error fetching clients:', error);
+    clients.value = []; // Reset on error
   } finally {
     loading.value = false;
   }
@@ -187,7 +201,7 @@ const openCreatePopup = () => {
     phoneNumber: '',
     address: '',
     creationDate: '',
-    frequentClient: false,
+    frequentClient: 'No',
     photoFileName: '',
   };
   popupMode.value = 'create';
@@ -270,8 +284,11 @@ const deleteClient = async () => {
   deleting.value = true
   try {
     const token = sessionStorage.getItem('token');
-    const url = `${getBaseUrl()}/api/v1/clients/${clientToDelete.value.id}`;
+    const url = `${getBaseUrl()}/api/v1/clients`;
     await axios.delete(url, {
+      params: {
+        id: clientToDelete.value.id
+      },
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -398,7 +398,7 @@ const viewImage = async (rent: Rent) => {
   try {
     const token = sessionStorage.getItem('token')
 
-    // Fetch client data by RUT to get the photo filename
+    // Fetch client data by RUT to get the client info and photo filename
     const response = await axios.get(`${getBaseUrl()}/api/v1/clients`, {
       params: { rut: rent.clientRut },
       headers: {
@@ -406,14 +406,15 @@ const viewImage = async (rent: Rent) => {
         'Content-Type': 'application/json'
       }
     })
-
-    if (Array.isArray(response.data) && response.data.length > 0) {
-      const client = response.data[0]
+    if (Array.isArray(response.data.data) && response.data.data.length > 0) {
+      console.log('step 3')
+      const client = response.data.data[0]
 
       // Set client name for the popup
       clientName.value = client.name || rent.clientName || 'Cliente'
 
-      // Use the centralized photo service
+      // Use the centralized photo service with client ID and photoFileName
+      console.log('client.photoFileName:', client.photoFileName)
       const result = await PhotoService.fetchClientPhoto(client.id || client._id, client.photoFileName)
 
       if (result.success) {
@@ -439,7 +440,9 @@ const viewImage = async (rent: Rent) => {
     clientImageSrc.value = ''
     showClientImageModal.value = true
   }
-}const closeClientImageModal = () => {
+};
+
+const closeClientImageModal = () => {
   showClientImageModal.value = false
   clientImageSrc.value = ''
   clientName.value = ''

@@ -7,6 +7,6 @@ export type Client = {
   phoneNumber: string
   address: string
   creationDate: string
-  frequentClient: boolean
-  photoFileName: string
+  frequentClient: string // Changed from boolean to string to match API
+  photoFileName?: string // Made optional since it's not always returned by API
 }

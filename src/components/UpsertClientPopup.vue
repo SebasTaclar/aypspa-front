@@ -235,9 +235,14 @@ const handleFileSelection = (event: Event) => {
 
 const uploadFile = async (file: File) => {
   try {
-    const fileName = await PhotoService.uploadClientPhoto(client.value.id, file);
-    console.log('File uploaded successfully!');
-    return fileName;
+    const result = await PhotoService.uploadClientPhoto(client.value.id, file);
+
+    if (result.success && result.photoFileName) {
+      console.log('File uploaded successfully!');
+      return result.photoFileName;
+    } else {
+      throw new Error(result.error || 'Upload failed');
+    }
   } catch (error) {
     console.error('Error uploading file:', error);
     throw error;

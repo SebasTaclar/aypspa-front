@@ -28,29 +28,79 @@ export class PhotoService {
     photoFileName?: string,
   ): Promise<PhotoFetchResult> {
     try {
+      console.log('fetchClientPhoto called with photoFileName:', photoFileName)
       const token = sessionStorage.getItem('token')
 
       if (!token) {
         return { success: false, error: 'No authentication token found' }
       }
 
-      // If we have the photoFileName, use the direct API endpoint
+      // If photoFileName is provided, use it directly
       if (photoFileName && photoFileName.trim()) {
-        const imageUrl = `${getBaseUrl()}/api/v1/clients/photo/${photoFileName}`
-        return { success: true, imageUrl }
+        try {
+          const fileName = `clients/${photoFileName}`
+
+          const presignedResponse = await axios.post(
+            `${getBaseUrl()}/api/v1/generatePreSignedUrlAwsS3`,
+            {
+              fileName,
+              fileType: 'image/*',
+              action: 'retrieve',
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            },
+          )
+
+          if (presignedResponse.data?.url) {
+            return { success: true, imageUrl: presignedResponse.data.url }
+          }
+        } catch (error) {
+          console.error('Error getting presigned URL for provided photoFileName:', error)
+        }
       }
 
-      // If we don't have photoFileName, get client info first
-      const clientResponse = await axios.get(`${getBaseUrl()}/api/v1/clients/${clientId}`, {
+      // If no photoFileName provided, get it from the client record
+      const clientResponse = await axios.get(`${getBaseUrl()}/api/v1/clients`, {
+        params: {
+          id: clientId,
+        },
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       })
 
-      if (clientResponse.data?.photoFileName && clientResponse.data.photoFileName.trim()) {
-        const imageUrl = `${getBaseUrl()}/api/v1/clients/photo/${clientResponse.data.photoFileName}`
-        return { success: true, imageUrl }
+      const clientPhotoFileName = clientResponse.data?.photoFileName
+
+      if (clientPhotoFileName && clientPhotoFileName.trim()) {
+        try {
+          const fileName = `clients/${clientPhotoFileName}`
+
+          const presignedResponse = await axios.post(
+            `${getBaseUrl()}/api/v1/generatePreSignedUrlAwsS3`,
+            {
+              fileName,
+              fileType: 'image/*',
+              action: 'retrieve',
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            },
+          )
+
+          if (presignedResponse.data?.url) {
+            return { success: true, imageUrl: presignedResponse.data.url }
+          }
+        } catch (error) {
+          console.error('Error getting presigned URL for client photo:', error)
+        }
       }
 
       // No photo available
@@ -79,13 +129,12 @@ export class PhotoService {
       }
 
       // Generate unique filename
-      const timestamp = Date.now()
       const fileExtension = file.name.split('.').pop() || 'jpg'
-      const fileName = `clients/${clientId}_${timestamp}.${fileExtension}`
+      const fileName = `clients/${clientId}.${fileExtension}`
 
       // Step 1: Get presigned URL for upload
       const presignedResponse = await axios.post(
-        `${getBaseUrl()}/api/v1/files/presigned`,
+        `${getBaseUrl()}/api/v1/generatePreSignedUrlAwsS3`,
         {
           fileName,
           fileType: file.type,
@@ -115,12 +164,16 @@ export class PhotoService {
       }
 
       // Step 3: Update client record with photo filename
-      await axios.patch(
-        `${getBaseUrl()}/api/v1/clients/${clientId}`,
+      await axios.put(
+        `${getBaseUrl()}/api/v1/clients`,
         {
+          id: clientId,
           photoFileName: fileName.split('/').pop(), // Just the filename without the 'clients/' prefix
         },
         {
+          params: {
+            id: clientId,
+          },
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -157,12 +210,16 @@ export class PhotoService {
       }
 
       // Clear the photoFileName from the client record
-      await axios.patch(
-        `${getBaseUrl()}/api/v1/clients/${clientId}`,
+      await axios.put(
+        `${getBaseUrl()}/api/v1/clients`,
         {
+          id: clientId,
           photoFileName: '',
         },
         {
+          params: {
+            id: clientId,
+          },
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',

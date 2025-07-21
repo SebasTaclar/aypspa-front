@@ -153,7 +153,6 @@ import axios from 'axios'
 import Spinner from '@/components/Spinner.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import type { Rent } from '@/types/RentType'
-import type { Client } from '@/types/ClientType'
 
 const { rentData, mode } = defineProps<{
   rentData: Rent | null
@@ -607,7 +606,7 @@ const ensureClientExists = async () => {
         companyDocument: '', // Empty to be filled later
         phoneNumber: '', // Empty to be filled later
         address: '', // Empty to be filled later
-        frequentClient: false,
+        frequentClient: 'No',
         photoFileName: ''
       }
 
