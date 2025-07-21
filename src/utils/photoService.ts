@@ -120,7 +120,12 @@ export class PhotoService {
    * @param file - The image file to upload
    * @returns Promise with upload result
    */
-  static async uploadClientPhoto(clientId: string, file: File): Promise<PhotoUploadResult> {
+  static async uploadClientPhoto(
+    clientId: string,
+    file: File,
+    clientData: unknown,
+  ): Promise<PhotoUploadResult> {
+    console.log('uploadClientPhoto called with clientData:', clientData)
     try {
       const token = sessionStorage.getItem('token')
 
@@ -163,17 +168,13 @@ export class PhotoService {
         return { success: false, error: 'Failed to upload file to S3' }
       }
 
-      // Step 3: Update client record with photo filename
       await axios.put(
-        `${getBaseUrl()}/api/v1/clients`,
+        `${getBaseUrl()}/api/v1/clients/${clientId}`,
         {
-          id: clientId,
-          photoFileName: fileName.split('/').pop(), // Just the filename without the 'clients/' prefix
+          ...(typeof clientData === 'object' && clientData !== null ? clientData : {}),
+          photoFileName: fileName.split('/').pop(),
         },
         {
-          params: {
-            id: clientId,
-          },
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',

@@ -86,7 +86,7 @@ if (mode === 'create') {
 
 // Use reactive refs for client data instead of computed
 const client = ref({
-  id: mode === 'create' ? `${Date.now()}` : (clientData?.id || `${Date.now()}`),
+  id: mode === 'create' ? undefined : (clientData?.id ?? undefined),
   name: mode === 'create' ? '' : (clientData?.name || ''),
   companyName: mode === 'create' ? '' : (clientData?.companyName || ''),
   companyDocument: mode === 'create' ? '' : (clientData?.companyDocument || ''),
@@ -141,16 +141,12 @@ const closePopup = () => {
 const saveClient = async () => {
   loading.value = true;
   try {
-    if (selectedFile.value) {
-      const fileName = await uploadFile(selectedFile.value);
-      client.value.photoFileName = fileName;
-    }
-
     if (mode === 'edit') {
       await handleEditClient();
     } else if (mode === 'create') {
       await handleCreateClient();
     }
+
   } catch (error) {
     console.error('Error saving client:', error);
   } finally {
@@ -163,15 +159,13 @@ const handleEditClient = async () => {
   try {
     console.log('Updating client:', client.value);
     const token = sessionStorage.getItem('token');
-    const url = `${getBaseUrl()}/api/v1/clients`;
+    const url = `${getBaseUrl()}/api/v1/clients/${client.value.id}`;
     await axios.put(url, client.value, {
-      params: {
-        id: client.value.id,
-      },
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+    await handlePhotoUpload(client.value.id);
     emit('save');
   } catch (error) {
     console.error('Error updating client:', error);
@@ -182,22 +176,39 @@ const handleEditClient = async () => {
 };
 
 const handleCreateClient = async () => {
+  console.log('Creating client:', client.value);
   loading.value = true;
   try {
-    console.log('Creating client:', client.value);
     const token = sessionStorage.getItem('token');
     const url = `${getBaseUrl()}/api/v1/clients`;
-    await axios.post(url, client.value, {
+
+    // First, create the client to get the ID
+    const response = await axios.post(url, client.value, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+    await handlePhotoUpload(response.data.data.id);
     emit('save');
   } catch (error) {
     console.error('Error creating client:', error);
     throw error;
   } finally {
     loading.value = false;
+  }
+};
+
+const handlePhotoUpload = async (clientId?: string) => {
+  if (selectedFile.value) {
+    try {
+      const fileName = await uploadFile(selectedFile.value, clientId);
+      client.value.photoFileName = fileName;
+      console.log('Photo uploaded successfully:', fileName);
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      // Don't throw the error to prevent client creation/update from failing
+      alert('Client saved successfully, but photo upload failed. Please try uploading the photo again.');
+    }
   }
 };
 
@@ -225,12 +236,19 @@ const handleFileSelection = (event: Event) => {
   }
 };
 
-const uploadFile = async (file: File) => {
+const uploadFile = async (file: File, clientId?: string) => {
   try {
-    const result = await PhotoService.uploadClientPhoto(client.value.id, file);
+    // Use the provided clientId or fall back to the current client.value.id
+    const idToUse = clientId || client.value.id;
+
+    if (!idToUse) {
+      throw new Error('No client ID available for photo upload');
+    }
+
+    console.log('Uploading file for client ID:', idToUse);
+    const result = await PhotoService.uploadClientPhoto(idToUse, file, client.value);
 
     if (result.success && result.photoFileName) {
-      console.log('File uploaded successfully!');
       return result.photoFileName;
     } else {
       throw new Error(result.error || 'Upload failed');

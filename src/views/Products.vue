@@ -221,7 +221,6 @@ const deleteProduct = async () => {
     }
 
     await fetchProducts() // Refresh the table after deleting
-    alert('Producto eliminado exitosamente')
     closeDeleteModal()
   } catch (error) {
     console.error('Error deleting product:', error)

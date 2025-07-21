@@ -91,7 +91,13 @@
                   <img src="/icons/eye.svg" alt="Ver" />
                 </button>
                 <button @click="finishRent(rent)" class="btn-finish" title="Finalizar arrendamiento">
-                  💰
+                  <!-- Simple currency SVG icon -->
+                  <svg width="18" height="18" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    style="vertical-align: middle;">
+                    <circle cx="11" cy="11" r="9" stroke="#ffc107" stroke-width="2" fill="none" />
+                    <text x="11" y="15" text-anchor="middle" font-size="12" fill="#ffc107"
+                      font-family="Arial, sans-serif">$</text>
+                  </svg>
                 </button>
                 <button @click="printReport(rent)" class="btn-print" title="Imprimir comprobante">
                   📄
@@ -192,6 +198,10 @@
     <!-- Client Document Popup -->
     <ClientDocumentPopup :visible="showClientImageModal" :image-src="clientImageSrc" :client-name="clientName"
       @close="closeClientImageModal" />
+
+    <!-- Finish Rent Popup -->
+    <FinishRentPopup :is-open="showFinishRentModal" :rent="rentToFinish" @close="closeFinishRentModal"
+      @confirm="handleFinishRent" />
   </div>
 </template>
 
@@ -206,6 +216,14 @@ import { PhotoService } from '@/utils/photoService'
 import Spinner from '@/components/Spinner.vue'
 import UpsertRentPopup from '@/components/UpsertRentPopup.vue'
 import ClientDocumentPopup from '@/components/ClientDocumentPopup.vue'
+import FinishRentPopup from '@/components/FinishRentPopup.vue'
+
+interface FinishRentData {
+  totalDays: number
+  totalPrice: number
+  observations: string
+  isPaid: boolean
+}
 
 const route = useRoute()
 const router = useRouter()
@@ -227,6 +245,10 @@ const upsertMode = ref<'create' | 'edit'>('create')
 const showClientImageModal = ref(false)
 const clientImageSrc = ref('')
 const clientName = ref('')
+
+// Finish rent modal state
+const showFinishRentModal = ref(false)
+const rentToFinish = ref<Rent | null>(null)
 
 // API function to fetch rents
 const fetchRents = async () => {
@@ -449,8 +471,10 @@ const closeClientImageModal = () => {
 }
 
 const finishRent = (rent: Rent) => {
-  // TODO: Implement finish rent functionality
-  console.log('Finish rent:', rent)
+  console.log('finishRent called with:', rent)
+  rentToFinish.value = rent
+  showFinishRentModal.value = true
+  console.log('showFinishRentModal set to:', showFinishRentModal.value)
 }
 
 const printReport = (rent: Rent) => {
@@ -495,6 +519,53 @@ const deleteRent = async () => {
     // You might want to show a user-friendly error message here
   } finally {
     deleting.value = false
+  }
+}
+
+const closeFinishRentModal = () => {
+  showFinishRentModal.value = false
+  rentToFinish.value = null
+}
+
+const handleFinishRent = async (finishData: FinishRentData) => {
+  if (!rentToFinish.value) return
+
+  try {
+    const token = sessionStorage.getItem('token')
+
+    // Update the rent with finish data
+    const updatedRent = {
+      ...rentToFinish.value,
+      isFinished: true,
+      totalDays: finishData.totalDays,
+      totalPrice: finishData.totalPrice,
+      observations: finishData.observations,
+      isPaid: finishData.isPaid,
+      finishDate: new Date().toISOString()
+    }
+
+    // Make API call to update the rent
+    await axios.put(`${getBaseUrl()}/api/v1/rents/${rentToFinish.value.id}`, updatedRent, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    // Update local array
+    const index = rents.value.findIndex(r => r.id === rentToFinish.value!.id)
+    if (index > -1) {
+      rents.value[index] = updatedRent
+    }
+
+    closeFinishRentModal()
+  } catch (error) {
+    console.error('Error finishing rent:', error)
+    if (axios.isAxiosError(error)) {
+      console.error('API Error:', error.response?.data || error.message)
+    }
+    // You might want to show a user-friendly error message here
+    alert('Error al finalizar el arrendamiento. Por favor, intente nuevamente.')
   }
 }
 </script>

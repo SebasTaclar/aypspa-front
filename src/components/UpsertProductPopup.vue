@@ -58,7 +58,6 @@
       </form>
     </div>
 
-    <!-- Confirmation Modal -->
     <ConfirmationModal v-if="showConfirmation" title="¿Descartar cambios?"
       message="¿Estás seguro de que deseas cerrar el formulario? Los cambios no guardados se perderán."
       confirm-text="Descartar" cancel-text="Continuar editando" @confirm="confirmClose" @cancel="cancelClose" />
@@ -105,7 +104,10 @@ watch(() => props.show, (newVal) => {
   if (newVal && props.product) {
     // Editing mode
     localProduct.value = { ...props.product }
-    originalProductData.value = { ...props.product }
+    // Ensure calculated total is correct
+    calculateTotals()
+    // Store original data after calculation for proper change detection
+    originalProductData.value = { ...localProduct.value }
     showConfirmation.value = false // Reset confirmation modal
   } else if (newVal) {
     // Creating mode
@@ -118,15 +120,10 @@ watch(() => props.show, (newVal) => {
       priceTotal: 0,
       priceWarranty: 0
     }
-    originalProductData.value = {
-      name: '',
-      code: '',
-      brand: '',
-      priceNet: 0,
-      priceIva: 0,
-      priceTotal: 0,
-      priceWarranty: 0
-    }
+    // Calculate totals for new product
+    calculateTotals()
+    // Store original data after calculation for proper change detection
+    originalProductData.value = { ...localProduct.value }
     showConfirmation.value = false // Reset confirmation modal
   }
 })
@@ -142,7 +139,25 @@ const handleOverlayClick = () => {
 }
 
 const checkForChanges = () => {
-  const hasChanges = JSON.stringify(localProduct.value) !== JSON.stringify(originalProductData.value)
+  const currentDataForComparison = {
+    name: localProduct.value.name,
+    code: localProduct.value.code,
+    brand: localProduct.value.brand,
+    priceNet: localProduct.value.priceNet,
+    priceIva: localProduct.value.priceIva,
+    priceWarranty: localProduct.value.priceWarranty
+  }
+
+  const originalDataForComparison = {
+    name: originalProductData.value?.name,
+    code: originalProductData.value?.code,
+    brand: originalProductData.value?.brand,
+    priceNet: originalProductData.value?.priceNet,
+    priceIva: originalProductData.value?.priceIva,
+    priceWarranty: originalProductData.value?.priceWarranty
+  }
+
+  const hasChanges = JSON.stringify(currentDataForComparison) !== JSON.stringify(originalDataForComparison)
 
   if (hasChanges) {
     showConfirmation.value = true
