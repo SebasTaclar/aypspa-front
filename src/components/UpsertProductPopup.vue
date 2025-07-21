@@ -201,7 +201,7 @@ const submitForm = async () => {
   isSubmitting.value = true
   try {
     // Ensure calculations are up to date before submitting
-    if (localProduct.value.priceTotal > 0) {
+    if ((localProduct.value.priceTotal ?? 0) > 0) {
       calculateFromTotal()
     }
     emit('submit', localProduct.value)
