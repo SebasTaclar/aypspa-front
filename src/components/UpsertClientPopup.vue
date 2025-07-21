@@ -9,11 +9,11 @@
         </div>
         <div class="form-group">
           <label for="nombreEmpresa">Nombre Empresa</label>
-          <input id="nombreEmpresa" v-model="client.companyName" type="text" required />
+          <input id="nombreEmpresa" v-model="client.companyName" type="text" />
         </div>
         <div class="form-group">
           <label for="documentoEmpresa"># Documento Empresa</label>
-          <input id="documentoEmpresa" v-model="client.companyDocument" type="text" required />
+          <input id="documentoEmpresa" v-model="client.companyDocument" type="text" />
         </div>
         <div class="form-group">
           <label for="rut">RUT</label>
@@ -38,7 +38,9 @@
           <label for="photo">Foto</label>
           <input id="photo" type="file" @change="handleFileSelection" />
         </div>
-        <button type="submit" class="btn btn-primary" :disabled="loading">Guardar</button>
+        <button type="submit" class="btn btn-primary" :disabled="loading">
+          {{ loading ? 'Guardando...' : 'Guardar' }}
+        </button>
         <button type="button" class="btn btn-secondary" @click="handleOverlayClick">
           Cancelar
         </button>

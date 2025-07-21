@@ -82,7 +82,7 @@
                 </span>
               </td>
               <td class="warranty">${{ formatCurrency(rent.warrantyValue) }}</td>
-              <td>{{ formatDate(rent.creationDate) }}</td>
+              <td>{{ formatDate(rent.createdAt) }}</td>
               <td class="actions">
                 <button @click="editRent(rent)" class="btn-edit" title="Editar">
                   <img src="/icons/edit.svg" alt="Editar" />
@@ -156,7 +156,7 @@
                 </span>
               </td>
               <td class="warranty">${{ formatCurrency(rent.warrantyValue) }}</td>
-              <td>{{ formatDate(rent.creationDate) }}</td>
+              <td>{{ formatDate(rent.createdAt) }}</td>
               <td class="actions">
                 <button @click="editRent(rent)" class="btn-edit" title="Editar">
                   <img src="/icons/edit.svg" alt="Editar" />
@@ -471,10 +471,8 @@ const closeClientImageModal = () => {
 }
 
 const finishRent = (rent: Rent) => {
-  console.log('finishRent called with:', rent)
   rentToFinish.value = rent
   showFinishRentModal.value = true
-  console.log('showFinishRentModal set to:', showFinishRentModal.value)
 }
 
 const printReport = (rent: Rent) => {
@@ -505,6 +503,8 @@ const deleteRent = async () => {
       }
     })
 
+    await updateProductRentStatus(rentToDelete.value.code, false)
+
     // Remove from local array after successful deletion
     const index = rents.value.findIndex(r => r.id === rentToDelete.value!.id)
     if (index > -1) {
@@ -525,6 +525,46 @@ const deleteRent = async () => {
 const closeFinishRentModal = () => {
   showFinishRentModal.value = false
   rentToFinish.value = null
+}
+
+// Update product rental status
+const updateProductRentStatus = async (productCode: string, isRented: boolean) => {
+  try {
+    const token = sessionStorage.getItem('token')
+
+    // First, get the product by code to get its ID
+    const getResponse = await axios.get(`${getBaseUrl()}/api/v1/products`, {
+      params: { code: productCode },
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (Array.isArray(getResponse.data) && getResponse.data.length > 0) {
+      const product = getResponse.data[0]
+
+      // Update the product's rented status
+      const updatePayload = {
+        ...product,
+        rented: isRented
+      }
+
+      await axios.put(`${getBaseUrl()}/api/v1/products/${product._id}`, updatePayload, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      console.log(`Product ${productCode} rental status updated to: ${isRented}`)
+    } else {
+      console.warn(`Product with code ${productCode} not found for status update`)
+    }
+  } catch (error) {
+    console.error('Error updating product rental status:', error)
+    // Don't throw here - let rent operations continue even if product update fails
+  }
 }
 
 const handleFinishRent = async (finishData: FinishRentData) => {
@@ -551,6 +591,9 @@ const handleFinishRent = async (finishData: FinishRentData) => {
         'Content-Type': 'application/json'
       }
     })
+
+    // Update product status to not rented when finishing the rent
+    await updateProductRentStatus(rentToFinish.value.code, false)
 
     // Update local array
     const index = rents.value.findIndex(r => r.id === rentToFinish.value!.id)

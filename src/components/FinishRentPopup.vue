@@ -1,94 +1,88 @@
 <template>
-  <div v-if="isOpen" class="modal-overlay" @click="closeModal">
-    <div class="modal-content" @click.stop>
-      <div class="modal-header">
-        <h2>Finalizar y Cobrar Arrendamiento</h2>
-        <button class="close-btn" @click="closeModal">&times;</button>
+  <div v-if="isOpen" class="popup-overlay" @click="closeModal">
+    <div class="popup-content" @click.stop>
+      <h2>Finalizar y Cobrar Arrendamiento</h2>
+
+      <!-- Locked Information Fields -->
+      <div class="form-section">
+        <h3>Información del Arrendamiento</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Código:</label>
+            <input type="text" :value="rent?.code" readonly class="readonly-input" />
+          </div>
+          <div class="form-group">
+            <label>Producto:</label>
+            <input type="text" :value="rent?.productName" readonly class="readonly-input" />
+          </div>
+          <div class="form-group">
+            <label>Cantidad:</label>
+            <input type="number" :value="rent?.quantity" readonly class="readonly-input" />
+          </div>
+          <div class="form-group">
+            <label>Cliente:</label>
+            <input type="text" :value="rent?.clientName" readonly class="readonly-input" />
+          </div>
+          <div class="form-group">
+            <label>RUT Cliente:</label>
+            <input type="text" :value="rent?.clientRut" readonly class="readonly-input" />
+          </div>
+          <div class="form-group">
+            <label>Fecha de Entrega:</label>
+            <input type="text" :value="rent ? formatDate(rent.deliveryDate) : ''" readonly class="readonly-input" />
+          </div>
+          <div class="form-group">
+            <label>Valor por Día:</label>
+            <input type="text" :value="rent ? formatCurrency(rent.totalValuePerDay) : ''" readonly
+              class="readonly-input" />
+          </div>
+          <div class="form-group">
+            <label>Valor Garantía:</label>
+            <input type="text" :value="rent ? formatCurrency(rent.warrantyValue) : ''" readonly
+              class="readonly-input" />
+          </div>
+        </div>
       </div>
 
-      <div class="modal-body">
-        <form @submit.prevent="handleSubmit">
-          <!-- Locked Information Fields -->
-          <div class="form-section">
-            <h3>Información del Arrendamiento</h3>
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Código:</label>
-                <input type="text" :value="rent?.code" readonly class="readonly-input" />
-              </div>
-              <div class="form-group">
-                <label>Producto:</label>
-                <input type="text" :value="rent?.productName" readonly class="readonly-input" />
-              </div>
-              <div class="form-group">
-                <label>Cantidad:</label>
-                <input type="number" :value="rent?.quantity" readonly class="readonly-input" />
-              </div>
-              <div class="form-group">
-                <label>Cliente:</label>
-                <input type="text" :value="rent?.clientName" readonly class="readonly-input" />
-              </div>
-              <div class="form-group">
-                <label>RUT Cliente:</label>
-                <input type="text" :value="rent?.clientRut" readonly class="readonly-input" />
-              </div>
-              <div class="form-group">
-                <label>Fecha de Entrega:</label>
-                <input type="text" :value="rent ? formatDate(rent.deliveryDate) : ''" readonly class="readonly-input" />
-              </div>
-              <div class="form-group">
-                <label>Valor por Día:</label>
-                <input type="text" :value="rent ? formatCurrency(rent.totalValuePerDay) : ''" readonly
-                  class="readonly-input" />
-              </div>
-              <div class="form-group">
-                <label>Valor Garantía:</label>
-                <input type="text" :value="rent ? formatCurrency(rent.warrantyValue) : ''" readonly
-                  class="readonly-input" />
-              </div>
-            </div>
+      <!-- Editable Fields -->
+      <div class="form-section">
+        <h3>Finalización del Arrendamiento</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="totalDays">Total de Días:</label>
+            <input id="totalDays" type="number" v-model.number="finishData.totalDays" min="0.01" step="0.01" required
+              class="editable-input" />
+            <small class="form-hint">Calculado automáticamente: {{ calculatedDays }} días</small>
           </div>
 
-          <!-- Editable Fields -->
-          <div class="form-section">
-            <h3>Finalización del Arrendamiento</h3>
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="totalDays">Total de Días:</label>
-                <input id="totalDays" type="number" v-model.number="finishData.totalDays" min="1" required
-                  class="editable-input" />
-                <small class="form-hint">Calculado automáticamente: {{ calculatedDays }} días</small>
-              </div>
+          <div class="form-group">
+            <label for="totalPrice">Precio Total:</label>
+            <input id="totalPrice" type="number" v-model.number="finishData.totalPrice" min="0" step="1" required
+              class="editable-input" />
+            <small class="form-hint">Sugerido: {{ formatCurrency(suggestedPrice) }}</small>
+          </div>
 
-              <div class="form-group">
-                <label for="totalPrice">Precio Total:</label>
-                <input id="totalPrice" type="number" v-model.number="finishData.totalPrice" min="0" step="1" required
-                  class="editable-input" />
-                <small class="form-hint">Sugerido: {{ formatCurrency(suggestedPrice) }}</small>
-              </div>
+          <div class="form-group full-width">
+            <label for="observations">Observaciones:</label>
+            <textarea id="observations" v-model="finishData.observations" rows="4"
+              placeholder="Agregar observaciones adicionales..." class="editable-input"></textarea>
+          </div>
 
-              <div class="form-group full-width">
-                <label for="observations">Observaciones:</label>
-                <textarea id="observations" v-model="finishData.observations" rows="4"
-                  placeholder="Agregar observaciones adicionales..." class="editable-input"></textarea>
-              </div>
-
-              <div class="form-group full-width">
-                <div class="checkbox-group">
-                  <input id="isPaid" type="checkbox" v-model="finishData.isPaid" class="checkbox-input" />
-                  <label for="isPaid" class="checkbox-label">Arrendamiento Pagado</label>
-                </div>
-              </div>
+          <div class="form-group full-width">
+            <div class="checkbox-group">
+              <input id="isPaid" type="checkbox" v-model="finishData.isPaid" class="checkbox-input" />
+              <label for="isPaid" class="checkbox-label">Arrendamiento Pagado</label>
             </div>
           </div>
-        </form>
+        </div>
       </div>
 
-      <div class="modal-footer">
-        <button type="button" class="btn-cancel" @click="closeModal">
+      <!-- Footer Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" @click="closeModal">
           Cancelar
         </button>
-        <button type="submit" class="btn-confirm" @click="handleSubmit">
+        <button type="submit" class="btn btn-primary" @click="handleSubmit">
           Finalizar Arrendamiento
         </button>
       </div>
@@ -120,38 +114,30 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// Add debugging
-watch(() => props.isOpen, (newValue) => {
-  console.log('FinishRentPopup isOpen changed to:', newValue)
-})
-
-watch(() => props.rent, (newRent) => {
-  console.log('FinishRentPopup rent changed to:', newRent)
-})
-
 const finishData = ref<FinishRentData>({
-  totalDays: 1,
+  totalDays: 0.01,
   totalPrice: 0,
   observations: '',
   isPaid: false
 })
 
-// Calculate days between delivery date and current date
+// Calculate days between creation date and current date with 2 decimal precision
 const calculatedDays = computed(() => {
-  if (!props.rent) return 1
+  if (!props.rent) return 0.01
 
-  const deliveryDate = new Date(props.rent.deliveryDate)
+  const creationDate = new Date(props.rent.createdAt)
   const currentDate = new Date()
-  const diffTime = Math.abs(currentDate.getTime() - deliveryDate.getTime())
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  const diffTime = currentDate.getTime() - creationDate.getTime()
+  const diffDays = diffTime / (1000 * 60 * 60 * 24) // Convert milliseconds to days
 
-  return Math.max(1, diffDays)
+  // Round to 2 decimal places and ensure minimum of 0.01 days
+  return Math.max(0.01, Math.round(diffDays * 100) / 100)
 })
 
 // Calculate suggested price based on daily rate and total days
 const suggestedPrice = computed(() => {
   if (!props.rent) return 0
-  return props.rent.totalValuePerDay * finishData.value.totalDays
+  return Math.round(props.rent.totalValuePerDay * finishData.value.totalDays)
 })
 
 // Watch for changes in calculated days to update the form
@@ -162,7 +148,7 @@ watch(calculatedDays, (newDays) => {
 // Watch for changes in total days to update suggested price
 watch(() => finishData.value.totalDays, (newDays) => {
   if (props.rent) {
-    finishData.value.totalPrice = props.rent.totalValuePerDay * newDays
+    finishData.value.totalPrice = Math.round(props.rent.totalValuePerDay * newDays)
   }
 })
 
@@ -172,7 +158,7 @@ watch(() => props.rent, (newRent) => {
     const days = calculatedDays.value
     finishData.value = {
       totalDays: days,
-      totalPrice: newRent.totalValuePerDay * days,
+      totalPrice: Math.round(newRent.totalValuePerDay * days),
       observations: '',
       isPaid: false
     }
@@ -198,9 +184,8 @@ const closeModal = () => {
 const handleSubmit = () => {
   if (!props.rent) return
 
-  // Validate required fields
-  if (finishData.value.totalDays < 1) {
-    alert('El total de días debe ser mayor a 0')
+  if (finishData.value.totalDays < 0.01) {
+    alert('El total de días debe ser mayor a 0.01')
     return
   }
 
@@ -214,65 +199,64 @@ const handleSubmit = () => {
 </script>
 
 <style scoped>
-.modal-overlay {
+.popup-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  right: 0;
+  bottom: 0;
+  background: var(--overlay-bg);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
+  backdrop-filter: var(--backdrop-blur);
+  animation: fadeIn 0.3s ease-out;
 }
 
-.modal-content {
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.popup-content {
   background: var(--bg-secondary);
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  backdrop-filter: var(--backdrop-blur);
+  border-radius: 20px;
+  padding: 2.5rem;
+  border: 1px solid var(--border-primary);
+  box-shadow: 0 20px 60px var(--shadow-primary);
+  max-width: 700px;
   width: 90%;
-  max-width: 800px;
   max-height: 90vh;
   overflow-y: auto;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.popup-content h2 {
   color: var(--text-primary);
-  backdrop-filter: var(--backdrop-blur);
-  border: 1px solid var(--border-primary);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--border-primary);
-}
-
-.modal-header h2 {
-  margin: 0;
-  color: var(--text-primary);
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: var(--text-primary);
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.close-btn:hover {
-  color: var(--text-secondary);
-}
-
-.modal-body {
-  padding: 1.5rem;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  text-align: center;
+  text-shadow: 0 2px 4px var(--shadow-primary);
 }
 
 .form-section {
@@ -353,44 +337,78 @@ const handleSubmit = () => {
   font-weight: 500;
 }
 
-.modal-footer {
+.form-actions {
   display: flex;
-  justify-content: flex-end;
   gap: 1rem;
-  padding: 1.5rem;
-  border-top: 1px solid var(--border-primary);
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-secondary);
 }
 
-.btn-cancel {
-  padding: 0.75rem 1.5rem;
-  border: 2px solid var(--border-primary);
-  border-radius: 4px;
-  background-color: transparent;
-  color: var(--text-primary);
+.btn {
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
-  font-weight: 500;
   transition: all 0.3s ease;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: var(--backdrop-blur);
 }
 
-.btn-cancel:hover {
-  background-color: var(--bg-tertiary);
-  border-color: var(--text-primary);
-}
-
-.btn-confirm {
-  padding: 0.75rem 1.5rem;
-  border: 2px solid var(--primary-color-alpha-60);
-  border-radius: 4px;
-  background-color: var(--primary-color-alpha-60);
+.btn-primary {
+  background: var(--primary-gradient);
   color: white;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px var(--primary-color-alpha-30);
 }
 
-.btn-confirm:hover {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-gradient-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--primary-color-alpha-40);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-primary);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-secondary);
+  border-color: var(--border-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px var(--shadow-secondary);
+}
+
+/* Custom scrollbar for modal content */
+.popup-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.popup-content::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+}
+
+.popup-content::-webkit-scrollbar-thumb {
+  background: var(--border-primary);
+  border-radius: 4px;
+}
+
+.popup-content::-webkit-scrollbar-thumb:hover {
+  background: var(--border-secondary);
 }
 
 textarea.editable-input {
@@ -403,17 +421,17 @@ textarea.editable-input {
     grid-template-columns: 1fr;
   }
 
-  .modal-content {
+  .popup-content {
     width: 95%;
     margin: 1rem;
+    padding: 2rem;
   }
 
-  .modal-footer {
+  .form-actions {
     flex-direction: column;
   }
 
-  .btn-cancel,
-  .btn-confirm {
+  .btn {
     width: 100%;
   }
 }

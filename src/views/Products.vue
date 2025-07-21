@@ -170,8 +170,7 @@ const createProduct = async (productData: Partial<Product>) => {
       throw new Error('Error al crear producto')
     }
 
-    await fetchProducts() // Refresh the table after creating
-    alert('Producto creado exitosamente')
+    await fetchProducts()
   } catch (error) {
     console.error('Error creating product:', error)
     alert('Error al crear el producto')
@@ -194,8 +193,7 @@ const updateProduct = async (productData: Partial<Product>) => {
       throw new Error('Error al actualizar producto')
     }
 
-    await fetchProducts() // Refresh the table after updating
-    alert('Producto actualizado exitosamente')
+    await fetchProducts()
   } catch (error) {
     console.error('Error updating product:', error)
     alert('Error al actualizar el producto')

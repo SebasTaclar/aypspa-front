@@ -1,6 +1,6 @@
 <template>
-  <div v-if="show" class="popup-overlay" @click="handleOverlayClick">
-    <div class="popup-content" @click.stop>
+  <div v-if="show" class="popup-overlay" @click.self="handleOverlayClick">
+    <div class="popup-content">
       <h2>{{ isEditing ? 'Editar Producto' : 'Crear Producto' }}</h2>
       <form @submit.prevent="submitForm">
         <div class="form-group">
@@ -23,28 +23,28 @@
 
         <div class="form-row">
           <div class="form-group">
-            <label for="priceNet">Precio Neto*</label>
-            <input type="number" id="priceNet" v-model="localProduct.priceNet" required min="0" step="0.01"
-              placeholder="0.00" @input="calculateTotals" />
-          </div>
-
-          <div class="form-group">
-            <label for="priceIva">IVA*</label>
-            <input type="number" id="priceIva" v-model="localProduct.priceIva" required min="0" step="0.01"
-              placeholder="0.00" @input="calculateTotals" />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="priceTotal">Precio Total</label>
-            <input type="number" id="priceTotal" v-model="localProduct.priceTotal" readonly step="0.01"
-              placeholder="0.00" />
+            <label for="priceTotal">Precio Total*</label>
+            <input type="number" id="priceTotal" v-model="localProduct.priceTotal" required min="0" step="0.01"
+              placeholder="0.00" @input="calculateFromTotal" />
           </div>
 
           <div class="form-group">
             <label for="priceWarranty">Precio Garantía*</label>
             <input type="number" id="priceWarranty" v-model="localProduct.priceWarranty" required min="0" step="0.01"
+              placeholder="0.00" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="priceNet">Precio Neto (Calculado)</label>
+            <input type="number" id="priceNet" v-model="localProduct.priceNet" readonly step="0.01"
+              placeholder="0.00" />
+          </div>
+
+          <div class="form-group">
+            <label for="priceIva">IVA (Calculado)</label>
+            <input type="number" id="priceIva" v-model="localProduct.priceIva" readonly step="0.01"
               placeholder="0.00" />
           </div>
         </div>
@@ -104,7 +104,7 @@ watch(() => props.show, (newVal) => {
   if (newVal && props.product) {
     // Editing mode
     localProduct.value = { ...props.product }
-    // Ensure calculated total is correct
+    // Ensure calculated values are correct when editing
     calculateTotals()
     // Store original data after calculation for proper change detection
     originalProductData.value = { ...localProduct.value }
@@ -120,46 +120,68 @@ watch(() => props.show, (newVal) => {
       priceTotal: 0,
       priceWarranty: 0
     }
-    // Calculate totals for new product
-    calculateTotals()
-    // Store original data after calculation for proper change detection
+    // For new products, start with empty values
+    // Store original data for proper change detection
     originalProductData.value = { ...localProduct.value }
     showConfirmation.value = false // Reset confirmation modal
   }
 })
 
+const calculateFromTotal = () => {
+  const total = Number(localProduct.value.priceTotal) || 0
+
+  // Calcular precio neto e IVA desde el total
+  // IVA en Chile es 19%, por lo que:
+  // Total = Neto + IVA
+  // Total = Neto + (Neto * 0.19)
+  // Total = Neto * 1.19
+  // Neto = Total / 1.19
+
+  const priceNet = total / 1.19
+  const priceIva = total - priceNet
+
+  localProduct.value.priceNet = Math.round(priceNet)
+  localProduct.value.priceIva = Math.round(priceIva)
+}
+
 const calculateTotals = () => {
+  // Esta función se mantiene para casos donde se necesite calcular desde neto e IVA
   const net = Number(localProduct.value.priceNet) || 0
   const iva = Number(localProduct.value.priceIva) || 0
   localProduct.value.priceTotal = net + iva
 }
 
+const hasChanges = computed(() => {
+  if (!isEditing.value) {
+    // For create mode, check if any field has been filled
+    const currentProduct = localProduct.value;
+    return !!(
+      currentProduct.name?.trim() ||
+      currentProduct.code?.trim() ||
+      currentProduct.brand?.trim() ||
+      (currentProduct.priceTotal && currentProduct.priceTotal > 0) ||
+      (currentProduct.priceWarranty && currentProduct.priceWarranty > 0)
+    );
+  } else {
+    // For edit mode, compare with original data
+    if (!originalProductData.value) return false;
+
+    const current = localProduct.value;
+    const original = originalProductData.value;
+
+    // Compare mainly the user-editable fields
+    return !!(
+      current.name !== original.name ||
+      current.code !== original.code ||
+      current.brand !== original.brand ||
+      current.priceTotal !== original.priceTotal ||
+      current.priceWarranty !== original.priceWarranty
+    );
+  }
+});
+
 const handleOverlayClick = () => {
-  checkForChanges()
-}
-
-const checkForChanges = () => {
-  const currentDataForComparison = {
-    name: localProduct.value.name,
-    code: localProduct.value.code,
-    brand: localProduct.value.brand,
-    priceNet: localProduct.value.priceNet,
-    priceIva: localProduct.value.priceIva,
-    priceWarranty: localProduct.value.priceWarranty
-  }
-
-  const originalDataForComparison = {
-    name: originalProductData.value?.name,
-    code: originalProductData.value?.code,
-    brand: originalProductData.value?.brand,
-    priceNet: originalProductData.value?.priceNet,
-    priceIva: originalProductData.value?.priceIva,
-    priceWarranty: originalProductData.value?.priceWarranty
-  }
-
-  const hasChanges = JSON.stringify(currentDataForComparison) !== JSON.stringify(originalDataForComparison)
-
-  if (hasChanges) {
+  if (hasChanges.value) {
     showConfirmation.value = true
   } else {
     emit('close')
@@ -178,7 +200,10 @@ const cancelClose = () => {
 const submitForm = async () => {
   isSubmitting.value = true
   try {
-    calculateTotals()
+    // Ensure calculations are up to date before submitting
+    if (localProduct.value.priceTotal > 0) {
+      calculateFromTotal()
+    }
     emit('submit', localProduct.value)
   } finally {
     isSubmitting.value = false

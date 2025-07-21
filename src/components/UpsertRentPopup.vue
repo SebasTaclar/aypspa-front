@@ -211,7 +211,7 @@ const rent = ref({
   paymentMethod: mode === 'create' ? '' : (rentData?.paymentMethod || ''),
   clientName: mode === 'create' ? '' : (rentData?.clientName || ''),
   warrantyValue: mode === 'create' ? 0 : (rentData?.warrantyValue || 0),
-  creationDate: mode === 'create' ? new Date().toISOString() : (rentData?.creationDate || new Date().toISOString()),
+  createdAt: mode === 'create' ? new Date().toISOString() : (rentData?.createdAt || new Date().toISOString()),
   isFinished: mode === 'create' ? false : (rentData?.isFinished || false)
 })
 
@@ -502,7 +502,7 @@ const saveRent = async () => {
     const rentPayload = {
       ...rent.value,
       // Ensure dates are in proper format
-      creationDate: rent.value.creationDate || new Date().toISOString(),
+      createdAt: rent.value.createdAt || new Date().toISOString(),
       deliveryDate: rent.value.deliveryDate || ''
     }
 
@@ -602,7 +602,7 @@ const ensureClientExists = async () => {
     })
 
     // If client doesn't exist, create it
-    if (!Array.isArray(checkResponse.data) || checkResponse.data.length === 0) {
+    if (!Array.isArray(checkResponse.data.data) || checkResponse.data.data.length === 0) {
       const clientPayload = {
         id: `${Date.now()}`,
         name: rent.value.clientName,
@@ -613,7 +613,7 @@ const ensureClientExists = async () => {
         address: '', // Empty to be filled later
         frequentClient: 'No',
         photoFileName: '',
-        creationDate: new Date().toISOString()
+        createdAt: new Date().toISOString()
       }
 
       await axios.post(`${getBaseUrl()}/api/v1/clients`, clientPayload, {
@@ -680,7 +680,7 @@ const handleCreateRent = async (rentPayload: Rent) => {
     quantity: Number(rentPayload.quantity), // Ensure it's a number
     totalValuePerDay: Number(rentPayload.totalValuePerDay), // Ensure it's a number
     warrantyValue: Number(rentPayload.warrantyValue), // Ensure it's a number
-    creationDate: rentPayload.creationDate || new Date().toISOString(),
+    createdAt: rentPayload.createdAt || new Date().toISOString(),
     deliveryDate: rentPayload.deliveryDate || '',
     isFinished: Boolean(rentPayload.isFinished) // Ensure it's a boolean
   }
@@ -720,7 +720,7 @@ const handleEditRent = async (rentPayload: Rent) => {
     quantity: Number(rentPayload.quantity), // Ensure it's a number
     totalValuePerDay: Number(rentPayload.totalValuePerDay), // Ensure it's a number
     warrantyValue: Number(rentPayload.warrantyValue), // Ensure it's a number
-    creationDate: rentPayload.creationDate || new Date().toISOString(),
+    createdAt: rentPayload.createdAt || new Date().toISOString(),
     deliveryDate: rentPayload.deliveryDate || '',
     isFinished: Boolean(rentPayload.isFinished) // Ensure it's a boolean
   }
