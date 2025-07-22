@@ -99,6 +99,7 @@ interface FinishRentData {
   totalPrice: number
   observations: string
   isPaid: boolean
+  deliveryDate: string
 }
 
 interface Props {
@@ -118,7 +119,8 @@ const finishData = ref<FinishRentData>({
   totalDays: 0.01,
   totalPrice: 0,
   observations: '',
-  isPaid: false
+  isPaid: false,
+  deliveryDate: new Date().toISOString()
 })
 
 // Calculate days between creation date and current date with 2 decimal precision
@@ -160,7 +162,8 @@ watch(() => props.rent, (newRent) => {
       totalDays: days,
       totalPrice: Math.round(newRent.totalValuePerDay * days),
       observations: '',
-      isPaid: false
+      isPaid: false,
+      deliveryDate: new Date().toISOString()
     }
   }
 }, { immediate: true })

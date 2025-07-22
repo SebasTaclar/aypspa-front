@@ -29,6 +29,21 @@ const router = createRouter({
       name: 'rents',
       component: () => import('../views/RentView.vue'),
     },
+    {
+      path: '/privacy',
+      name: 'privacy',
+      component: () => import('../views/Maintenance.vue'),
+    },
+    {
+      path: '/contact',
+      name: 'contact',
+      component: () => import('../views/Maintenance.vue'),
+    },
+    {
+      path: '/maintenance',
+      name: 'maintenance',
+      component: () => import('../views/Maintenance.vue'),
+    },
   ],
 })
 

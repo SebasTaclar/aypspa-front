@@ -132,11 +132,14 @@
               <th>Producto</th>
               <th>Cantidad</th>
               <th>Valor/Día</th>
+              <th>Días Totales</th>
+              <th>Precio Total</th>
               <th>Cliente</th>
               <th>RUT</th>
               <th>Fecha Entrega</th>
               <th>Forma de Pago</th>
               <th>Valor Garantía</th>
+              <th>Estado de Pago</th>
               <th>Fecha Creación</th>
               <th>Acciones</th>
             </tr>
@@ -147,6 +150,8 @@
               <td class="product-name">{{ rent.productName }}</td>
               <td><span class="quantity-badge">{{ rent.quantity }}</span></td>
               <td class="price">${{ formatCurrency(rent.totalValuePerDay) }}</td>
+              <td class="total-days">{{ formatDays(rent.totalDays) }}</td>
+              <td class="total-price">${{ formatCurrency(rent.totalPrice) }}</td>
               <td class="client-name">{{ rent.clientName }}</td>
               <td>{{ rent.clientRut }}</td>
               <td>{{ formatDate(rent.deliveryDate) }}</td>
@@ -156,6 +161,11 @@
                 </span>
               </td>
               <td class="warranty">${{ formatCurrency(rent.warrantyValue) }}</td>
+              <td>
+                <span :class="['payment-status-badge', getPaymentStatusClass(rent.isPaid)]">
+                  {{ getPaymentStatusText(rent.isPaid) }}
+                </span>
+              </td>
               <td>{{ formatDate(rent.createdAt) }}</td>
               <td class="actions">
                 <button @click="editRent(rent)" class="btn-edit" title="Editar">
@@ -202,6 +212,9 @@
     <!-- Finish Rent Popup -->
     <FinishRentPopup :is-open="showFinishRentModal" :rent="rentToFinish" @close="closeFinishRentModal"
       @confirm="handleFinishRent" />
+
+    <!-- Rent Report Popup -->
+    <RentReportPopup :is-open="showReportModal" :rent="rentToReport" @close="closeReportModal" />
   </div>
 </template>
 
@@ -217,12 +230,14 @@ import Spinner from '@/components/Spinner.vue'
 import UpsertRentPopup from '@/components/UpsertRentPopup.vue'
 import ClientDocumentPopup from '@/components/ClientDocumentPopup.vue'
 import FinishRentPopup from '@/components/FinishRentPopup.vue'
+import RentReportPopup from '@/components/RentReportPopup.vue'
 
 interface FinishRentData {
   totalDays: number
   totalPrice: number
   observations: string
   isPaid: boolean
+  deliveryDate: string
 }
 
 const route = useRoute()
@@ -249,6 +264,10 @@ const clientName = ref('')
 // Finish rent modal state
 const showFinishRentModal = ref(false)
 const rentToFinish = ref<Rent | null>(null)
+
+// Report modal state
+const showReportModal = ref(false)
+const rentToReport = ref<Rent | null>(null)
 
 // API function to fetch rents
 const fetchRents = async () => {
@@ -342,8 +361,14 @@ const setActiveView = (view: 'active' | 'finished') => {
   localStorage.setItem('rentView', view)
 }
 
-const formatCurrency = (value: number) => {
+const formatCurrency = (value?: number) => {
+  if (!value) return '0'
   return new Intl.NumberFormat('es-CL').format(value)
+}
+
+const formatDays = (days?: number) => {
+  if (!days) return '0.00'
+  return days.toFixed(2)
 }
 
 const formatDate = (dateString: string) => {
@@ -384,6 +409,14 @@ const getPaymentText = (paymentMethod: string) => {
     default:
       return paymentMethod
   }
+}
+
+const getPaymentStatusClass = (isPaid?: boolean) => {
+  return isPaid ? 'paid' : 'unpaid'
+}
+
+const getPaymentStatusText = (isPaid?: boolean) => {
+  return isPaid ? 'Pagado' : 'Pendiente'
 }
 
 const openCreateModal = () => {
@@ -476,8 +509,8 @@ const finishRent = (rent: Rent) => {
 }
 
 const printReport = (rent: Rent) => {
-  // TODO: Implement print report functionality
-  console.log('Print report for rent:', rent)
+  rentToReport.value = rent
+  showReportModal.value = true
 }
 
 const confirmDelete = (rent: Rent) => {
@@ -525,6 +558,11 @@ const deleteRent = async () => {
 const closeFinishRentModal = () => {
   showFinishRentModal.value = false
   rentToFinish.value = null
+}
+
+const closeReportModal = () => {
+  showReportModal.value = false
+  rentToReport.value = null
 }
 
 // Update product rental status
@@ -581,6 +619,7 @@ const handleFinishRent = async (finishData: FinishRentData) => {
       totalPrice: finishData.totalPrice,
       observations: finishData.observations,
       isPaid: finishData.isPaid,
+      deliveryDate: finishData.deliveryDate,
       finishDate: new Date().toISOString()
     }
 
@@ -871,7 +910,9 @@ const handleFinishRent = async (finishData: FinishRentData) => {
 }
 
 .price,
-.warranty {
+.warranty,
+.total-days,
+.total-price {
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -907,6 +948,26 @@ const handleFinishRent = async (finishData: FinishRentData) => {
 .payment-badge.other {
   background: var(--bg-secondary);
   color: var(--text-primary);
+}
+
+.payment-status-badge {
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.payment-status-badge.paid {
+  background: rgba(34, 197, 94, 0.2);
+  color: rgba(34, 197, 94, 1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.payment-status-badge.unpaid {
+  background: rgba(239, 68, 68, 0.2);
+  color: rgba(239, 68, 68, 1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .actions {

@@ -5,8 +5,8 @@
       <RouterLink v-if="isAdminRole" class="link-navbar" to="/clients">Clientes</RouterLink>
       <RouterLink v-if="isAdminRole" class="link-navbar" to="/products">Productos</RouterLink>
       <RouterLink v-if="isAdminRole" class="link-navbar" to="/rents">Arrendamientos</RouterLink>
-      <RouterLink class="link-navbar" to="/clients">Privacidad</RouterLink>
-      <RouterLink class="link-navbar" to="/clients">Contacto</RouterLink>
+      <RouterLink class="link-navbar" to="/privacy">Privacidad</RouterLink>
+      <RouterLink class="link-navbar" to="/contact">Contacto</RouterLink>
 
       <div class="nav-controls">
         <ThemeToggle />
