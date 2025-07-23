@@ -270,6 +270,7 @@ interface FinishRentData {
   observations: string
   isPaid: boolean
   deliveryDate: string
+  paymentMethod: string
 }
 
 const route = useRoute()
@@ -566,16 +567,26 @@ const closeUpsertModal = () => {
   selectedRent.value = null
 }
 
-const handleRentSaved = (savedRent: Rent) => {
+const handleRentSaved = async (savedRent: Rent) => {
   if (upsertMode.value === 'create') {
     // Add new rent to the beginning of the array
     rents.value.unshift(savedRent)
   } else {
-    // Update existing rent
+    // Update existing rent - force reactivity by replacing the entire array
     const index = rents.value.findIndex(r => r.id === savedRent.id)
     if (index > -1) {
-      rents.value[index] = savedRent
+      // Update the specific rent and create a new array to trigger reactivity
+      const updatedRents = [...rents.value]
+      updatedRents[index] = savedRent
+      rents.value = updatedRents
     }
+  }
+
+  // Update filtered rents if needed
+  if (activeView.value === 'active') {
+    await fetchActiveRents()
+  } else {
+    await fetchFinishedRents(finishedRentsPagination.value.currentPage)
   }
 }
 
@@ -801,6 +812,7 @@ const handleFinishRent = async (finishData: FinishRentData) => {
       observations: finishData.observations,
       isPaid: finishData.isPaid,
       deliveryDate: finishData.deliveryDate,
+      paymentMethod: finishData.paymentMethod,
       finishDate: new Date().toISOString()
     }
 

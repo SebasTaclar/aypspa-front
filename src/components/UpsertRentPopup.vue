@@ -103,12 +103,13 @@
           </div>
         </div>
 
-        <!-- Separator line between client and payment -->
+        <!-- Separator line between client and delivery -->
         <div class="form-separator"></div>
 
-        <div class="form-group">
+        <!-- Payment Method - Only show for finished rents -->
+        <div v-if="mode === 'edit' && rent.isFinished" class="form-group">
           <label for="paymentMethod">Forma de Pago</label>
-          <select id="paymentMethod" v-model="rent.paymentMethod" required>
+          <select id="paymentMethod" v-model="rent.paymentMethod" :required="rent.isFinished">
             <option value="">Seleccionar forma de pago</option>
             <option value="debito">Débito</option>
             <option value="credito">Crédito</option>
@@ -119,19 +120,33 @@
 
         <div class="form-group" v-if="mode === 'edit'">
           <label for="deliveryDate">Fecha de Entrega</label>
-          <input id="deliveryDate" v-model="rent.deliveryDate" type="datetime-local"
-            placeholder="Fecha de entrega (opcional)" />
+          <input id="deliveryDate" v-model="deliveryDateFormatted" type="datetime-local"
+            placeholder="Fecha de entrega (opcional)" :readonly="rent.isFinished"
+            :class="{ 'readonly-input': rent.isFinished, 'editable-input': !rent.isFinished }" />
         </div>
 
-        <div class="form-group" v-if="mode === 'edit'">
-          <label class="checkbox-label">
-            <input type="checkbox" v-model="rent.isFinished" class="checkbox-input" />
-            <span class="checkbox-custom"></span>
-            Arrendamiento Finalizado
-            <small style="opacity: 0.7; font-size: 0.8rem; margin-left: 8px;">
-              (El producto quedará disponible para arrendar)
-            </small>
-          </label>
+        <!-- Checkbox Controls -->
+        <div v-if="mode === 'edit'" class="checkbox-container">
+          <div class="checkbox-group">
+            <input id="isFinished" type="checkbox" v-model="rent.isFinished" class="checkbox-input"
+              :disabled="rent.isFinished" :class="{ 'checkbox-disabled': rent.isFinished }" />
+            <label for="isFinished" class="checkbox-label" :class="{ 'label-disabled': rent.isFinished }">
+              Arrendamiento Finalizado
+            </label>
+          </div>
+        </div>
+
+        <!-- Payment Status Control - Only show for finished rents -->
+        <div v-if="mode === 'edit' && rent.isFinished" class="checkbox-container">
+          <div class="checkbox-group">
+            <input id="isPaid" type="checkbox" v-model="rent.isPaid" class="checkbox-input" />
+            <label for="isPaid" class="checkbox-label">
+              Estado de Pago:
+              <span :class="rent.isPaid ? 'status-paid' : 'status-pending'">
+                {{ rent.isPaid ? 'Pagado' : 'Pendiente' }}
+              </span>
+            </label>
+          </div>
         </div>
 
         <div class="form-actions">
@@ -154,7 +169,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { getBaseUrl } from '@/utils/apiConfig'
 import axios from 'axios'
 import Spinner from '@/components/Spinner.vue'
@@ -212,7 +227,37 @@ const rent = ref({
   clientName: mode === 'create' ? '' : (rentData?.clientName || ''),
   warrantyValue: mode === 'create' ? 0 : (rentData?.warrantyValue || 0),
   createdAt: mode === 'create' ? new Date().toISOString() : (rentData?.createdAt || new Date().toISOString()),
-  isFinished: mode === 'create' ? false : (rentData?.isFinished || false)
+  isFinished: mode === 'create' ? false : (rentData?.isFinished || false),
+  isPaid: mode === 'create' ? false : (rentData?.isPaid || false),
+  totalDays: mode === 'create' ? undefined : rentData?.totalDays,
+  totalPrice: mode === 'create' ? undefined : rentData?.totalPrice,
+  observations: mode === 'create' ? '' : (rentData?.observations || '')
+})
+
+// Computed property for datetime-local format
+const deliveryDateFormatted = computed({
+  get: () => {
+    if (!rent.value.deliveryDate) return ''
+    // Convert ISO string to datetime-local format (yyyy-MM-ddThh:mm)
+    const date = new Date(rent.value.deliveryDate)
+    if (isNaN(date.getTime())) return ''
+
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`
+  },
+  set: (value: string) => {
+    if (!value) {
+      rent.value.deliveryDate = ''
+      return
+    }
+    // Convert datetime-local format back to ISO string
+    rent.value.deliveryDate = new Date(value).toISOString()
+  }
 })
 
 // Auto-loading functionality for product by code
@@ -390,7 +435,6 @@ const hasChanges = computed(() => {
       currentRent.quantity !== 1 ||
       currentRent.totalValuePerDay !== 0 ||
       currentRent.clientRut.trim() ||
-      currentRent.paymentMethod.trim() ||
       currentRent.clientName.trim() ||
       currentRent.warrantyValue !== 0 ||
       currentRent.deliveryDate.trim()
@@ -413,6 +457,7 @@ const hasChanges = computed(() => {
       current.warrantyValue !== original.warrantyValue ||
       current.deliveryDate !== original.deliveryDate ||
       current.isFinished !== original.isFinished ||
+      current.isPaid !== original.isPaid ||
       productBrand.value.trim() // Brand changes for edit mode
     )
   }
@@ -718,6 +763,13 @@ const handleEditRent = async (rentPayload: Rent) => {
     throw new Error(errorMessage)
   }
 }
+
+// Initialize component - load product brand for edit mode
+onMounted(() => {
+  if (mode === 'edit' && rentData?.code) {
+    loadProductByCode()
+  }
+})
 </script>
 
 <style scoped>
@@ -955,6 +1007,28 @@ const handleEditRent = async (rentPayload: Rent) => {
   transform: translateY(-1px);
 }
 
+.readonly-input {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-secondary) !important;
+  cursor: not-allowed !important;
+  opacity: 0.7;
+}
+
+.readonly-input:focus {
+  border-color: var(--border-primary) !important;
+  background: var(--bg-tertiary) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.editable-input:focus {
+  outline: none;
+  border-color: var(--primary-color-alpha-60);
+  background: var(--bg-secondary);
+  box-shadow: 0 0 20px var(--primary-color-alpha-30);
+  transform: translateY(-1px);
+}
+
 .form-group select {
   cursor: pointer;
   background-repeat: no-repeat !important;
@@ -1014,50 +1088,51 @@ const handleEditRent = async (rentPayload: Rent) => {
   color: #333333;
 }
 
-.checkbox-label {
+/* Checkbox container - aligned to left like FinishRentPopup */
+.checkbox-container {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.checkbox-group {
   display: flex;
   align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  user-select: none;
-  margin-bottom: 0;
+  gap: 0.5rem;
+  width: auto;
 }
 
 .checkbox-input {
-  display: none;
+  width: 18px;
+  height: 18px;
 }
 
-.checkbox-custom {
-  width: 24px;
-  height: 24px;
-  border: 2px solid var(--border-primary);
-  border-radius: 6px;
-  background: var(--bg-tertiary);
-  position: relative;
-  transition: all 0.3s ease;
-  flex-shrink: 0;
+.checkbox-input.checkbox-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.checkbox-input:checked+.checkbox-custom {
-  background: var(--primary-gradient);
-  border-color: var(--primary-color);
-  transform: scale(1.1);
+.checkbox-label {
+  margin: 0;
+  cursor: pointer;
+  font-weight: 500;
 }
 
-.checkbox-input:checked+.checkbox-custom::after {
-  content: '✓';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  font-weight: bold;
-  font-size: 14px;
+.checkbox-label.label-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  color: var(--text-secondary);
 }
 
-.checkbox-label:hover .checkbox-custom {
-  border-color: var(--primary-color-alpha-60);
-  transform: scale(1.05);
+/* Payment status colors */
+.status-paid {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.status-pending {
+  color: #dc3545;
+  font-weight: 600;
 }
 
 .form-actions {

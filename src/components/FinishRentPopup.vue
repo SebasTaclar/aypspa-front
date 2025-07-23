@@ -63,6 +63,24 @@
           </div>
 
           <div class="form-group full-width">
+            <label for="deliveryDate">Fecha de Entrega:</label>
+            <input id="deliveryDate" type="datetime-local" v-model="deliveryDateFormatted" required
+              class="editable-input" />
+            <small class="form-hint">Se llenará automáticamente con la fecha actual</small>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="paymentMethod">Forma de Pago:</label>
+            <select id="paymentMethod" v-model="finishData.paymentMethod" required class="editable-input">
+              <option value="">Seleccionar forma de pago</option>
+              <option value="debito">Débito</option>
+              <option value="credito">Crédito</option>
+              <option value="efectivo">Efectivo</option>
+              <option value="transferencia">Transferencia</option>
+            </select>
+          </div>
+
+          <div class="form-group full-width">
             <label for="observations">Observaciones:</label>
             <textarea id="observations" v-model="finishData.observations" rows="4"
               placeholder="Agregar observaciones adicionales..." class="editable-input"></textarea>
@@ -100,6 +118,7 @@ interface FinishRentData {
   observations: string
   isPaid: boolean
   deliveryDate: string
+  paymentMethod: string
 }
 
 interface Props {
@@ -120,7 +139,22 @@ const finishData = ref<FinishRentData>({
   totalPrice: 0,
   observations: '',
   isPaid: false,
-  deliveryDate: new Date().toISOString()
+  deliveryDate: new Date().toISOString(),
+  paymentMethod: ''
+})
+
+//Formatted date for datetime-local input
+const deliveryDateFormatted = computed({
+  get() {
+    if (!finishData.value.deliveryDate) return ''
+    const date = new Date(finishData.value.deliveryDate)
+    return date.toISOString().slice(0, 16) // Format: YYYY-MM-DDTHH:MM
+  },
+  set(value: string) {
+    if (value) {
+      finishData.value.deliveryDate = new Date(value).toISOString()
+    }
+  }
 })
 
 // Calculate days between creation date and current date with 2 decimal precision
@@ -163,7 +197,8 @@ watch(() => props.rent, (newRent) => {
       totalPrice: Math.round(newRent.totalValuePerDay * days),
       observations: '',
       isPaid: false,
-      deliveryDate: new Date().toISOString()
+      deliveryDate: new Date().toISOString(),
+      paymentMethod: ''
     }
   }
 }, { immediate: true })
@@ -194,6 +229,16 @@ const handleSubmit = () => {
 
   if (finishData.value.totalPrice < 0) {
     alert('El precio total no puede ser negativo')
+    return
+  }
+
+  if (!finishData.value.paymentMethod) {
+    alert('Debe seleccionar una forma de pago')
+    return
+  }
+
+  if (!finishData.value.deliveryDate) {
+    alert('Debe ingresar una fecha de entrega')
     return
   }
 

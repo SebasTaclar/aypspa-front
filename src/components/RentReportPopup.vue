@@ -39,6 +39,7 @@
             <p v-if="isFinished"><strong>Fecha de Entrega:</strong> {{ formatDate(rent?.deliveryDate) }}</p>
             <p><strong>Tipo de garantía:</strong> {{ getPaymentText(rent?.paymentMethod) }}</p>
             <p><strong>Total Garantía:</strong> ${{ formatCurrency(rent?.warrantyValue) }}</p>
+            <p v-if="isFinished"><strong>Estado de Pago:</strong> {{ rent?.isPaid ? 'Pagado' : 'Pendiente' }}</p>
           </div>
 
           <div class="items-table">
