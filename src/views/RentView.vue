@@ -114,76 +114,108 @@
       <!-- Finished Rents Table -->
       <div v-if="activeView === 'finished'" class="rent-table-container">
         <div class="table-header">
-          <h2>Arrendamientos Finalizados ({{ filteredFinishedRents.length }})</h2>
-        </div>
-
-        <div v-if="filteredFinishedRents.length === 0" class="no-data">
-          <div class="no-data-content">
-            <div class="no-data-icon">✅</div>
-            <h3>No hay arrendamientos finalizados</h3>
-            <p>Aún no se han completado arrendamientos</p>
+          <h2>Arrendamientos Finalizados ({{ finishedRentsPagination.totalCount }})</h2>
+          <div v-if="finishedRentsPagination.totalCount > 0" class="pagination-info">
+            Página {{ finishedRentsPagination.currentPage }} de {{ finishedRentsPagination.totalPages }}
+            ({{ finishedRentsPagination.totalCount }} total)
           </div>
         </div>
 
-        <table v-else class="rent-table">
-          <thead>
-            <tr>
-              <th>Código</th>
-              <th>Producto</th>
-              <th>Cantidad</th>
-              <th>Valor/Día</th>
-              <th>Días Totales</th>
-              <th>Precio Total</th>
-              <th>Cliente</th>
-              <th>RUT</th>
-              <th>Fecha Entrega</th>
-              <th>Forma de Pago</th>
-              <th>Valor Garantía</th>
-              <th>Estado de Pago</th>
-              <th>Fecha Creación</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="rent in filteredFinishedRents" :key="rent.id" class="rent-row">
-              <td><span class="code-badge finished">{{ rent.code }}</span></td>
-              <td class="product-name">{{ rent.productName }}</td>
-              <td><span class="quantity-badge">{{ rent.quantity }}</span></td>
-              <td class="price">${{ formatCurrency(rent.totalValuePerDay) }}</td>
-              <td class="total-days">{{ formatDays(rent.totalDays) }}</td>
-              <td class="total-price">${{ formatCurrency(rent.totalPrice) }}</td>
-              <td class="client-name">{{ rent.clientName }}</td>
-              <td>{{ rent.clientRut }}</td>
-              <td>{{ formatDate(rent.deliveryDate) }}</td>
-              <td>
-                <span :class="['payment-badge', getPaymentClass(rent.paymentMethod)]">
-                  {{ getPaymentText(rent.paymentMethod) }}
-                </span>
-              </td>
-              <td class="warranty">${{ formatCurrency(rent.warrantyValue) }}</td>
-              <td>
-                <span :class="['payment-status-badge', getPaymentStatusClass(rent.isPaid)]">
-                  {{ getPaymentStatusText(rent.isPaid) }}
-                </span>
-              </td>
-              <td>{{ formatDate(rent.createdAt) }}</td>
-              <td class="actions">
-                <button @click="editRent(rent)" class="btn-edit" title="Editar">
-                  <img src="/icons/edit.svg" alt="Editar" />
-                </button>
-                <button @click="viewImage(rent)" class="btn-view" title="Ver imagen">
-                  <img src="/icons/eye.svg" alt="Ver" />
-                </button>
-                <button @click="printReport(rent)" class="btn-print" title="Imprimir comprobante">
-                  📄
-                </button>
-                <button @click="confirmDelete(rent)" class="btn-delete" title="Eliminar">
-                  <img src="/icons/trash.svg" alt="Eliminar" />
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div v-if="loadingFinishedRents" class="loading-spinner">
+          <Spinner />
+        </div>
+
+        <div v-else-if="filteredFinishedRents.length === 0" class="no-data">
+          <div class="no-data-content">
+            <div class="no-data-icon">✅</div>
+            <h3>No hay arrendamientos finalizados</h3>
+            <p>{{ searchQuery ? 'Sin resultados' : 'Sin arrendamientos finalizados' }}</p>
+          </div>
+        </div>
+
+        <div v-else>
+          <table class="rent-table">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Valor/Día</th>
+                <th>Días Totales</th>
+                <th>Precio Total</th>
+                <th>Cliente</th>
+                <th>RUT</th>
+                <th>Fecha Entrega</th>
+                <th>Forma de Pago</th>
+                <th>Valor Garantía</th>
+                <th>Estado de Pago</th>
+                <th>Fecha Creación</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="rent in filteredFinishedRents" :key="rent.id" class="rent-row">
+                <td><span class="code-badge finished">{{ rent.code }}</span></td>
+                <td class="product-name">{{ rent.productName }}</td>
+                <td><span class="quantity-badge">{{ rent.quantity }}</span></td>
+                <td class="price">${{ formatCurrency(rent.totalValuePerDay) }}</td>
+                <td class="total-days">{{ formatDays(rent.totalDays) }}</td>
+                <td class="total-price">${{ formatCurrency(rent.totalPrice) }}</td>
+                <td class="client-name">{{ rent.clientName }}</td>
+                <td>{{ rent.clientRut }}</td>
+                <td>{{ formatDate(rent.deliveryDate) }}</td>
+                <td>
+                  <span :class="['payment-badge', getPaymentClass(rent.paymentMethod)]">
+                    {{ getPaymentText(rent.paymentMethod) }}
+                  </span>
+                </td>
+                <td class="warranty">${{ formatCurrency(rent.warrantyValue) }}</td>
+                <td>
+                  <span :class="['payment-status-badge', getPaymentStatusClass(rent.isPaid)]">
+                    {{ getPaymentStatusText(rent.isPaid) }}
+                  </span>
+                </td>
+                <td>{{ formatDate(rent.createdAt) }}</td>
+                <td class="actions">
+                  <button @click="editRent(rent)" class="btn-edit" title="Editar">
+                    <img src="/icons/edit.svg" alt="Editar" />
+                  </button>
+                  <button @click="viewImage(rent)" class="btn-view" title="Ver imagen">
+                    <img src="/icons/eye.svg" alt="Ver" />
+                  </button>
+                  <button @click="printReport(rent)" class="btn-print" title="Imprimir comprobante">
+                    📄
+                  </button>
+                  <button @click="confirmDelete(rent)" class="btn-delete" title="Eliminar">
+                    <img src="/icons/trash.svg" alt="Eliminar" />
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Pagination Controls -->
+          <div v-if="finishedRentsPagination.totalPages > 1" class="pagination-controls">
+            <button @click="goToPreviousPage"
+              :disabled="finishedRentsPagination.currentPage === 1 || loadingFinishedRents" class="btn-pagination">
+              ← Anterior
+            </button>
+
+            <div class="pagination-pages">
+              <button v-for="page in getVisiblePages()" :key="page" @click="goToPage(page)"
+                :class="['btn-page', { active: page === finishedRentsPagination.currentPage }]"
+                :disabled="loadingFinishedRents">
+                {{ page }}
+              </button>
+            </div>
+
+            <button @click="goToNextPage"
+              :disabled="finishedRentsPagination.currentPage === finishedRentsPagination.totalPages || loadingFinishedRents"
+              class="btn-pagination">
+              Siguiente →
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -269,12 +301,37 @@ const rentToFinish = ref<Rent | null>(null)
 const showReportModal = ref(false)
 const rentToReport = ref<Rent | null>(null)
 
-// API function to fetch rents
-const fetchRents = async () => {
+// Pagination state for finished rents
+const finishedRentsPagination = ref({
+  currentPage: 1,
+  pageSize: 25,
+  totalPages: 0,
+  totalCount: 0
+})
+const loadingFinishedRents = ref(false)
+
+// API function to fetch finished rents with pagination
+const fetchFinishedRents = async (page: number = 1, pageSize: number = 25) => {
   try {
-    loading.value = true
+    loadingFinishedRents.value = true
     const token = sessionStorage.getItem('token')
-    const response = await axios.get(`${getBaseUrl()}/api/v1/rents`, {
+
+    const queryParams = new URLSearchParams({
+      type: 'finished',
+      page: page.toString(),
+      pageSize: pageSize.toString()
+    })
+
+    // Add search query if exists
+    if (searchQuery.value.trim()) {
+      const query = searchQuery.value.trim()
+      // The backend will search in multiple fields automatically
+      queryParams.append('clientName', query)
+      queryParams.append('productName', query)
+      queryParams.append('code', query)
+    }
+
+    const response = await axios.get(`${getBaseUrl()}/api/v1/rents?${queryParams}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -282,19 +339,65 @@ const fetchRents = async () => {
     })
 
     if (response.data?.success && response.data?.data) {
-      rents.value = response.data.data
+      // Update finished rents in the main rents array
+      const activeRents = rents.value.filter(rent => !rent.isFinished)
+      const finishedRents = response.data.data
+      rents.value = [...activeRents, ...finishedRents]
+
+      // Update pagination info
+      if (response.data.pagination) {
+        finishedRentsPagination.value = response.data.pagination
+      }
     } else {
       console.error('Invalid API response format:', response.data)
-      rents.value = []
     }
   } catch (error) {
-    console.error('Error fetching rents:', error)
+    console.error('Error fetching finished rents:', error)
     if (axios.isAxiosError(error)) {
       console.error('API Error:', error.response?.data || error.message)
     }
-    rents.value = []
   } finally {
-    loading.value = false
+    loadingFinishedRents.value = false
+  }
+}
+
+// API function to fetch active rents (without pagination)
+const fetchActiveRents = async () => {
+  try {
+    const token = sessionStorage.getItem('token')
+
+    const queryParams = new URLSearchParams({
+      type: 'active'
+    })
+
+    // Add search query if exists
+    if (searchQuery.value.trim()) {
+      const query = searchQuery.value.trim()
+      queryParams.append('clientName', query)
+      queryParams.append('productName', query)
+      queryParams.append('code', query)
+    }
+
+    const response = await axios.get(`${getBaseUrl()}/api/v1/rents?${queryParams}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (response.data?.success && response.data?.data) {
+      // Update active rents in the main rents array
+      const finishedRents = rents.value.filter(rent => rent.isFinished)
+      const activeRents = response.data.data
+      rents.value = [...activeRents, ...finishedRents]
+    } else {
+      console.error('Invalid API response format:', response.data)
+    }
+  } catch (error) {
+    console.error('Error fetching active rents:', error)
+    if (axios.isAxiosError(error)) {
+      console.error('API Error:', error.response?.data || error.message)
+    }
   }
 }
 
@@ -311,8 +414,17 @@ onMounted(async () => {
     router.replace({ query: { ...route.query, view: savedView } })
   }
 
-  // Load rents from API
-  await fetchRents()
+  // Load rents based on the current view
+  loading.value = true
+  try {
+    if (activeView.value === 'active') {
+      await fetchActiveRents()
+    } else {
+      await fetchFinishedRents()
+    }
+  } finally {
+    loading.value = false
+  }
 })
 
 // Watch for route changes to handle browser navigation
@@ -321,6 +433,15 @@ watch(() => route.query.view, (newView) => {
     activeView.value = newView as 'active' | 'finished'
     localStorage.setItem('rentView', newView as 'active' | 'finished')
   }
+})
+
+// Watch for search query changes (with debounce)
+let searchTimeout: number
+watch(searchQuery, () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(async () => {
+    await handleSearch()
+  }, 500) // 500ms debounce
 })
 
 const filteredActiveRents = computed(() => {
@@ -353,12 +474,21 @@ const filteredFinishedRents = computed(() => {
     })
 })
 
-const setActiveView = (view: 'active' | 'finished') => {
+const setActiveView = async (view: 'active' | 'finished') => {
   activeView.value = view
   // Update URL without page reload
   router.push({ query: { ...route.query, view } })
   // Also save to localStorage as backup
   localStorage.setItem('rentView', view)
+
+  // Load data for the selected view
+  if (view === 'active') {
+    await fetchActiveRents()
+  } else {
+    // Reset pagination when switching to finished view
+    finishedRentsPagination.value.currentPage = 1
+    await fetchFinishedRents(1)
+  }
 }
 
 const formatCurrency = (value?: number) => {
@@ -565,6 +695,59 @@ const closeReportModal = () => {
   rentToReport.value = null
 }
 
+// Pagination functions for finished rents
+const goToPage = async (page: number) => {
+  if (page >= 1 && page <= finishedRentsPagination.value.totalPages) {
+    await fetchFinishedRents(page)
+  }
+}
+
+const goToPreviousPage = async () => {
+  if (finishedRentsPagination.value.currentPage > 1) {
+    await goToPage(finishedRentsPagination.value.currentPage - 1)
+  }
+}
+
+const goToNextPage = async () => {
+  if (finishedRentsPagination.value.currentPage < finishedRentsPagination.value.totalPages) {
+    await goToPage(finishedRentsPagination.value.currentPage + 1)
+  }
+}
+
+// Search functionality that respects current view
+const handleSearch = async () => {
+  if (activeView.value === 'active') {
+    await fetchActiveRents()
+  } else {
+    // Reset to first page when searching
+    finishedRentsPagination.value.currentPage = 1
+    await fetchFinishedRents(1)
+  }
+}
+
+// Get visible page numbers for pagination
+const getVisiblePages = () => {
+  const current = finishedRentsPagination.value.currentPage
+  const total = finishedRentsPagination.value.totalPages
+  const pages: number[] = []
+
+  // Always show first page
+  if (total > 0) pages.push(1)
+
+  // Add pages around current page
+  const start = Math.max(2, current - 2)
+  const end = Math.min(total - 1, current + 2)
+
+  for (let i = start; i <= end; i++) {
+    if (!pages.includes(i)) pages.push(i)
+  }
+
+  // Always show last page
+  if (total > 1 && !pages.includes(total)) pages.push(total)
+
+  return pages.sort((a, b) => a - b)
+}
+
 // Update product rental status
 const updateProductRentStatus = async (productCode: string, isRented: boolean) => {
   try {
@@ -634,10 +817,13 @@ const handleFinishRent = async (finishData: FinishRentData) => {
     // Update product status to not rented when finishing the rent
     await updateProductRentStatus(rentToFinish.value.code, false)
 
-    // Update local array
-    const index = rents.value.findIndex(r => r.id === rentToFinish.value!.id)
-    if (index > -1) {
-      rents.value[index] = updatedRent
+    // Refresh the appropriate view data
+    if (activeView.value === 'active') {
+      // Refresh active rents to remove the finished rent
+      await fetchActiveRents()
+    } else {
+      // Refresh finished rents to show the newly finished rent
+      await fetchFinishedRents(finishedRentsPagination.value.currentPage)
     }
 
     closeFinishRentModal()
@@ -970,6 +1156,97 @@ const handleFinishRent = async (finishData: FinishRentData) => {
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
+.pagination-info {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem 2rem;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1rem 0;
+}
+
+.btn-pagination {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: var(--backdrop-blur);
+}
+
+.btn-pagination:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+  border-color: var(--border-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px var(--shadow-secondary);
+}
+
+.btn-pagination:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pagination-pages {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-page {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-primary);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: var(--backdrop-blur);
+  min-width: 40px;
+}
+
+.btn-page:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+  border-color: var(--border-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px var(--shadow-secondary);
+}
+
+.btn-page.active {
+  background: var(--primary-gradient);
+  color: white;
+  border-color: var(--primary-color-alpha-60);
+  box-shadow: 0 4px 15px var(--primary-color-alpha-30);
+}
+
+.btn-page:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.total-days,
+.total-price {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
 .actions {
   display: flex;
   gap: 8px;
@@ -1225,6 +1502,22 @@ const handleFinishRent = async (finishData: FinishRentData) => {
 
   .btn-icon {
     font-size: 2.5rem;
+  }
+
+  .pagination-controls {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .pagination-pages {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-pagination,
+  .btn-page {
+    padding: 8px 16px;
+    font-size: 0.9rem;
   }
 }
 </style>
