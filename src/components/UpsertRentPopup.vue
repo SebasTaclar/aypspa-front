@@ -230,8 +230,6 @@ const loadProductByCode = async () => {
       }
     })
 
-    console.log('Product search response:', response.data) // Debug log
-
     // Handle direct array response from API
     if (Array.isArray(response.data) && response.data.length > 0) {
       // Find exact match (case-insensitive) for the product code
@@ -240,15 +238,12 @@ const loadProductByCode = async () => {
       )
 
       if (exactMatch) {
-        console.log('Exact product match found:', exactMatch) // Debug log
-
         // Product exists - update flag
         productExists.value = true
 
         // Check if product is already rented (only in create mode)
         if (mode === 'create') {
           productIsRented.value = exactMatch.rented === true
-          console.log('Product rented status:', productIsRented.value) // Debug log
         } else {
           // In edit mode, don't show rental warning for current product
           productIsRented.value = false
@@ -259,14 +254,6 @@ const loadProductByCode = async () => {
         rent.value.totalValuePerDay = exactMatch.priceNet || 0
         rent.value.warrantyValue = exactMatch.priceWarranty || 0
         productBrand.value = exactMatch.brand || ''
-
-        console.log('Fields updated:', {
-          productName: rent.value.productName,
-          totalValuePerDay: rent.value.totalValuePerDay,
-          warrantyValue: rent.value.warrantyValue,
-          brand: productBrand.value,
-          isRented: productIsRented.value
-        }) // Debug log
       } else {
         console.log('No exact match found for code:', rent.value.code)
         // Product doesn't exist - update flag
@@ -349,18 +336,10 @@ const loadClientByRut = async () => {
     console.log('Client search response:', response)
     if (Array.isArray(response.data.data) && response.data.data.length > 0) {
       const client = response.data.data[0]
-      console.log('Client found:', client) // Debug log
 
-      // Client exists - update flag
       clientExists.value = true
 
-      // Auto-fill client information
       rent.value.clientName = client.name || ''
-
-      console.log('Client fields updated:', {
-        clientName: rent.value.clientName,
-        clientRut: rent.value.clientRut
-      }) // Debug log
     } else {
       console.log('No client found for RUT:', rent.value.clientRut)
       // Client doesn't exist - update flag
@@ -685,16 +664,12 @@ const handleCreateRent = async (rentPayload: Rent) => {
     isFinished: Boolean(rentPayload.isFinished) // Ensure it's a boolean
   }
 
-  console.log('Sending rent payload to backend:', backendPayload) // Debug log
-
   const response = await axios.post(`${getBaseUrl()}/api/v1/rents`, backendPayload, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     }
   })
-
-  console.log('Rent creation response:', response.data) // Debug log
 
   if (response.data?.success) {
     console.log('Rent created successfully:', response.data.data)
@@ -725,16 +700,12 @@ const handleEditRent = async (rentPayload: Rent) => {
     isFinished: Boolean(rentPayload.isFinished) // Ensure it's a boolean
   }
 
-  console.log('Updating rent payload to backend:', backendPayload) // Debug log
-
   const response = await axios.put(`${getBaseUrl()}/api/v1/rents/${rentPayload.id}`, backendPayload, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     }
   })
-
-  console.log('Rent update response:', response.data) // Debug log
 
   if (response.data?.success) {
     console.log('Rent updated successfully:', response.data.data)

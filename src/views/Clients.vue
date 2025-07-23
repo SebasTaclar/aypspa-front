@@ -147,16 +147,12 @@ const fetchClients = async () => {
       },
     });
 
-    console.log('API Response:', response.data); // Debug log
-
     // Fix: The API returns { success: true, data: [...] }, not just the array
     if (response.data && response.data.data) {
       clients.value = response.data.data;
-      console.log('Mapped clients:', clients.value); // Debug log
     } else {
       // Fallback if the response structure is different
       clients.value = Array.isArray(response.data) ? response.data : [];
-      console.log('Fallback clients:', clients.value); // Debug log
     }
 
     // Fix: totalPages might not be in the response, set a default

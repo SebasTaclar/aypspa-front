@@ -36,7 +36,7 @@
         </div>
         <!-- FOTO EMPRESA -->
         <div class="media-contacto">
-          <img src="/public/images/contactanos.png" alt="Foto empresa" class="foto-contacto" data-aos="fade-left" />
+          <img src="/images/contactanos.png" alt="Foto empresa" class="foto-contacto" data-aos="fade-left" />
         </div>
       </div>
       <!-- MAPA DEBAJO, CENTRADO Y MODERNO -->
@@ -45,9 +45,7 @@
         <div class="mapa-wrapper" data-aos="fade-up" data-aos-delay="100">
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3005.154595993112!2d-73.05477!3d-41.131151!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x96178dacdd6cf6e7%3A0x7e444233f5e00047!2sAYP%20ANDAMIOS%20Y%20CONSTRUCCION!5e0!3m2!1ses!2sco!4v1752808331472!5m2!1ses!2sco"
-            allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-            class="mapa-contacto"
-          ></iframe>
+            allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="mapa-contacto"></iframe>
         </div>
       </div>
     </div>
@@ -195,7 +193,7 @@ defineOptions({
   padding: 15px 20px;
   border-left: 4px solid #e74c3c;
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   font-size: 0.95rem;
   transition: transform 0.3s ease;
 }
@@ -221,7 +219,7 @@ defineOptions({
   background: #fff;
   padding: 24px 18px;
   border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   align-items: center;
   min-width: 320px;
   max-width: 600px;
@@ -234,7 +232,7 @@ defineOptions({
   max-width: 900px;
   height: auto;
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.13);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.13);
   margin-bottom: 18px;
   display: block;
   margin-left: auto;
@@ -256,13 +254,13 @@ defineOptions({
   margin-bottom: 18px;
   letter-spacing: 1px;
   text-align: center;
-  text-shadow: 0 2px 8px rgba(231,76,60,0.08);
+  text-shadow: 0 2px 8px rgba(231, 76, 60, 0.08);
 }
 
 .mapa-wrapper {
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.10);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
   padding: 18px;
   max-width: 600px;
   width: 100%;
@@ -278,7 +276,7 @@ defineOptions({
   max-width: 900px;
   border: none;
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.13);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.13);
   display: block;
   margin: 0 auto;
 }
@@ -288,23 +286,26 @@ defineOptions({
     flex-direction: column;
     align-items: center;
   }
+
   .media-contacto {
     width: 100%;
     max-width: 500px;
     min-width: unset;
     padding: 16px 8px;
   }
+
   .mapa-section {
     margin-top: 24px;
   }
+
   .mapa-wrapper {
     max-width: 100%;
     padding: 8px;
   }
+
   .mapa-contacto {
     min-height: 200px;
     max-width: 100%;
   }
 }
-
 </style>

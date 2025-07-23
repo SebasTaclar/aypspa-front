@@ -8,7 +8,8 @@
         <div class="card" data-aos="fade-up" data-aos-delay="100">
           <i class="fas fa-tools icon-card"></i>
           <h3>¿Qué Hacemos?</h3>
-          <p>Nuestra empresa arrienda equipos de maquinaria y andamios, y vende herramientas para construcción a nivel nacional.</p>
+          <p>Nuestra empresa arrienda equipos de maquinaria y andamios, y vende herramientas para construcción a nivel
+            nacional.</p>
         </div>
 
         <div class="card" data-aos="fade-up" data-aos-delay="200">
@@ -20,7 +21,8 @@
         <div class="card" data-aos="fade-up" data-aos-delay="300">
           <i class="fas fa-handshake icon-card"></i>
           <h3>Nuestros Servicios</h3>
-          <p>Atención personalizada, asesorías y servicio técnico, apoyando a microempresarios del sector construcción.</p>
+          <p>Atención personalizada, asesorías y servicio técnico, apoyando a microempresarios del sector construcción.
+          </p>
         </div>
       </div>
     </div>
@@ -36,9 +38,8 @@ defineOptions({
 </script>
 
 <style scoped>
-
 .conocenos-section {
-  background: url(/public/images/img_constr.png) center/cover no-repeat;
+  background: url(/images/img_constr.png) center/cover no-repeat;
   position: relative;
   padding: 60px 20px;
   color: #fff;
