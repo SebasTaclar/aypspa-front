@@ -9,15 +9,11 @@
       <div class="modal-body">
         <div class="report-preview" ref="reportContent">
           <div class="report-header">
-            <div class="logo-section">
-              <img src="/images/main_banner.png" alt="AYPSPA Logo" class="logo" />
-            </div>
+            <img src="/images/logoayp.jpeg" alt="Logo AYP" class="logo">
             <div class="invoice-number">
-              <h5>Número de arriendo:</h5>
-              <span>{{ rent?.code }}</span>
+              <h5>No. {{ uniqueIdentifier }}</h5>
             </div>
           </div>
-
           <hr />
 
           <div class="company-info">
@@ -49,6 +45,7 @@
             <table class="invoice-table">
               <thead>
                 <tr>
+                  <th>Código</th>
                   <th>Cant.</th>
                   <th>Descripción</th>
                   <th>Precio/día</th>
@@ -58,6 +55,7 @@
               </thead>
               <tbody>
                 <tr>
+                  <td>{{ rent?.code }}</td>
                   <td>{{ rent?.quantity }}</td>
                   <td>{{ rent?.productName }}</td>
                   <td>${{ formatCurrency(rent?.totalValuePerDay) }}</td>
@@ -67,6 +65,7 @@
               </tbody>
               <tfoot v-if="isFinished">
                 <tr>
+                  <th></th>
                   <th></th>
                   <th></th>
                   <th></th>
@@ -137,7 +136,13 @@ const emit = defineEmits<Emits>()
 const reportContent = ref<HTMLElement>()
 const generating = ref(false)
 
-const isFinished = computed(() => props.rent?.isFinished || false)
+const isFinished = computed(() => props.rent?.isFinished === true)
+
+const uniqueIdentifier = computed(() => {
+  const code = props.rent?.code || 'PROD'
+  const currentDate = new Date().toISOString().split('T')[0].replace(/-/g, '')
+  return `${code}-${currentDate}`
+})
 
 const reportTitle = computed(() => {
   return isFinished.value
@@ -185,10 +190,10 @@ const generateFileName = () => {
   if (!props.rent) return 'comprobante.pdf'
 
   const clientName = props.rent.clientName.replace(/[^a-zA-Z0-9]/g, '_')
-  const date = new Date().toISOString().split('T')[0]
+  const identifier = uniqueIdentifier.value
   const type = isFinished.value ? 'devolucion' : 'arriendo'
 
-  return `${type}_${clientName}_${props.rent.code}_${date}.pdf`
+  return `${type}_${clientName}_${identifier}.pdf`
 }
 
 const downloadPDF = async () => {
@@ -201,18 +206,21 @@ const downloadPDF = async () => {
     const html2pdf = (await import('html2pdf.js')).default
 
     const options = {
-      margin: 0.5,
+      margin: [0.25, 0.25, 0.25, 0.25],
       filename: generateFileName(),
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: {
-        scale: 2,
+        scale: 1.4,
         useCORS: true,
-        allowTaint: true
+        allowTaint: true,
+        letterRendering: true,
+        logging: false
       },
       jsPDF: {
         unit: 'in',
         format: 'letter',
-        orientation: 'portrait'
+        orientation: 'portrait',
+        compress: true
       }
     }
 
@@ -328,20 +336,21 @@ const closeModal = () => {
 .report-preview {
   background: white;
   color: black;
-  padding: 2rem;
+  padding: 0.8rem;
   font-family: 'Montserrat', sans-serif;
-  line-height: 1.6;
+  line-height: 1.3;
+  font-size: 0.9rem;
 }
 
 .report-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
+  margin-bottom: 0.4rem;
 }
 
 .logo {
-  max-width: 200px;
+  max-width: 140px;
   height: auto;
 }
 
@@ -350,60 +359,64 @@ const closeModal = () => {
 }
 
 .invoice-number h5 {
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.2rem 0;
   font-weight: 600;
+  font-size: 1rem;
 }
 
 .company-info {
-  margin: 1rem 0;
+  margin: 0.4rem 0;
 }
 
 .report-title h2 {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: bold;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.3rem 0;
   color: black;
 }
 
 .report-title p {
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.5rem 0;
   font-weight: 500;
+  font-size: 0.85rem;
 }
 
 .contact-info p {
-  margin: 0.25rem 0;
-  font-size: 0.9rem;
+  margin: 0.12rem 0;
+  font-size: 0.75rem;
 }
 
 .client-info {
-  margin: 1rem 0;
+  margin: 0.6rem 0;
 }
 
 .client-info p {
-  margin: 0.5rem 0;
-  font-size: 0.95rem;
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
 }
 
 .items-table {
-  margin: 2rem 0;
+  margin: 0.8rem 0;
 }
 
 .invoice-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.8rem;
 }
 
 .invoice-table th,
 .invoice-table td {
   border: 1px solid #ddd;
-  padding: 0.75rem;
+  padding: 0.35rem;
   text-align: left;
 }
 
 .invoice-table th {
   background-color: #f5f5f5;
   font-weight: 600;
+  font-size: 0.75rem;
 }
 
 .invoice-table tfoot th {
@@ -412,29 +425,32 @@ const closeModal = () => {
 }
 
 .observations {
-  margin-top: 1rem;
-  padding: 1rem;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
   background-color: #f8f9fa;
-  border-radius: 5px;
+  border-radius: 3px;
 }
 
 .observations p {
-  margin: 0.5rem 0;
+  margin: 0.15rem 0;
+  font-size: 0.75rem;
 }
 
 .terms-section {
-  margin-top: 2rem;
+  margin-top: 0.8rem;
 }
 
 .terms-section h4 {
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.6rem 0;
   font-weight: 600;
   color: black;
+  font-size: 0.95rem;
 }
 
 .terms-content p {
-  margin: 0.5rem 0;
-  font-size: 0.9rem;
+  margin: 0.2rem 0;
+  font-size: 0.75rem;
+  line-height: 1.2;
 }
 
 .signature-section {
@@ -448,23 +464,26 @@ const closeModal = () => {
 }
 
 .signature-line p {
-  margin: 1rem 0 0.5rem 0;
+  margin: 1.5rem 0 0.6rem 0;
+  font-size: 0.85rem;
 }
 
 .client-signature p {
-  margin: 0.25rem 0;
+  margin: 0.12rem 0;
   font-weight: 500;
+  font-size: 0.8rem;
 }
 
 .thank-you {
   text-align: center;
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
 .thank-you h3 {
   margin: 0;
   color: black;
   font-weight: 600;
+  font-size: 0.95rem;
 }
 
 .modal-footer {
@@ -524,8 +543,8 @@ const closeModal = () => {
 
 hr {
   border: none;
-  border-top: 2px solid #ddd;
-  margin: 1rem 0;
+  border-top: 1px solid #ddd;
+  margin: 0.5rem 0;
 }
 
 /* Responsive */
@@ -541,13 +560,14 @@ hr {
   }
 
   .report-preview {
-    padding: 1rem;
-    font-size: 0.9rem;
+    padding: 0.6rem;
+    font-size: 0.8rem;
+    line-height: 1.2;
   }
 
   .report-header {
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.3rem;
   }
 
   .invoice-number {
@@ -555,16 +575,16 @@ hr {
   }
 
   .logo {
-    max-width: 150px;
+    max-width: 110px;
   }
 
   .invoice-table {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
   }
 
   .invoice-table th,
   .invoice-table td {
-    padding: 0.5rem;
+    padding: 0.25rem;
   }
 
   .modal-footer {
