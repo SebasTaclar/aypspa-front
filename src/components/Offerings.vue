@@ -1,22 +1,43 @@
 <template>
-  <div class="offerings">
-    <div class="cards">
-      <button class="card rent">
-        <h2>Arriendo de maquinaria para construcción</h2>
-        <p>
-          Ofrecemos una amplia variedad de maquinaria para construcción en alquiler, garantizando
-          equipos de alta calidad y rendimiento para sus proyectos.
-        </p>
-      </button>
-      <button class="card sell">
-        <h2>Venta de herramienta</h2>
-        <p>
-          Ofrecemos una amplia variedad de herramientas para construcción en venta, garantizando
-          equipos de alta calidad y rendimiento para sus proyectos.
-        </p>
-      </button>
+  <section id="servicios-ayp" class="services-section">
+    <p class="section-title-1">Arriendo de herramientas de construccion</p>
+    <h2 class="section-title">ESTOS SON NUESTROS SERVICIOS EN ARRIENDO</h2>
+    <div class="service-grid">
+      <div class="service-card">
+        <img src="/public/images/andamio.png" alt="Andamios">
+        <h3>ARRIENDO DE ANDAMIOS</h3>
+        <p>Andamios en General</p>
+      </div>
+      <div class="service-card">
+        <img src="/public/images/GENERADORES2.png" alt="Generadores">
+        <h3>GENERADORES DE ENERGÍA</h3>
+        <p>Generadores de 2200 Watts a 11000 Watts</p>
+      </div>
+      <div class="service-card">
+        <img src="/public/images/trompo.png" alt="Trompos">
+        <h3>ARRIENDO DE TROMPOS</h3>
+        <p>Trompos de 130 litros a 250 litros</p>
+      </div>
     </div>
-  </div>
+    <!--   <h2 class="section-title">TAMBIÉN OFRECEMOS SERVICIOS DE:</h2> -->
+    <div class="service-grid">
+      <div class="service-card">
+        <img src="/public/images/placa_compacta.jpg" alt="Placas Compactadoras">
+        <h3>PLACAS COMPACTADORAS</h3>
+        <p>Placa compactadora Rev 7.5hp 30kn Mtr Robn</p>
+      </div>
+      <div class="service-card">
+        <img src="/public/images/cortadora_pav.jpg" alt="Cortadora de Pavimento">
+        <h3>CORTADORA DE PAVIMENTO</h3>
+        <p>Bencinera 15hp 16-20" GEWILSON GFS480G</p>
+      </div>
+      <div class="service-card">
+        <img src="/public/images/alisador1.jpg" alt="Alisador de Pavimentos">
+        <h3>ALISADOR DE PAVIMENTOS</h3>
+        <p>48 7,5hp Gasolina S-120</p>
+      </div>
+    </div>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -26,6 +47,75 @@ defineOptions({
 </script>
 
 <style scoped>
+
+.services-section {
+  background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+              url('/public/images/fondo3.jpg') center/cover no-repeat;
+  padding: 60px 20px;
+  text-align: center;
+  font-family: 'Segoe UI', sans-serif;
+  color: white;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  color: #ffffff;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.section-title-1 {
+  color: #ffffff;
+  margin-bottom: 0px;
+  text-transform: uppercase;
+  font-weight: 10px;
+}
+
+.service-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 50px;
+}
+
+.service-card {
+  background: rgba(255, 255, 255, 0.932);
+  width: 280px;
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+}
+
+.service-card img {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+}
+
+.service-card h3 {
+  margin: 15px 10px 5px;
+  font-size: 1.1rem;
+  color: #9B3B32;
+}
+
+.service-card p {
+  margin: 0 10px 15px;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+
+
+
+
 .offerings {
   background-color: rgba(34, 34, 34, 0.9);
   height: 40vh;
