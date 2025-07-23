@@ -55,19 +55,12 @@
 </template>
 
 <script setup lang="ts">
-import AOS from 'aos';
 
 
 defineOptions({
   name: 'AboutComponent',
 });
 
-AOS.init({
-duration: 1000,
-once: true
-});
-
-AOS.init({ duration: 1000, once: true });
 </script>
 
 <style scoped>

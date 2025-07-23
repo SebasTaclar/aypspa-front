@@ -1,6 +1,5 @@
 <template>
   <button
-    v-if="isAdminRole"
     @click="toggleTheme"
     class="theme-toggle"
     :title="isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
