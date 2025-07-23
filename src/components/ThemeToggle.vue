@@ -1,14 +1,19 @@
 <template>
- <button @click="toggleTheme" class="theme-toggle" :title="isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
-  <div class="toggle-container">
-   <div class="toggle-slider" :class="{ 'dark': isDark }">
-    <div class="toggle-icon">
-     <span v-if="isDark" class="icon">🌙</span>
-     <span v-else class="icon">☀️</span>
+  <button
+    @click="toggleTheme"
+    class="theme-toggle"
+    :title="isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+  >
+    <div class="toggle-container">
+      <div class="toggle-slider" :class="{ 'dark': isDark }">
+        <div class="toggle-icon">
+          <span v-if="isDark" class="icon">🌙</span>
+          <span v-else class="icon">☀️</span>
+        </div>
+      </div>
     </div>
-   </div>
-  </div>
- </button>
+  </button>
+
 </template>
 
 <script setup lang="ts">
