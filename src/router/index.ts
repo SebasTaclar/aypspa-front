@@ -44,6 +44,12 @@ const router = createRouter({
       name: 'maintenance',
       component: () => import('../views/Maintenance.vue'),
     },
+    // Catch-all route - debe ir al final
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      redirect: '/',
+    },
   ],
 })
 
