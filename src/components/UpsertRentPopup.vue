@@ -639,8 +639,6 @@ const updateProductRentStatus = async (productCode: string, isRented: boolean) =
           'Content-Type': 'application/json'
         }
       })
-
-      console.log(`Product ${productCode} rental status updated to: ${isRented}`)
     } else {
       console.warn(`Product with code ${productCode} not found for status update`)
     }
@@ -672,9 +670,6 @@ const handleCreateRent = async (rentPayload: Rent) => {
   })
 
   if (response.data?.success) {
-    console.log('Rent created successfully:', response.data.data)
-
-    // Update product status to rented
     await updateProductRentStatus(backendPayload.code, true)
 
     emit('save', response.data.data)
