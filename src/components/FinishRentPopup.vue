@@ -37,6 +37,10 @@
             <input type="text" :value="rent ? formatCurrency(rent.warrantyValue) : ''" readonly
               class="readonly-input" />
           </div>
+          <div class="form-group">
+            <label>Tipo Garantía:</label>
+            <input type="text" :value="rent?.warrantyType || 'N/A'" readonly class="readonly-input" />
+          </div>
         </div>
       </div>
 

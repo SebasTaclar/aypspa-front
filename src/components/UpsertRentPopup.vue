@@ -86,6 +86,16 @@
           </div>
         </div>
 
+        <div class="form-group">
+          <label for="warrantyType">Tipo de Garantía</label>
+          <select id="warrantyType" v-model="rent.warrantyType" required>
+            <option value="">Seleccionar tipo de garantía</option>
+            <option value="Garantía básica">Garantía básica</option>
+            <option value="Garantía extendida">Garantía extendida</option>
+            <option value="Sin garantía">Sin garantía</option>
+          </select>
+        </div>
+
         <!-- Separator line between product and client -->
         <div class="form-separator"></div>
 
@@ -233,6 +243,7 @@ const rent = ref({
   paymentMethod: mode === 'create' ? '' : (rentData?.paymentMethod || ''),
   clientName: mode === 'create' ? '' : (rentData?.clientName || ''),
   warrantyValue: mode === 'create' ? 0 : (rentData?.warrantyValue || 0),
+  warrantyType: mode === 'create' ? '' : (rentData?.warrantyType || ''),
   createdAt: mode === 'create' ? new Date().toISOString() : (rentData?.createdAt || new Date().toISOString()),
   isFinished: mode === 'create' ? false : (rentData?.isFinished || false),
   isPaid: mode === 'create' ? false : (rentData?.isPaid || false),
@@ -451,6 +462,7 @@ const hasChanges = computed(() => {
       currentRent.clientRut.trim() ||
       currentRent.clientName.trim() ||
       currentRent.warrantyValue !== 0 ||
+      currentRent.warrantyType.trim() ||
       currentRent.deliveryDate.trim()
     )
   } else {
@@ -469,6 +481,7 @@ const hasChanges = computed(() => {
       current.paymentMethod !== original.paymentMethod ||
       current.clientName !== original.clientName ||
       current.warrantyValue !== original.warrantyValue ||
+      current.warrantyType !== original.warrantyType ||
       current.deliveryDate !== original.deliveryDate ||
       current.isFinished !== original.isFinished ||
       current.isPaid !== original.isPaid ||
@@ -718,6 +731,7 @@ const handleCreateRent = async (rentPayload: Rent) => {
     quantity: Number(rentPayload.quantity) || 0,
     totalValuePerDay: Number(rentPayload.totalValuePerDay) || 0,
     warrantyValue: Number(rentPayload.warrantyValue) || 0,
+    warrantyType: rentPayload.warrantyType || '',
     clientRut: rentPayload.clientRut,
     clientName: rentPayload.clientName,
     createdAt: rentPayload.createdAt || new Date().toISOString(),

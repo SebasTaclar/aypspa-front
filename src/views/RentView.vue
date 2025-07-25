@@ -64,6 +64,7 @@
               <th>RUT</th>
               <th>Forma de Pago</th>
               <th>Valor Garantía</th>
+              <th>Tipo Garantía</th>
               <th>Fecha Creación</th>
               <th>Acciones</th>
             </tr>
@@ -82,6 +83,7 @@
                 </span>
               </td>
               <td class="warranty">${{ formatCurrency(rent.warrantyValue) }}</td>
+              <td class="warranty-type">{{ rent.warrantyType || 'N/A' }}</td>
               <td>{{ formatDate(rent.createdAt) }}</td>
               <td class="actions">
                 <button @click="editRent(rent)" class="btn-edit" title="Editar">
@@ -148,6 +150,7 @@
                 <th>Fecha Entrega</th>
                 <th>Forma de Pago</th>
                 <th>Valor Garantía</th>
+                <th>Tipo Garantía</th>
                 <th>Estado de Pago</th>
                 <th>Fecha Creación</th>
                 <th>Acciones</th>
@@ -170,6 +173,7 @@
                   </span>
                 </td>
                 <td class="warranty">${{ formatCurrency(rent.warrantyValue) }}</td>
+                <td class="warranty-type">{{ rent.warrantyType || 'N/A' }}</td>
                 <td>
                   <span :class="['payment-status-badge', getPaymentStatusClass(rent.isPaid)]">
                     {{ getPaymentStatusText(rent.isPaid) }}
@@ -350,20 +354,37 @@ const fetchFinishedRents = async (page: number = 1, pageSize: number = 25) => {
     })
 
     if (response.data?.success && response.data?.data) {
-      // Update finished rents in the main rents array
-      const activeRents = rents.value.filter(rent => !rent.isFinished)
-      let finishedRents = response.data.data
+      if (searchQuery.value.trim()) {
+        // If searching, replace only finished rents with search results
+        const activeRents = rents.value.filter(rent => !rent.isFinished)
+        let finishedRents = response.data.data
 
-      // Sort finished rents by finishDate (or updatedAt) descending - most recent first
-      finishedRents = finishedRents.sort((a: unknown, b: unknown) => {
-        const rentA = a as Rent
-        const rentB = b as Rent
-        const dateA = new Date(rentA.finishDate || rentA.updatedAt || rentA.createdAt)
-        const dateB = new Date(rentB.finishDate || rentB.updatedAt || rentB.createdAt)
-        return dateB.getTime() - dateA.getTime() // Descending order
-      })
+        // Sort finished rents by finishDate (or updatedAt) descending - most recent first
+        finishedRents = finishedRents.sort((a: unknown, b: unknown) => {
+          const rentA = a as Rent
+          const rentB = b as Rent
+          const dateA = new Date(rentA.finishDate || rentA.updatedAt || rentA.createdAt)
+          const dateB = new Date(rentB.finishDate || rentB.updatedAt || rentB.createdAt)
+          return dateB.getTime() - dateA.getTime() // Descending order
+        })
 
-      rents.value = [...activeRents, ...finishedRents]
+        rents.value = [...activeRents, ...finishedRents]
+      } else {
+        // If not searching, replace only finished rents with all finished rents
+        const activeRents = rents.value.filter(rent => !rent.isFinished)
+        let finishedRents = response.data.data
+
+        // Sort finished rents by finishDate (or updatedAt) descending - most recent first
+        finishedRents = finishedRents.sort((a: unknown, b: unknown) => {
+          const rentA = a as Rent
+          const rentB = b as Rent
+          const dateA = new Date(rentA.finishDate || rentA.updatedAt || rentA.createdAt)
+          const dateB = new Date(rentB.finishDate || rentB.updatedAt || rentB.createdAt)
+          return dateB.getTime() - dateA.getTime() // Descending order
+        })
+
+        rents.value = [...activeRents, ...finishedRents]
+      }
 
       // Update pagination info
       if (response.data.pagination) {
@@ -440,10 +461,17 @@ const fetchActiveRents = async () => {
     })
 
     if (response.data?.success && response.data?.data) {
-      // Update active rents in the main rents array
-      const finishedRents = rents.value.filter(rent => rent.isFinished)
-      const activeRents = response.data.data
-      rents.value = [...activeRents, ...finishedRents]
+      if (searchQuery.value.trim()) {
+        // If searching, replace only active rents with search results
+        const finishedRents = rents.value.filter(rent => rent.isFinished)
+        const activeRents = response.data.data
+        rents.value = [...activeRents, ...finishedRents]
+      } else {
+        // If not searching, replace only active rents with all active rents
+        const finishedRents = rents.value.filter(rent => rent.isFinished)
+        const activeRents = response.data.data
+        rents.value = [...activeRents, ...finishedRents]
+      }
     } else {
       console.error('Invalid API response format:', response.data)
     }
@@ -502,39 +530,34 @@ watch(searchQuery, () => {
 })
 
 const filteredActiveRents = computed(() => {
-  return rents.value
-    .filter(rent => !rent.isFinished)
-    .filter(rent => {
-      if (!searchQuery.value) return true
-      const query = searchQuery.value.toLowerCase()
-      return (
-        rent.code.toLowerCase().includes(query) ||
-        rent.productName.toLowerCase().includes(query) ||
-        rent.clientName.toLowerCase().includes(query) ||
-        rent.clientRut.toLowerCase().includes(query)
-      )
-    })
+  const activeRents = rents.value.filter(rent => !rent.isFinished)
+
+  // If there's a search query, the backend already filtered the results
+  // so we don't need to apply additional filtering
+  if (searchQuery.value.trim()) {
+    return activeRents
+  }
+
+  // If no search query, return all active rents
+  return activeRents
 })
 
 const filteredFinishedRents = computed(() => {
-  return rents.value
-    .filter(rent => rent.isFinished)
-    .filter(rent => {
-      if (!searchQuery.value) return true
-      const query = searchQuery.value.toLowerCase()
-      return (
-        rent.code.toLowerCase().includes(query) ||
-        rent.productName.toLowerCase().includes(query) ||
-        rent.clientName.toLowerCase().includes(query) ||
-        rent.clientRut.toLowerCase().includes(query)
-      )
-    })
-    .sort((a, b) => {
-      // Sort by finishDate (or updatedAt/createdAt) descending - most recent first
-      const dateA = new Date(a.finishDate || a.updatedAt || a.createdAt)
-      const dateB = new Date(b.finishDate || b.updatedAt || b.createdAt)
-      return dateB.getTime() - dateA.getTime()
-    })
+  const finishedRents = rents.value.filter(rent => rent.isFinished)
+
+  // If there's a search query, the backend already filtered the results
+  // so we don't need to apply additional filtering
+  if (searchQuery.value.trim()) {
+    return finishedRents
+  }
+
+  // If no search query, return all finished rents sorted by date
+  return finishedRents.sort((a, b) => {
+    // Sort by finishDate (or updatedAt/createdAt) descending - most recent first
+    const dateA = new Date(a.finishDate || a.updatedAt || a.createdAt)
+    const dateB = new Date(b.finishDate || b.updatedAt || b.createdAt)
+    return dateB.getTime() - dateA.getTime()
+  })
 })
 
 const setActiveView = async (view: 'active' | 'finished') => {
@@ -1178,6 +1201,7 @@ const handleFinishRent = async (finishData: FinishRentData) => {
 
 .price,
 .warranty,
+.warranty-type,
 .total-days,
 .total-price {
   font-weight: 600;

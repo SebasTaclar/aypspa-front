@@ -9,6 +9,7 @@ export type Rent = {
   paymentMethod?: string
   clientName: string
   warrantyValue: number
+  warrantyType?: string
   createdAt: string
   isFinished: boolean
   // Optional fields for finished rents
