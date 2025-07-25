@@ -247,6 +247,9 @@
 
     <!-- Rent Report Popup -->
     <RentReportPopup :is-open="showReportModal" :rent="rentToReport" @close="closeReportModal" />
+
+    <!-- Membership Expired Popup -->
+    <MembershipExpiredPopup v-if="showMembershipExpiredPopup" @close="closeMembershipExpiredPopup" />
   </div>
 </template>
 
@@ -256,6 +259,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import type { Rent } from '@/types/RentType'
+import type { UserResponse } from '@/types/UserType'
 import { getBaseUrl } from '@/utils/apiConfig'
 import { PhotoService } from '@/utils/photoService'
 import Spinner from '@/components/Spinner.vue'
@@ -263,6 +267,7 @@ import UpsertRentPopup from '@/components/UpsertRentPopup.vue'
 import ClientDocumentPopup from '@/components/ClientDocumentPopup.vue'
 import FinishRentPopup from '@/components/FinishRentPopup.vue'
 import RentReportPopup from '@/components/RentReportPopup.vue'
+import MembershipExpiredPopup from '@/components/MembershipExpiredPopup.vue'
 
 interface FinishRentData {
   totalDays: number
@@ -301,6 +306,9 @@ const rentToFinish = ref<Rent | null>(null)
 // Report modal state
 const showReportModal = ref(false)
 const rentToReport = ref<Rent | null>(null)
+
+// Membership expired modal state
+const showMembershipExpiredPopup = ref(false)
 
 // Pagination state for finished rents
 const finishedRentsPagination = ref({
@@ -374,6 +382,39 @@ const fetchFinishedRents = async (page: number = 1, pageSize: number = 25) => {
   }
 }
 
+// API function to check user membership status
+const checkUserMembership = async () => {
+  try {
+    const token = sessionStorage.getItem('token')
+
+    const response = await axios.get<UserResponse>(`${getBaseUrl()}/api/v1/users?current=true`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (response.data?.success && response.data?.data) {
+      const userData = response.data.data
+
+      // Show popup if membership is not paid
+      if (userData.membershipPaid === false) {
+        showMembershipExpiredPopup.value = true
+      }
+    }
+  } catch (error) {
+    console.error('Error checking user membership:', error)
+    if (axios.isAxiosError(error)) {
+      console.error('API Error:', error.response?.data || error.message)
+    }
+  }
+}
+
+// Close membership expired popup
+const closeMembershipExpiredPopup = () => {
+  showMembershipExpiredPopup.value = false
+}
+
 // API function to fetch active rents (without pagination)
 const fetchActiveRents = async () => {
   try {
@@ -415,6 +456,9 @@ const fetchActiveRents = async () => {
 }
 
 onMounted(async () => {
+  // Check user membership status first
+  await checkUserMembership()
+
   // Restore the view state from URL query parameter or localStorage
   const queryView = route.query.view as 'active' | 'finished'
   const savedView = localStorage.getItem('rentView') as 'active' | 'finished'
@@ -494,6 +538,9 @@ const filteredFinishedRents = computed(() => {
 })
 
 const setActiveView = async (view: 'active' | 'finished') => {
+  // Check user membership status when switching views
+  await checkUserMembership()
+
   activeView.value = view
   // Update URL without page reload
   router.push({ query: { ...route.query, view } })
