@@ -6,7 +6,7 @@ export type Rent = {
   totalValuePerDay: number
   clientRut: string
   deliveryDate: string
-  paymentMethod: string
+  paymentMethod?: string
   clientName: string
   warrantyValue: number
   createdAt: string
@@ -17,4 +17,5 @@ export type Rent = {
   observations?: string
   isPaid?: boolean
   finishDate?: string
+  updatedAt?: string
 }

@@ -11,7 +11,7 @@
           <div class="report-header">
             <img src="/images/logoayp.jpeg" alt="Logo AYP" class="logo">
             <div class="invoice-number">
-              <h5>No. {{ uniqueIdentifier }}</h5>
+              <h5>No. {{ rentId }}</h5>
             </div>
           </div>
           <hr />
@@ -86,9 +86,8 @@
             <h4>Condiciones y formas de pago</h4>
             <div class="terms-content">
               <p><strong>Términos y Condiciones</strong></p>
-              <p>1.- Duración de la Oferta 5 días "según stock"</p>
-              <p>2.- Garantía: Cheque - Orden de Compra - Transferencia</p>
-              <p>3.- Entregado el producto se hace responsable el arrendador de daños o robos del producto.</p>
+              <p>1.- Garantía: Cheque - Orden de Compra - Transferencia</p>
+              <p>2.- Entregado el producto se hace responsable el arrendador de daños o robos del producto.</p>
             </div>
 
             <div class="signature-section">
@@ -139,10 +138,8 @@ const generating = ref(false)
 
 const isFinished = computed(() => props.rent?.isFinished === true)
 
-const uniqueIdentifier = computed(() => {
-  const code = props.rent?.code || 'PROD'
-  const currentDate = new Date().toISOString().split('T')[0].replace(/-/g, '')
-  return `${code}-${currentDate}`
+const rentId = computed(() => {
+  return `${props.rent?.id || 'error'}`
 })
 
 const reportTitle = computed(() => {
@@ -191,7 +188,7 @@ const generateFileName = () => {
   if (!props.rent) return 'comprobante.pdf'
 
   const clientName = props.rent.clientName.replace(/[^a-zA-Z0-9]/g, '_')
-  const identifier = uniqueIdentifier.value
+  const identifier = rentId.value
   const type = isFinished.value ? 'devolucion' : 'arriendo'
 
   return `${type}_${clientName}_${identifier}.pdf`

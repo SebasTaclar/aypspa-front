@@ -28,10 +28,6 @@
             <input type="text" :value="rent?.clientRut" readonly class="readonly-input" />
           </div>
           <div class="form-group">
-            <label>Fecha de Entrega:</label>
-            <input type="text" :value="rent ? formatDate(rent.deliveryDate) : ''" readonly class="readonly-input" />
-          </div>
-          <div class="form-group">
             <label>Valor por Día:</label>
             <input type="text" :value="rent ? formatCurrency(rent.totalValuePerDay) : ''" readonly
               class="readonly-input" />
@@ -71,7 +67,7 @@
 
           <div class="form-group full-width">
             <label for="paymentMethod">Forma de Pago:</label>
-            <select id="paymentMethod" v-model="finishData.paymentMethod" required class="editable-input">
+            <select id="paymentMethod" v-model="finishData.paymentMethod" required>
               <option value="">Seleccionar forma de pago</option>
               <option value="debito">Débito</option>
               <option value="credito">Crédito</option>
@@ -148,7 +144,15 @@ const deliveryDateFormatted = computed({
   get() {
     if (!finishData.value.deliveryDate) return ''
     const date = new Date(finishData.value.deliveryDate)
-    return date.toISOString().slice(0, 16) // Format: YYYY-MM-DDTHH:MM
+
+    // Convert to local timezone for display in datetime-local input
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`
   },
   set(value: string) {
     if (value) {
@@ -195,17 +199,13 @@ watch(() => props.rent, (newRent) => {
     finishData.value = {
       totalDays: days,
       totalPrice: Math.round(newRent.totalValuePerDay * days),
-      observations: '',
+      observations: newRent.observations || '',
       isPaid: false,
       deliveryDate: new Date().toISOString(),
       paymentMethod: ''
     }
   }
 }, { immediate: true })
-
-const formatDate = (dateString: string): string => {
-  return new Date(dateString).toLocaleDateString('es-CL')
-}
 
 const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('es-CL', {
@@ -334,32 +334,124 @@ const handleSubmit = () => {
 }
 
 .form-group label {
+  display: block;
   margin-bottom: 0.5rem;
-  font-weight: 500;
   color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-shadow: 0 1px 2px var(--shadow-secondary);
 }
 
 .readonly-input {
-  padding: 0.75rem;
-  border: 1px solid var(--border-primary);
-  border-radius: 4px;
-  background-color: var(--bg-tertiary);
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-primary);
+  border-radius: 12px;
   color: var(--text-secondary);
+  font-size: 1rem;
   cursor: not-allowed;
+  opacity: 0.7;
+  box-sizing: border-box;
 }
 
 .editable-input {
-  padding: 0.75rem;
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg-tertiary);
   border: 2px solid var(--border-primary);
-  border-radius: 4px;
-  background-color: var(--bg-secondary);
+  border-radius: 12px;
   color: var(--text-primary);
-  transition: border-color 0.3s ease;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  backdrop-filter: var(--backdrop-blur);
+  box-sizing: border-box;
+}
+
+.editable-input::placeholder {
+  color: var(--text-muted);
 }
 
 .editable-input:focus {
   outline: none;
   border-color: var(--primary-color-alpha-60);
+  background: var(--bg-secondary);
+  box-shadow: 0 0 20px var(--primary-color-alpha-30);
+  transform: translateY(-1px);
+}
+
+/* Select styling - copied from UpsertRentPopup */
+.form-group select {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-primary);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  backdrop-filter: var(--backdrop-blur);
+  box-sizing: border-box;
+  cursor: pointer;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 20px !important;
+  padding-right: 40px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary-color-alpha-60);
+  background: var(--bg-secondary);
+  box-shadow: 0 0 20px var(--primary-color-alpha-30);
+  transform: translateY(-1px);
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 20px !important;
+}
+
+/* Dark theme dropdown styling */
+:root[data-theme='dark'] .form-group select,
+:root:not([data-theme]) .form-group select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+}
+
+:root[data-theme='dark'] .form-group select:focus,
+:root:not([data-theme]) .form-group select:focus {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+}
+
+/* Light theme dropdown styling */
+:root[data-theme='light'] .form-group select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+}
+
+:root[data-theme='light'] .form-group select:focus {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+}
+
+/* Select option styling for better contrast */
+.form-group select option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: none;
+  padding: 8px 12px;
+}
+
+/* Dark theme option styling */
+:root[data-theme='dark'] .form-group select option,
+:root:not([data-theme]) .form-group select option {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+/* Light theme option styling */
+:root[data-theme='light'] .form-group select option {
+  background: #ffffff;
+  color: #333333;
 }
 
 .form-hint {
@@ -462,6 +554,8 @@ const handleSubmit = () => {
 textarea.editable-input {
   resize: vertical;
   min-height: 100px;
+  font-family: var(--font-family);
+  line-height: 1.5;
 }
 
 @media (max-width: 768px) {

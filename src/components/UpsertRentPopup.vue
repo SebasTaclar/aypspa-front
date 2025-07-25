@@ -106,6 +106,13 @@
         <!-- Separator line between client and delivery -->
         <div class="form-separator"></div>
 
+        <!-- Observations Field -->
+        <div class="form-group">
+          <label for="observations">Observaciones</label>
+          <textarea id="observations" v-model="rent.observations" rows="3"
+            placeholder="Agregar observaciones adicionales (opcional)..." />
+        </div>
+
         <!-- Payment Method - Only show for finished rents -->
         <div v-if="mode === 'edit' && rent.isFinished" class="form-group">
           <label for="paymentMethod">Forma de Pago</label>
@@ -169,7 +176,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { getBaseUrl } from '@/utils/apiConfig'
 import axios from 'axios'
 import Spinner from '@/components/Spinner.vue'
@@ -232,6 +239,13 @@ const rent = ref({
   totalDays: mode === 'create' ? undefined : rentData?.totalDays,
   totalPrice: mode === 'create' ? undefined : rentData?.totalPrice,
   observations: mode === 'create' ? '' : (rentData?.observations || '')
+})
+
+// Watcher to validate warrantyValue
+watch(() => rent.value.warrantyValue, (newValue) => {
+  if (isNaN(newValue) || newValue === null || newValue === undefined) {
+    rent.value.warrantyValue = 0
+  }
 })
 
 // Computed property for datetime-local format
@@ -697,14 +711,21 @@ const handleCreateRent = async (rentPayload: Rent) => {
   const token = sessionStorage.getItem('token')
 
   // Ensure data types match backend expectations
+  // For create mode, exclude paymentMethod as it's only set when finishing the rent
   const backendPayload = {
-    ...rentPayload,
-    quantity: Number(rentPayload.quantity), // Ensure it's a number
-    totalValuePerDay: Number(rentPayload.totalValuePerDay), // Ensure it's a number
-    warrantyValue: Number(rentPayload.warrantyValue), // Ensure it's a number
+    code: rentPayload.code,
+    productName: rentPayload.productName,
+    quantity: Number(rentPayload.quantity) || 0,
+    totalValuePerDay: Number(rentPayload.totalValuePerDay) || 0,
+    warrantyValue: Number(rentPayload.warrantyValue) || 0,
+    clientRut: rentPayload.clientRut,
+    clientName: rentPayload.clientName,
     createdAt: rentPayload.createdAt || new Date().toISOString(),
     deliveryDate: rentPayload.deliveryDate || '',
-    isFinished: Boolean(rentPayload.isFinished) // Ensure it's a boolean
+    isFinished: Boolean(rentPayload.isFinished),
+    isPaid: Boolean(rentPayload.isPaid),
+    observations: rentPayload.observations || ''
+    // Note: paymentMethod is intentionally excluded for create mode
   }
 
   const response = await axios.post(`${getBaseUrl()}/api/v1/rents`, backendPayload, {
@@ -732,12 +753,17 @@ const handleEditRent = async (rentPayload: Rent) => {
   // Ensure data types match backend expectations
   const backendPayload = {
     ...rentPayload,
-    quantity: Number(rentPayload.quantity), // Ensure it's a number
-    totalValuePerDay: Number(rentPayload.totalValuePerDay), // Ensure it's a number
-    warrantyValue: Number(rentPayload.warrantyValue), // Ensure it's a number
+    quantity: Number(rentPayload.quantity) || 0, // Ensure it's a number
+    totalValuePerDay: Number(rentPayload.totalValuePerDay) || 0, // Ensure it's a number
+    warrantyValue: Number(rentPayload.warrantyValue) || 0, // Ensure it's a number
     createdAt: rentPayload.createdAt || new Date().toISOString(),
     deliveryDate: rentPayload.deliveryDate || '',
     isFinished: Boolean(rentPayload.isFinished) // Ensure it's a boolean
+  }
+
+  // Only include paymentMethod if the rent is finished
+  if (rentPayload.isFinished && rentPayload.paymentMethod) {
+    backendPayload.paymentMethod = rentPayload.paymentMethod
   }
 
   const response = await axios.put(`${getBaseUrl()}/api/v1/rents/${rentPayload.id}`, backendPayload, {
@@ -981,7 +1007,8 @@ onMounted(() => {
 }
 
 .form-group input,
-.form-group select {
+.form-group select,
+.form-group textarea {
   width: 100%;
   padding: 12px 16px;
   background: var(--bg-tertiary);
@@ -994,17 +1021,26 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
-.form-group input::placeholder {
+.form-group input::placeholder,
+.form-group textarea::placeholder {
   color: var(--text-muted);
 }
 
 .form-group input:focus,
-.form-group select:focus {
+.form-group select:focus,
+.form-group textarea:focus {
   outline: none;
   border-color: var(--primary-color-alpha-60);
   background: var(--bg-secondary);
   box-shadow: 0 0 20px var(--primary-color-alpha-30);
   transform: translateY(-1px);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: var(--font-family);
+  line-height: 1.5;
 }
 
 .readonly-input {

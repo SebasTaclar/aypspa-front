@@ -320,7 +320,9 @@ const fetchFinishedRents = async (page: number = 1, pageSize: number = 25) => {
     const queryParams = new URLSearchParams({
       type: 'finished',
       page: page.toString(),
-      pageSize: pageSize.toString()
+      pageSize: pageSize.toString(),
+      sortBy: 'updatedAt',
+      sortOrder: 'desc'
     })
 
     // Add search query if exists
@@ -342,7 +344,17 @@ const fetchFinishedRents = async (page: number = 1, pageSize: number = 25) => {
     if (response.data?.success && response.data?.data) {
       // Update finished rents in the main rents array
       const activeRents = rents.value.filter(rent => !rent.isFinished)
-      const finishedRents = response.data.data
+      let finishedRents = response.data.data
+
+      // Sort finished rents by finishDate (or updatedAt) descending - most recent first
+      finishedRents = finishedRents.sort((a: unknown, b: unknown) => {
+        const rentA = a as Rent
+        const rentB = b as Rent
+        const dateA = new Date(rentA.finishDate || rentA.updatedAt || rentA.createdAt)
+        const dateB = new Date(rentB.finishDate || rentB.updatedAt || rentB.createdAt)
+        return dateB.getTime() - dateA.getTime() // Descending order
+      })
+
       rents.value = [...activeRents, ...finishedRents]
 
       // Update pagination info
@@ -473,6 +485,12 @@ const filteredFinishedRents = computed(() => {
         rent.clientRut.toLowerCase().includes(query)
       )
     })
+    .sort((a, b) => {
+      // Sort by finishDate (or updatedAt/createdAt) descending - most recent first
+      const dateA = new Date(a.finishDate || a.updatedAt || a.createdAt)
+      const dateB = new Date(b.finishDate || b.updatedAt || b.createdAt)
+      return dateB.getTime() - dateA.getTime()
+    })
 })
 
 const setActiveView = async (view: 'active' | 'finished') => {
@@ -514,8 +532,11 @@ const formatDate = (dateString: string) => {
   })
 }
 
-const getPaymentClass = (paymentMethod: string) => {
-  switch (paymentMethod.toLowerCase()) {
+const getPaymentClass = (paymentMethod?: string | null) => {
+  if (!paymentMethod || paymentMethod === undefined || paymentMethod === null) return 'other'
+
+  const safePaymentMethod = String(paymentMethod).toLowerCase()
+  switch (safePaymentMethod) {
     case 'debito':
       return 'debit'
     case 'credito':
@@ -527,8 +548,11 @@ const getPaymentClass = (paymentMethod: string) => {
   }
 }
 
-const getPaymentText = (paymentMethod: string) => {
-  switch (paymentMethod.toLowerCase()) {
+const getPaymentText = (paymentMethod?: string | null) => {
+  if (!paymentMethod || paymentMethod === undefined || paymentMethod === null) return 'N/A'
+
+  const safePaymentMethod = String(paymentMethod).toLowerCase()
+  switch (safePaymentMethod) {
     case 'debito':
       return 'Débito'
     case 'credito':
@@ -827,14 +851,14 @@ const handleFinishRent = async (finishData: FinishRentData) => {
     // Update product status to not rented when finishing the rent
     await updateProductRentStatus(rentToFinish.value.code, false)
 
-    // Refresh the appropriate view data
-    if (activeView.value === 'active') {
-      // Refresh active rents to remove the finished rent
-      await fetchActiveRents()
-    } else {
-      // Refresh finished rents to show the newly finished rent
-      await fetchFinishedRents(finishedRentsPagination.value.currentPage)
-    }
+    // Switch to finished rents view and refresh to show the newly finished rent
+    activeView.value = 'finished'
+    router.push({ query: { ...route.query, view: 'finished' } })
+    localStorage.setItem('rentView', 'finished')
+
+    // Reset pagination to first page and fetch finished rents
+    finishedRentsPagination.value.currentPage = 1
+    await fetchFinishedRents(1)
 
     closeFinishRentModal()
   } catch (error) {
