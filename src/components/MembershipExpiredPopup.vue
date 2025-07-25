@@ -29,7 +29,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 const emit = defineEmits(['close'])
 
 const isVisible = ref(true)
-const countdown = ref(10)
+const countdown = ref(5)
 let countdownInterval: number | null = null
 
 const closePopup = () => {
