@@ -543,6 +543,37 @@ const saveRent = async () => {
     return
   }
 
+  // Basic validation for required fields
+  if (!rent.value.code.trim()) {
+    alert('El código del producto es requerido')
+    return
+  }
+
+  if (!rent.value.productName.trim()) {
+    alert('El nombre del producto es requerido')
+    return
+  }
+
+  if (!rent.value.clientRut.trim()) {
+    alert('El RUT del cliente es requerido')
+    return
+  }
+
+  if (!rent.value.clientName.trim()) {
+    alert('El nombre del cliente es requerido')
+    return
+  }
+
+  if (rent.value.quantity <= 0) {
+    alert('La cantidad debe ser mayor a 0')
+    return
+  }
+
+  if (rent.value.totalValuePerDay <= 0) {
+    alert('El valor por día debe ser mayor a 0')
+    return
+  }
+
   loading.value = true
   try {
     // Check if product exists and create if needed (only for create mode)
@@ -596,7 +627,21 @@ const saveRent = async () => {
 
 // Ensure product exists, create if it doesn't
 const ensureProductExists = async () => {
-  if (!rent.value.code.trim()) return
+  if (!rent.value.code.trim()) {
+    throw new Error('El código del producto es requerido')
+  }
+
+  if (!rent.value.productName.trim()) {
+    throw new Error('El nombre del producto es requerido')
+  }
+
+  if (!productBrand.value.trim()) {
+    throw new Error('La marca del producto es requerida')
+  }
+
+  if (rent.value.totalValuePerDay <= 0) {
+    throw new Error('El valor por día debe ser mayor a 0')
+  }
 
   try {
     const token = sessionStorage.getItem('token')
@@ -633,13 +678,26 @@ const ensureProductExists = async () => {
     }
   } catch (error) {
     console.error('Error ensuring product exists:', error)
-    // Don't throw here - let rent creation continue even if product creation fails
+
+    // If product creation fails, throw the error to stop rent creation
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Error al crear el producto'
+      throw new Error(`Error al crear el producto: ${errorMessage}`)
+    } else {
+      throw new Error('Error inesperado al crear el producto')
+    }
   }
 }
 
 // Ensure client exists, create if it doesn't
 const ensureClientExists = async () => {
-  if (!rent.value.clientRut.trim() || !rent.value.clientName.trim()) return
+  if (!rent.value.clientRut.trim()) {
+    throw new Error('El RUT del cliente es requerido')
+  }
+
+  if (!rent.value.clientName.trim()) {
+    throw new Error('El nombre del cliente es requerido')
+  }
 
   try {
     const token = sessionStorage.getItem('token')
@@ -679,7 +737,14 @@ const ensureClientExists = async () => {
     }
   } catch (error) {
     console.error('Error ensuring client exists:', error)
-    // Don't throw here - let rent creation continue even if client creation fails
+
+    // If client creation fails, throw the error to stop rent creation
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Error al crear el cliente'
+      throw new Error(`Error al crear el cliente: ${errorMessage}`)
+    } else {
+      throw new Error('Error inesperado al crear el cliente')
+    }
   }
 }
 
