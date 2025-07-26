@@ -85,7 +85,7 @@
               <td class="warranty">${{ formatCurrency(rent.warrantyValue) }}</td>
               <td class="warranty-type">{{ rent.warrantyType || 'N/A' }}</td>
               <td>{{ formatDate(rent.createdAt) }}</td>
-              <td class="actions">
+              <td class="actions active-rent">
                 <button @click="editRent(rent)" class="btn-edit" title="Editar">
                   <img src="/icons/edit.svg" alt="Editar" />
                 </button>
@@ -94,7 +94,7 @@
                 </button>
                 <button @click="finishRent(rent)" class="btn-finish" title="Finalizar arrendamiento">
                   <!-- Simple currency SVG icon -->
-                  <svg width="18" height="18" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"
+                  <svg width="24" height="24" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"
                     style="vertical-align: middle;">
                     <circle cx="11" cy="11" r="9" stroke="#ffc107" stroke-width="2" fill="none" />
                     <text x="11" y="15" text-anchor="middle" font-size="12" fill="#ffc107"
@@ -947,7 +947,8 @@ const handleFinishRent = async (finishData: FinishRentData) => {
   width: 100%;
   max-width: none;
   margin: 0;
-  padding: 80px 40px 40px;
+  padding: 80px 5px 40px;
+  /* Maximizar espacio horizontal disponible - reducido aún más */
   min-height: 100vh;
   background: var(--bg-gradient-primary);
   position: relative;
@@ -970,8 +971,8 @@ const handleFinishRent = async (finishData: FinishRentData) => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
-  padding: 0 2rem;
-  max-width: 1600px;
+  padding: 0 0.5rem;
+  max-width: 2000px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -1009,7 +1010,7 @@ const handleFinishRent = async (finishData: FinishRentData) => {
   margin-bottom: 2rem;
   position: relative;
   z-index: 1;
-  max-width: 1600px;
+  max-width: 2000px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -1040,7 +1041,7 @@ const handleFinishRent = async (finishData: FinishRentData) => {
 .rent-content {
   position: relative;
   z-index: 1;
-  max-width: 1600px;
+  max-width: 2000px;
   margin: 0 auto;
 }
 
@@ -1109,9 +1110,12 @@ const handleFinishRent = async (finishData: FinishRentData) => {
   background: var(--bg-secondary);
   backdrop-filter: var(--backdrop-blur);
   border-radius: 20px;
-  padding: 2rem;
+  padding: 1rem;
   border: 1px solid var(--border-primary);
   box-shadow: 0 8px 32px var(--shadow-primary);
+  overflow-x: auto;
+  /* Agregar scroll horizontal siempre */
+  width: 100%;
 }
 
 .table-header {
@@ -1130,6 +1134,10 @@ const handleFinishRent = async (finishData: FinishRentData) => {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
+  min-width: 1570px;
+  /* Ajustar ancho mínimo para acomodar la columna de acciones más grande */
+  table-layout: fixed;
+  /* Usar layout fijo para controlar anchos de columnas */
 }
 
 .rent-table th {
@@ -1148,8 +1156,121 @@ const handleFinishRent = async (finishData: FinishRentData) => {
   border-radius: 0;
 }
 
-.rent-table th:last-child {
-  border-radius: 0;
+/* Regla last-child eliminada - usando reglas específicas por tabla */
+
+/* Estilos específicos para anchos de columnas */
+.rent-table th:nth-child(1),
+/* Código */
+.rent-table td:nth-child(1) {
+  width: 80px;
+  min-width: 80px;
+}
+
+.rent-table th:nth-child(2),
+/* Producto */
+.rent-table td:nth-child(2) {
+  width: 180px;
+  min-width: 180px;
+}
+
+.rent-table th:nth-child(3),
+/* Cantidad */
+.rent-table td:nth-child(3) {
+  width: 80px;
+  min-width: 80px;
+  text-align: center;
+}
+
+.rent-table th:nth-child(4),
+/* Valor/Día */
+.rent-table td:nth-child(4) {
+  width: 100px;
+  min-width: 100px;
+}
+
+.rent-table th:nth-child(5),
+/* Cliente o Días Totales */
+.rent-table td:nth-child(5) {
+  width: 90px;
+  min-width: 90px;
+}
+
+.rent-table th:nth-child(6),
+/* RUT o Precio Total */
+.rent-table td:nth-child(6) {
+  width: 110px;
+  min-width: 110px;
+}
+
+.rent-table th:nth-child(7),
+/* Forma de Pago o Cliente */
+.rent-table td:nth-child(7) {
+  width: 120px;
+  min-width: 120px;
+}
+
+.rent-table th:nth-child(8),
+/* Valor Garantía o RUT */
+.rent-table td:nth-child(8) {
+  width: 90px;
+  min-width: 90px;
+}
+
+.rent-table th:nth-child(9),
+/* Tipo Garantía o Fecha Entrega */
+.rent-table td:nth-child(9) {
+  width: 85px;
+  min-width: 85px;
+}
+
+.rent-table th:nth-child(10),
+/* Fecha Creación o Forma de Pago */
+.rent-table td:nth-child(10) {
+  width: 100px;
+  min-width: 100px;
+}
+
+/* Regla general para last-child eliminada - usando reglas específicas por tabla */
+
+/* Reglas específicas para celdas de datos por posición */
+/* Active rents - columna 11 */
+/* Active rents - columna 11 */
+.rent-table td:nth-child(11) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 16px 8px !important;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* Finished rents - columna 15 */
+.rent-table td:nth-child(15) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 16px 8px !important;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* FINISHED RENTS TABLE - Otras columnas específicas */
+.rent-table th:nth-child(12),
+.rent-table td:nth-child(12) {
+  width: 80px;
+  min-width: 80px;
+}
+
+.rent-table th:nth-child(13),
+.rent-table td:nth-child(13) {
+  width: 85px;
+  min-width: 85px;
+}
+
+.rent-table th:nth-child(14),
+.rent-table td:nth-child(14) {
+  width: 100px;
+  min-width: 100px;
 }
 
 .rent-row {
@@ -1187,6 +1308,12 @@ const handleFinishRent = async (finishData: FinishRentData) => {
 .product-name {
   font-weight: 600;
   color: var(--text-primary);
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  line-height: 1.3;
+  word-wrap: break-word;
+  max-width: 180px;
 }
 
 .quantity-badge {
@@ -1197,6 +1324,9 @@ const handleFinishRent = async (finishData: FinishRentData) => {
   font-weight: 600;
   font-size: 0.8rem;
   color: var(--text-primary);
+  display: inline-block;
+  min-width: 24px;
+  text-align: center;
 }
 
 .price,
@@ -1353,9 +1483,28 @@ const handleFinishRent = async (finishData: FinishRentData) => {
 }
 
 .actions {
-  display: flex;
-  gap: 8px;
+  display: grid;
+  gap: 6px;
   align-items: center;
+  justify-content: center;
+  padding: 6px;
+  min-height: 60px;
+  width: 100%;
+  max-width: 140px;
+  grid-template-columns: repeat(2, 40px);
+  grid-template-rows: repeat(2, 40px);
+  box-sizing: border-box;
+}
+
+/* Configuración específica para arrendamientos activos (5 botones en 2 filas: 3+2) */
+.actions.active-rent {
+  grid-template-columns: repeat(3, 36px);
+  grid-template-rows: repeat(2, 36px);
+  min-height: 60px;
+  max-width: 140px;
+  padding: 6px;
+  gap: 6px;
+  justify-content: center;
 }
 
 .btn-edit,
@@ -1373,6 +1522,20 @@ const handleFinishRent = async (finishData: FinishRentData) => {
   align-items: center;
   justify-content: center;
   backdrop-filter: var(--backdrop-blur);
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+}
+
+/* Botones para arrendamientos activos (2 filas) - cuadrados similares a finalizados */
+.actions.active-rent .btn-edit,
+.actions.active-rent .btn-delete,
+.actions.active-rent .btn-view,
+.actions.active-rent .btn-finish,
+.actions.active-rent .btn-print {
+  width: 36px;
+  height: 36px;
+  padding: 6px;
 }
 
 .btn-edit:hover {
@@ -1399,6 +1562,20 @@ const handleFinishRent = async (finishData: FinishRentData) => {
   transform: translateY(-2px);
 }
 
+.btn-print {
+  font-size: 20px;
+}
+
+/* Tamaño para arrendamientos activos */
+.actions.active-rent .btn-print {
+  font-size: 18px;
+}
+
+.actions.active-rent .btn-finish svg {
+  width: 22px;
+  height: 22px;
+}
+
 .btn-print:hover {
   background: rgba(156, 163, 175, 0.8);
   border-color: rgba(156, 163, 175, 1);
@@ -1408,9 +1585,17 @@ const handleFinishRent = async (finishData: FinishRentData) => {
 .btn-edit img,
 .btn-delete img,
 .btn-view img {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   transition: filter 0.3s ease;
+}
+
+/* Iconos para arrendamientos activos - mantener buen tamaño */
+.actions.active-rent .btn-edit img,
+.actions.active-rent .btn-delete img,
+.actions.active-rent .btn-view img {
+  width: 18px;
+  height: 18px;
 }
 
 /* Dark theme - make icons white */
@@ -1550,6 +1735,109 @@ const handleFinishRent = async (finishData: FinishRentData) => {
   transform: none;
 }
 
+/* Para pantallas grandes, utilizar más espacio */
+@media (min-width: 1200px) {
+  .rent-container {
+    padding: 80px 2px 40px;
+    /* Minimizar padding lateral al máximo en pantallas grandes */
+  }
+
+  .rent-table-container {
+    padding: 1.5rem;
+    /* Mantener padding interno apropiado */
+  }
+
+  .rent-table {
+    min-width: 1670px;
+    /* Ancho moderado para pantallas grandes */
+  }
+
+  /* Ajustar anchos para pantallas grandes */
+  .rent-table th:nth-child(2),
+  /* Producto */
+  .rent-table td:nth-child(2) {
+    width: 220px;
+    min-width: 220px;
+  }
+
+  .rent-table th:nth-child(3),
+  /* Cantidad */
+  .rent-table td:nth-child(3) {
+    width: 90px;
+    min-width: 90px;
+  }
+
+  .rent-table th:nth-child(4),
+  /* Valor/Día */
+  .rent-table td:nth-child(4) {
+    width: 110px;
+    min-width: 110px;
+  }
+
+  .rent-table th:nth-child(6),
+  /* RUT o Precio Total */
+  .rent-table td:nth-child(6) {
+    width: 130px;
+    min-width: 130px;
+  }
+
+  .rent-table th:nth-child(7),
+  /* Forma de Pago o Cliente */
+  .rent-table td:nth-child(7) {
+    width: 130px;
+    min-width: 130px;
+  }
+
+  .rent-table th:nth-child(8),
+  /* Valor Garantía o RUT */
+  .rent-table td:nth-child(8) {
+    width: 110px;
+    min-width: 110px;
+  }
+
+  .rent-table th:nth-child(9),
+  /* Tipo Garantía o Fecha Entrega */
+  .rent-table td:nth-child(9) {
+    width: 95px;
+    min-width: 95px;
+  }
+
+  .rent-table th:nth-child(10),
+  /* Forma de Pago en tabla finalizados */
+  .rent-table td:nth-child(10) {
+    width: 130px;
+    min-width: 130px;
+  }
+
+  /* Regla last-child del media query eliminada - usando reglas específicas */
+
+  /* Reglas simples para acciones en media query */
+  .rent-table th:nth-child(11),
+  .rent-table td:nth-child(11) {
+    width: 160px;
+    min-width: 160px;
+    text-align: center;
+  }
+
+  .rent-table th:nth-child(15),
+  .rent-table td:nth-child(15) {
+    width: 160px;
+    min-width: 160px;
+    text-align: center;
+  }
+
+  /* Ajustar también las acciones para pantallas grandes */
+  .actions {
+    max-width: 160px;
+    padding: 6px;
+  }
+
+  .actions.active-rent {
+    max-width: 160px;
+    padding: 6px;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .rent-container {
@@ -1596,7 +1884,8 @@ const handleFinishRent = async (finishData: FinishRentData) => {
   }
 
   .rent-table {
-    min-width: 1000px;
+    min-width: 1500px;
+    /* Ancho moderado en responsive también */
   }
 
   .btn-content {
@@ -1624,5 +1913,20 @@ const handleFinishRent = async (finishData: FinishRentData) => {
     padding: 8px 16px;
     font-size: 0.9rem;
   }
+}
+
+/* Reglas simples para acciones como las otras columnas */
+.rent-table th:nth-child(11),
+.rent-table td:nth-child(11) {
+  width: 140px;
+  min-width: 140px;
+  text-align: center;
+}
+
+.rent-table th:nth-child(15),
+.rent-table td:nth-child(15) {
+  width: 140px;
+  min-width: 140px;
+  text-align: center;
 }
 </style>
