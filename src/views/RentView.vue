@@ -1484,26 +1484,26 @@ const handleFinishRent = async (finishData: FinishRentData) => {
 
 .actions {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
   justify-content: center;
-  padding: 6px;
+  padding: 8px;
   min-height: 60px;
   width: 100%;
-  max-width: 140px;
-  grid-template-columns: repeat(2, 40px);
-  grid-template-rows: repeat(2, 40px);
+  max-width: 200px;
+  grid-template-columns: repeat(2, 45px);
+  grid-template-rows: repeat(2, 45px);
   box-sizing: border-box;
 }
 
 /* Configuración específica para arrendamientos activos (5 botones en 2 filas: 3+2) */
 .actions.active-rent {
-  grid-template-columns: repeat(3, 36px);
-  grid-template-rows: repeat(2, 36px);
+  grid-template-columns: repeat(3, 40px);
+  grid-template-rows: repeat(2, 40px);
   min-height: 60px;
-  max-width: 140px;
-  padding: 6px;
-  gap: 6px;
+  max-width: 200px;
+  padding: 8px;
+  gap: 8px !important;
   justify-content: center;
 }
 
@@ -1515,27 +1515,27 @@ const handleFinishRent = async (finishData: FinishRentData) => {
   background: var(--bg-secondary);
   border: 1px solid var(--border-primary);
   border-radius: 8px;
-  padding: 8px;
+  padding: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   backdrop-filter: var(--backdrop-blur);
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
+  width: 45px;
+  height: 45px;
+  min-width: 45px;
 }
 
-/* Botones para arrendamientos activos (2 filas) - cuadrados similares a finalizados */
+/* Botones para arrendamientos activos (2 filas) - más grandes con el espacio extra */
 .actions.active-rent .btn-edit,
 .actions.active-rent .btn-delete,
 .actions.active-rent .btn-view,
 .actions.active-rent .btn-finish,
 .actions.active-rent .btn-print {
-  width: 36px;
-  height: 36px;
-  padding: 6px;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
 }
 
 .btn-edit:hover {
@@ -1829,12 +1829,14 @@ const handleFinishRent = async (finishData: FinishRentData) => {
   /* Ajustar también las acciones para pantallas grandes */
   .actions {
     max-width: 160px;
-    padding: 6px;
+    padding: 8px;
+    gap: 4px;
   }
 
   .actions.active-rent {
     max-width: 160px;
-    padding: 6px;
+    padding: 8px;
+    gap: 6px;
   }
 }
 
