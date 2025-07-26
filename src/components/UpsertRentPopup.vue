@@ -90,9 +90,10 @@
           <label for="warrantyType">Tipo de Garantía</label>
           <select id="warrantyType" v-model="rent.warrantyType" required>
             <option value="">Seleccionar tipo de garantía</option>
-            <option value="Garantía básica">Garantía básica</option>
-            <option value="Garantía extendida">Garantía extendida</option>
-            <option value="Sin garantía">Sin garantía</option>
+            <option value="cheque">Cheque</option>
+            <option value="transferencia">Transferencia</option>
+            <option value="efectivo">Efectivo</option>
+            <option value="orden_compra">Orden de compra</option>
           </select>
         </div>
 
@@ -770,6 +771,7 @@ const handleEditRent = async (rentPayload: Rent) => {
     quantity: Number(rentPayload.quantity) || 0, // Ensure it's a number
     totalValuePerDay: Number(rentPayload.totalValuePerDay) || 0, // Ensure it's a number
     warrantyValue: Number(rentPayload.warrantyValue) || 0, // Ensure it's a number
+    warrantyType: rentPayload.warrantyType || '', // Ensure warrantyType is included
     createdAt: rentPayload.createdAt || new Date().toISOString(),
     deliveryDate: rentPayload.deliveryDate || '',
     isFinished: Boolean(rentPayload.isFinished) // Ensure it's a boolean
