@@ -773,11 +773,13 @@ const deleteRent = async () => {
 
     await updateProductRentStatus(rentToDelete.value.code, false)
 
-    // Remove from local array after successful deletion
-    const index = rents.value.findIndex(r => r.id === rentToDelete.value!.id)
-    if (index > -1) {
-      rents.value.splice(index, 1)
+    // Refresh the appropriate view after successful deletion
+    if (activeView.value === 'active') {
+      await fetchActiveRents()
+    } else {
+      await fetchFinishedRents(finishedRentsPagination.value.currentPage)
     }
+
     closeDeleteModal()
   } catch (error) {
     console.error('Error deleting rent:', error)

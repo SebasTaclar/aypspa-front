@@ -94,6 +94,7 @@
             <option value="transferencia">Transferencia</option>
             <option value="efectivo">Efectivo</option>
             <option value="orden_compra">Orden de compra</option>
+            <option value="sin_garantia">Sin garantía</option>
           </select>
         </div>
 
