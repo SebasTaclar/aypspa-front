@@ -293,13 +293,8 @@ const loadProductByCode = async () => {
 
   loadingProduct.value = true
   try {
-    const token = sessionStorage.getItem('token')
     const response = await axios.get(`${getBaseUrl()}/api/v1/products`, {
-      params: { code: rent.value.code },
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+      params: { code: rent.value.code }
     })
 
     // Handle direct array response from API
@@ -397,13 +392,8 @@ const loadClientByRut = async () => {
 
   loadingClient.value = true
   try {
-    const token = sessionStorage.getItem('token')
     const response = await axios.get(`${getBaseUrl()}/api/v1/clients`, {
-      params: { rut: rent.value.clientRut },
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+      params: { rut: rent.value.clientRut }
     })
     console.log('Client search response:', response)
     if (Array.isArray(response.data.data) && response.data.data.length > 0) {
@@ -645,15 +635,9 @@ const ensureProductExists = async () => {
   }
 
   try {
-    const token = sessionStorage.getItem('token')
-
     // Check if product exists
     const checkResponse = await axios.get(`${getBaseUrl()}/api/v1/products`, {
-      params: { code: rent.value.code },
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+      params: { code: rent.value.code }
     })
 
     // If product doesn't exist, create it
@@ -668,12 +652,7 @@ const ensureProductExists = async () => {
         priceWarranty: rent.value.warrantyValue
       }
 
-      await axios.post(`${getBaseUrl()}/api/v1/products`, productPayload, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
+      await axios.post(`${getBaseUrl()}/api/v1/products`, productPayload)
 
       console.log('Product created successfully')
     }
@@ -701,15 +680,9 @@ const ensureClientExists = async () => {
   }
 
   try {
-    const token = sessionStorage.getItem('token')
-
     // Check if client exists
     const checkResponse = await axios.get(`${getBaseUrl()}/api/v1/clients`, {
-      params: { rut: rent.value.clientRut },
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+      params: { rut: rent.value.clientRut }
     })
 
     // If client doesn't exist, create it
@@ -727,12 +700,7 @@ const ensureClientExists = async () => {
         createdAt: new Date().toISOString()
       }
 
-      await axios.post(`${getBaseUrl()}/api/v1/clients`, clientPayload, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
+      await axios.post(`${getBaseUrl()}/api/v1/clients`, clientPayload)
 
       console.log('Client created successfully')
     }
@@ -752,15 +720,9 @@ const ensureClientExists = async () => {
 // Update product rental status
 const updateProductRentStatus = async (productCode: string, isRented: boolean) => {
   try {
-    const token = sessionStorage.getItem('token')
-
     // First, get the product by code to get its ID
     const getResponse = await axios.get(`${getBaseUrl()}/api/v1/products`, {
-      params: { code: productCode },
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+      params: { code: productCode }
     })
 
     if (Array.isArray(getResponse.data) && getResponse.data.length > 0) {
@@ -772,12 +734,7 @@ const updateProductRentStatus = async (productCode: string, isRented: boolean) =
         rented: isRented
       }
 
-      await axios.put(`${getBaseUrl()}/api/v1/products/${product._id}`, updatePayload, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
+      await axios.put(`${getBaseUrl()}/api/v1/products/${product._id}`, updatePayload)
     } else {
       console.warn(`Product with code ${productCode} not found for status update`)
     }
@@ -788,8 +745,6 @@ const updateProductRentStatus = async (productCode: string, isRented: boolean) =
 }
 
 const handleCreateRent = async (rentPayload: Rent) => {
-  const token = sessionStorage.getItem('token')
-
   // Ensure data types match backend expectations
   // For create mode, exclude paymentMethod as it's only set when finishing the rent
   const backendPayload = {
@@ -809,12 +764,7 @@ const handleCreateRent = async (rentPayload: Rent) => {
     // Note: paymentMethod is intentionally excluded for create mode
   }
 
-  const response = await axios.post(`${getBaseUrl()}/api/v1/rents`, backendPayload, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    }
-  })
+  const response = await axios.post(`${getBaseUrl()}/api/v1/rents`, backendPayload)
 
   if (response.data?.success) {
     await updateProductRentStatus(backendPayload.code, true)
@@ -829,8 +779,6 @@ const handleCreateRent = async (rentPayload: Rent) => {
 }
 
 const handleEditRent = async (rentPayload: Rent) => {
-  const token = sessionStorage.getItem('token')
-
   // Ensure data types match backend expectations
   const backendPayload = {
     ...rentPayload,
@@ -848,12 +796,7 @@ const handleEditRent = async (rentPayload: Rent) => {
     backendPayload.paymentMethod = rentPayload.paymentMethod
   }
 
-  const response = await axios.put(`${getBaseUrl()}/api/v1/rents/${rentPayload.id}`, backendPayload, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    }
-  })
+  const response = await axios.put(`${getBaseUrl()}/api/v1/rents/${rentPayload.id}`, backendPayload)
 
   if (response.data?.success) {
     console.log('Rent updated successfully:', response.data.data)
