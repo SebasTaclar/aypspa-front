@@ -52,8 +52,10 @@
         <div class="form-row">
           <div class="form-group">
             <label for="code">Código</label>
-            <input id="code" v-model="rent.code" type="text" required placeholder="Ej: GEN18" @blur="loadProductByCode"
-              @input="onCodeInput" />
+            <input id="code" v-model="rent.code" type="text" required placeholder="Ej: GEN18"
+              :readonly="mode === 'edit'"
+              :class="{ 'readonly-input': mode === 'edit', 'editable-input': mode === 'create' }"
+              @blur="loadProductByCode" @input="onCodeInput" />
             <div v-if="loadingProduct" class="loading-indicator">Cargando producto...</div>
           </div>
           <div class="form-group">
@@ -64,13 +66,16 @@
 
         <div class="form-group">
           <label for="productName">Nombre del Producto</label>
-          <input id="productName" v-model="rent.productName" type="text" required
+          <input id="productName" v-model="rent.productName" type="text" required :readonly="mode === 'edit'"
+            :class="{ 'readonly-input': mode === 'edit', 'editable-input': mode === 'create' }"
             placeholder="Ej: GENERADOR DUCAR 7.0KVA" />
         </div>
 
         <div class="form-group">
           <label for="brand">Marca del Producto</label>
-          <input id="brand" v-model="productBrand" type="text" required placeholder="Ej: DUCAR" />
+          <input id="brand" v-model="productBrand" type="text" required :readonly="mode === 'edit'"
+            :class="{ 'readonly-input': mode === 'edit', 'editable-input': mode === 'create' }"
+            placeholder="Ej: DUCAR" />
         </div>
 
         <div class="form-row">
@@ -105,12 +110,15 @@
           <div class="form-group">
             <label for="clientRut">RUT del Cliente</label>
             <input id="clientRut" v-model="rent.clientRut" type="text" required placeholder="12.345.678-9"
+              :readonly="mode === 'edit'"
+              :class="{ 'readonly-input': mode === 'edit', 'editable-input': mode === 'create' }"
               @blur="loadClientByRut" @input="onRutInput" />
             <div v-if="loadingClient" class="loading-indicator">Cargando cliente...</div>
           </div>
           <div class="form-group">
             <label for="clientName">Nombre del Cliente</label>
-            <input id="clientName" v-model="rent.clientName" type="text" required
+            <input id="clientName" v-model="rent.clientName" type="text" required :readonly="mode === 'edit'"
+              :class="{ 'readonly-input': mode === 'edit', 'editable-input': mode === 'create' }"
               placeholder="Nombre completo del cliente" />
           </div>
         </div>
@@ -297,10 +305,12 @@ const loadProductByCode = async () => {
       params: { code: rent.value.code }
     })
 
-    // Handle direct array response from API
-    if (Array.isArray(response.data) && response.data.length > 0) {
+    // Handle both new structure (data.data) and old structure (data)
+    const products = response.data?.data || response.data || []
+
+    if (Array.isArray(products) && products.length > 0) {
       // Find exact match (case-insensitive) for the product code
-      const exactMatch = response.data.find(product =>
+      const exactMatch = products.find(product =>
         product.code && product.code.toLowerCase() === rent.value.code.trim().toLowerCase()
       )
 

@@ -145,7 +145,7 @@ const fetchProducts = async () => {
     }
 
     const data = await response.json()
-    products.value = data
+    products.value = data.data || data
   } catch (error) {
     console.error('Error fetching products:', error)
     alert('Error al cargar los productos')
