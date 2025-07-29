@@ -320,11 +320,15 @@ const loadProductByCode = async () => {
 
     if (Array.isArray(products) && products.length > 0) {
       // Find exact match (case-insensitive) for the product code
-      const exactMatch = products.find(product =>
+      // Filter products to only include exact matches first
+      const exactMatches = products.filter(product =>
         product.code && product.code.toLowerCase() === rent.value.code.trim().toLowerCase()
       )
 
-      if (exactMatch) {
+      if (exactMatches.length > 0) {
+        // Take the first exact match
+        const exactMatch = exactMatches[0]
+
         // Product exists - update flag
         productExists.value = true
 
@@ -342,7 +346,6 @@ const loadProductByCode = async () => {
         rent.value.warrantyValue = exactMatch.priceWarranty || 0
         productBrand.value = exactMatch.brand || ''
       } else {
-        console.log('No exact match found for code:', rent.value.code)
         // Product doesn't exist - update flag
         productExists.value = false
         productIsRented.value = false
@@ -356,7 +359,6 @@ const loadProductByCode = async () => {
         }
       }
     } else {
-      console.log('No products found for code:', rent.value.code)
       // Product doesn't exist - update flag
       productExists.value = false
       productIsRented.value = false
@@ -415,7 +417,6 @@ const loadClientByRut = async () => {
     const response = await axios.get(`${getBaseUrl()}/api/v1/clients`, {
       params: { rut: rent.value.clientRut }
     })
-    console.log('Client search response:', response)
     if (Array.isArray(response.data.data) && response.data.data.length > 0) {
       const client = response.data.data[0]
 
@@ -423,7 +424,6 @@ const loadClientByRut = async () => {
 
       rent.value.clientName = client.name || ''
     } else {
-      console.log('No client found for RUT:', rent.value.clientRut)
       // Client doesn't exist - update flag
       clientExists.value = false
       // Don't clear name field if no client found - user might be entering new client
@@ -660,8 +660,16 @@ const ensureProductExists = async () => {
       params: { code: rent.value.code }
     })
 
+    // Handle both new structure (data.data) and old structure (data)
+    const products = checkResponse.data?.data || checkResponse.data || []
+
+    // Check if product with exact code exists
+    const existingProduct = products.find((p: { code: string }) =>
+      p.code && p.code.toLowerCase() === rent.value.code.toLowerCase()
+    )
+
     // If product doesn't exist, create it
-    if (!Array.isArray(checkResponse.data) || checkResponse.data.length === 0) {
+    if (!existingProduct) {
       const productPayload = {
         name: rent.value.productName,
         code: rent.value.code,
@@ -673,8 +681,6 @@ const ensureProductExists = async () => {
       }
 
       await axios.post(`${getBaseUrl()}/api/v1/products`, productPayload)
-
-      console.log('Product created successfully')
     }
   } catch (error) {
     console.error('Error ensuring product exists:', error)
@@ -721,8 +727,6 @@ const ensureClientExists = async () => {
       }
 
       await axios.post(`${getBaseUrl()}/api/v1/clients`, clientPayload)
-
-      console.log('Client created successfully')
     }
   } catch (error) {
     console.error('Error ensuring client exists:', error)
@@ -764,16 +768,26 @@ const updateProductRentStatus = async (productCode: string, isRented: boolean) =
       params: { code: productCode }
     })
 
-    if (Array.isArray(getResponse.data) && getResponse.data.length > 0) {
-      const product = getResponse.data[0]
+    // Handle both new structure (data.data) and old structure (data)
+    const products = getResponse.data?.data || getResponse.data || []
 
-      // Update the product's rented status
-      const updatePayload = {
-        ...product,
-        rented: isRented
+    if (Array.isArray(products) && products.length > 0) {
+      // Find exact match for the product code
+      const product = products.find(p =>
+        p.code && p.code.toLowerCase() === productCode.toLowerCase()
+      )
+
+      if (product) {
+        // Update the product's rented status
+        const updatePayload = {
+          ...product,
+          rented: isRented
+        }
+
+        await axios.put(`${getBaseUrl()}/api/v1/products/${product._id}`, updatePayload)
+      } else {
+        console.warn(`Product with exact code ${productCode} not found for status update`)
       }
-
-      await axios.put(`${getBaseUrl()}/api/v1/products/${product._id}`, updatePayload)
     } else {
       console.warn(`Product with code ${productCode} not found for status update`)
     }
@@ -838,8 +852,6 @@ const handleEditRent = async (rentPayload: Rent) => {
   const response = await axios.put(`${getBaseUrl()}/api/v1/rents/${rentPayload.id}`, backendPayload)
 
   if (response.data?.success) {
-    console.log('Rent updated successfully:', response.data.data)
-
     // If rent is marked as finished, make product available again
     if (backendPayload.isFinished) {
       await updateProductRentStatus(backendPayload.code, false)
