@@ -60,7 +60,9 @@
           </div>
           <div class="form-group">
             <label for="quantity">Cantidad</label>
-            <input id="quantity" v-model.number="rent.quantity" type="number" min="1" required placeholder="1" />
+            <input id="quantity" v-model.number="rent.quantity" type="number" min="1" required placeholder="1"
+              :readonly="mode === 'edit' && rent.isFinished"
+              :class="{ 'readonly-input': mode === 'edit' && rent.isFinished, 'editable-input': !(mode === 'edit' && rent.isFinished) }" />
           </div>
         </div>
 
@@ -82,18 +84,26 @@
           <div class="form-group">
             <label for="totalValuePerDay">Valor por Día ($)</label>
             <input id="totalValuePerDay" v-model.number="rent.totalValuePerDay" type="number" min="0" required
+              :readonly="mode === 'edit' && rent.isFinished"
+              :class="{ 'readonly-input': mode === 'edit' && rent.isFinished, 'editable-input': !(mode === 'edit' && rent.isFinished) }"
               placeholder="13000" />
           </div>
           <div class="form-group">
             <label for="warrantyValue">Valor Garantía ($)</label>
             <input id="warrantyValue" v-model.number="rent.warrantyValue" type="number" min="0" required
+              :readonly="mode === 'edit' && rent.isFinished"
+              :class="{ 'readonly-input': mode === 'edit' && rent.isFinished, 'editable-input': !(mode === 'edit' && rent.isFinished) }"
               placeholder="750000" />
           </div>
         </div>
 
         <div class="form-group">
           <label for="warrantyType">Tipo de Garantía</label>
-          <select id="warrantyType" v-model="rent.warrantyType" required>
+          <!-- Show as readonly input when editing finished rent -->
+          <input v-if="mode === 'edit' && rent.isFinished" id="warrantyType"
+            :value="getWarrantyTypeText(rent.warrantyType)" type="text" readonly class="readonly-input" />
+          <!-- Show as select when creating or editing active rent -->
+          <select v-else id="warrantyType" v-model="rent.warrantyType" required>
             <option value="">Seleccionar tipo de garantía</option>
             <option value="cheque">Cheque</option>
             <option value="transferencia">Transferencia</option>
@@ -724,6 +734,25 @@ const ensureClientExists = async () => {
     } else {
       throw new Error('Error inesperado al crear el cliente')
     }
+  }
+}
+
+// Function to get human-readable warranty type text
+const getWarrantyTypeText = (warrantyType: string) => {
+  if (!warrantyType) return 'No especificado'
+  switch (warrantyType.toLowerCase()) {
+    case 'cheque':
+      return 'Cheque'
+    case 'transferencia':
+      return 'Transferencia'
+    case 'efectivo':
+      return 'Efectivo'
+    case 'orden_compra':
+      return 'Orden de compra'
+    case 'sin_garantia':
+      return 'Sin garantía'
+    default:
+      return warrantyType
   }
 }
 

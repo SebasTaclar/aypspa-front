@@ -37,8 +37,9 @@
             <p><strong>Número de RUT:</strong> {{ rent?.clientRut }}</p>
             <p><strong>Fecha de Retiro:</strong> {{ formatDate(rent?.createdAt) }}</p>
             <p v-if="isFinished"><strong>Fecha de Entrega:</strong> {{ formatDate(rent?.deliveryDate) }}</p>
-            <p><strong>Tipo de garantía:</strong> {{ getPaymentText(rent?.paymentMethod) }}</p>
+            <p><strong>Tipo de garantía:</strong> {{ getWarrantyText(rent?.warrantyType) }}</p>
             <p><strong>Total Garantía:</strong> ${{ formatCurrency(rent?.warrantyValue) }}</p>
+            <p v-if="isFinished"><strong>Forma de Pago:</strong> {{ getPaymentText(rent?.paymentMethod) }}</p>
             <p v-if="isFinished"><strong>Estado de Pago:</strong> {{ rent?.isPaid ? 'Pagado' : 'Pendiente' }}</p>
           </div>
 
@@ -177,10 +178,30 @@ const getPaymentText = (paymentMethod?: string) => {
       return 'Crédito'
     case 'efectivo':
       return 'Efectivo'
+    case 'transferencia':
+      return 'Transferencia'
     case '0':
       return 'Pendiente'
     default:
       return paymentMethod
+  }
+}
+
+const getWarrantyText = (warrantyType?: string) => {
+  if (!warrantyType) return 'No especificado'
+  switch (warrantyType.toLowerCase()) {
+    case 'cheque':
+      return 'Cheque'
+    case 'transferencia':
+      return 'Transferencia'
+    case 'efectivo':
+      return 'Efectivo'
+    case 'orden_compra':
+      return 'Orden de compra'
+    case 'sin_garantia':
+      return 'Sin garantía'
+    default:
+      return warrantyType
   }
 }
 

@@ -83,7 +83,7 @@
                 </span>
               </td>
               <td class="warranty">${{ formatCurrency(rent.warrantyValue) }}</td>
-              <td class="warranty-type">{{ rent.warrantyType || 'N/A' }}</td>
+              <td class="warranty-type">{{ getWarrantyTypeText(rent.warrantyType) }}</td>
               <td>{{ formatDate(rent.createdAt) }}</td>
               <td class="actions active-rent">
                 <button @click="editRent(rent)" class="btn-edit" title="Editar">
@@ -173,7 +173,7 @@
                   </span>
                 </td>
                 <td class="warranty">${{ formatCurrency(rent.warrantyValue) }}</td>
-                <td class="warranty-type">{{ rent.warrantyType || 'N/A' }}</td>
+                <td class="warranty-type">{{ getWarrantyTypeText(rent.warrantyType) }}</td>
                 <td>
                   <span :class="['payment-status-badge', getPaymentStatusClass(rent.isPaid)]">
                     {{ getPaymentStatusText(rent.isPaid) }}
@@ -642,6 +642,26 @@ const getPaymentStatusClass = (isPaid?: boolean) => {
 
 const getPaymentStatusText = (isPaid?: boolean) => {
   return isPaid ? 'Pagado' : 'Pendiente'
+}
+
+const getWarrantyTypeText = (warrantyType?: string | null) => {
+  if (!warrantyType || warrantyType === undefined || warrantyType === null) return 'N/A'
+
+  const safeWarrantyType = String(warrantyType).toLowerCase()
+  switch (safeWarrantyType) {
+    case 'cheque':
+      return 'Cheque'
+    case 'transferencia':
+      return 'Transferencia'
+    case 'efectivo':
+      return 'Efectivo'
+    case 'orden_compra':
+      return 'Orden de compra'
+    case 'sin_garantia':
+      return 'Sin garantía'
+    default:
+      return warrantyType
+  }
 }
 
 const openCreateModal = () => {
