@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { useRouter } from 'vue-router'
 
 export const getBaseUrl = (): string => {
   const localBaseUrl = 'http://localhost:7071'

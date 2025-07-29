@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 
 const token = ref<string | null>(sessionStorage.getItem('token'))
-const user = ref<any>(null)
+const user = ref<unknown>(null)
 
 // Try to get user from sessionStorage on startup
 try {
@@ -16,7 +16,7 @@ try {
 export const useAuth = () => {
   const isAuthenticated = computed(() => !!token.value)
 
-  const setAuth = (authToken: string, userData: any) => {
+  const setAuth = (authToken: string, userData: unknown) => {
     token.value = authToken
     user.value = userData
     sessionStorage.setItem('token', authToken)
