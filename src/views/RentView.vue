@@ -889,8 +889,8 @@ const updateProductRentStatus = async (productCode: string, isRented: boolean) =
       }
     })
 
-    if (Array.isArray(getResponse.data) && getResponse.data.length > 0) {
-      const product = getResponse.data[0]
+    if (Array.isArray(getResponse.data.data) && getResponse.data.data.length > 0) {
+      const product = getResponse.data.data[0]
 
       // Update the product's rented status
       const updatePayload = {
