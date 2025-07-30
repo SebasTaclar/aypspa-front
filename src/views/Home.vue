@@ -155,7 +155,7 @@ defineOptions({
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-secondary) 100%);
   color: white;
   text-align: center;
   margin-bottom: 2rem;
