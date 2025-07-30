@@ -124,13 +124,21 @@
   align-items: center;
   position: relative;
   z-index: 1;
+  min-height: 80vh;
 }
 
-
-
 .hero-content {
-  padding: 20px 90px 20px 20px;
-  display: inline-block;
+  padding: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.hero-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
 }
 
 .hero-content h1 {
@@ -158,30 +166,33 @@
 
 .letra-a {
   color: white;
-  margin-top: 50px;
-  margin-left: 340px;
   font-size: 2.6rem;
-  position: absolute;
+  font-weight: 900;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   animation: fadeInUp 1s ease-out 0.5s both;
 }
 
 .letra-y {
   color: white;
-  margin-top: 50px;
-  margin-left: 370px;
   font-size: 2.6rem;
-  position: absolute;
-  animation: fadeInUp 1s ease-out 0.5s both;
+  font-weight: 900;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  animation: fadeInUp 1s ease-out 0.7s both;
 }
 
 .letra-p {
   color: white;
-  margin-top: 50px;
-  margin-left: 400px;
   font-size: 2.6rem;
-  position: absolute;
-  animation: fadeInUp 1s ease-out 0.5s both;
+  font-weight: 900;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  animation: fadeInUp 1s ease-out 0.9s both;
+}
 
+.letras {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 @keyframes titleGlow {
@@ -264,16 +275,11 @@
 }
 
 .service-icon-1 {
-  height: 110px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.8rem;
   transition: all 0.3s ease;
-  margin-top: 35px;
-  margin-bottom: 10px;
-  position: absolute;
+  margin-right: 1rem;
   animation: fadeInUp 1s ease-out 0.5s both;
 }
 
@@ -417,5 +423,298 @@
   background-color: #f44336;
   margin: 18px auto 0 auto;
   border-radius: 2px;
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+
+/* Tablets and Medium Screens */
+@media (max-width: 1024px) {
+  .hero-container {
+    gap: 2rem;
+    padding: 0 2rem;
+  }
+
+  .letras {
+    font-size: 3rem;
+  }
+
+  .letra-a,
+  .letra-y,
+  .letra-p {
+    font-size: 3rem;
+  }
+
+  .subtitle {
+    font-size: 1.4rem;
+    margin-top: 4rem;
+  }
+
+  .logo-hexagono {
+    width: 150px;
+    height: 150px;
+  }
+
+  .letrero-rombo {
+    font-size: 1.6rem;
+  }
+
+  .hexagon {
+    width: 350px;
+    height: 350px;
+  }
+}
+
+/* Mobile Landscape and Small Tablets */
+@media (max-width: 768px) {
+  .hero {
+    background-attachment: scroll;
+    /* Fix for mobile */
+    min-height: 100vh;
+    padding: 1rem 0;
+  }
+
+  .hero-container {
+    flex-direction: column;
+    text-align: center;
+    gap: 3rem;
+    padding: 0 1rem;
+  }
+
+  .hero-content {
+    order: 2;
+    width: 100%;
+  }
+
+  .hero-visual {
+    order: 1;
+    width: 100%;
+  }
+
+  .letras {
+    font-size: 2.5rem;
+    justify-content: center;
+  }
+
+  .letra-a,
+  .letra-y,
+  .letra-p {
+    font-size: 2.5rem;
+    margin-left: 0;
+    position: relative;
+  }
+
+  .service-icon-1 {
+    width: 40px;
+    height: 40px;
+  }
+
+  .subtitle {
+    font-size: 1.2rem;
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .services-list {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .services-list li {
+    flex-direction: row;
+    text-align: left;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .service-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .p-icon {
+    font-size: 0.9rem;
+    margin-left: 1rem;
+  }
+
+  .hexagon {
+    width: 280px;
+    height: 280px;
+  }
+
+  .logo-hexagono {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 1rem;
+  }
+
+  .letrero-rombo {
+    font-size: 1.2rem;
+    line-height: 1.4;
+  }
+
+  .linea-roja-nueva {
+    width: 80%;
+    max-width: 300px;
+  }
+
+  .floating-tools {
+    display: none;
+    /* Hide floating tools on mobile for cleaner look */
+  }
+}
+
+/* Mobile Portrait */
+@media (max-width: 480px) {
+  .hero {
+    min-height: 90vh;
+    padding: 0.5rem 0;
+  }
+
+  .hero-container {
+    gap: 2rem;
+    padding: 0 0.5rem;
+  }
+
+  .letras {
+    font-size: 2rem;
+  }
+
+  .letra-a,
+  .letra-y,
+  .letra-p {
+    font-size: 2rem;
+  }
+
+  .service-icon-1 {
+    width: 30px;
+    height: 30px;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .services-list li {
+    max-width: 250px;
+  }
+
+  .service-icon {
+    width: 35px;
+    height: 35px;
+  }
+
+  .p-icon {
+    font-size: 0.8rem;
+  }
+
+  .hexagon {
+    width: 220px;
+    height: 220px;
+  }
+
+  .logo-hexagono {
+    width: 100px;
+    height: 100px;
+  }
+
+  .letrero-rombo {
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+
+  .linea-roja-nueva {
+    width: 90%;
+    max-width: 250px;
+    height: 2px;
+  }
+}
+
+/* Extra Small Screens */
+@media (max-width: 360px) {
+  .letras {
+    font-size: 1.8rem;
+  }
+
+  .letra-a,
+  .letra-y,
+  .letra-p {
+    font-size: 1.8rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .hexagon {
+    width: 180px;
+    height: 180px;
+  }
+
+  .logo-hexagono {
+    width: 80px;
+    height: 80px;
+  }
+
+  .letrero-rombo {
+    font-size: 0.9rem;
+  }
+
+  .services-list li {
+    max-width: 200px;
+  }
+
+  .p-icon {
+    font-size: 0.75rem;
+  }
+}
+
+/* Landscape Orientation on Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .hero {
+    min-height: 100vh;
+
+  }
+
+  .hero-container {
+    flex-direction: row;
+    gap: 2rem;
+  }
+
+  .hero-content {
+    order: 1;
+    width: 60%;
+  }
+
+  .hero-visual {
+    order: 2;
+    width: 40%;
+  }
+
+  .hexagon {
+    width: 200px;
+    height: 200px;
+  }
+
+  .logo-hexagono {
+    width: 80px;
+    height: 80px;
+  }
+
+  .letrero-rombo {
+    font-size: 0.8rem;
+  }
+
+  .services-list {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .subtitle {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
 }
 </style>

@@ -53,7 +53,8 @@
           </div>
         </div>
 
-        <table v-else class="rent-table">
+        <!-- Desktop Table -->
+        <table v-else class="rent-table desktop-only">
           <thead>
             <tr>
               <th>Código</th>
@@ -111,6 +112,97 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- Mobile Cards -->
+        <div v-if="filteredActiveRents.length > 0" class="rent-cards mobile-only">
+          <div v-for="rent in filteredActiveRents" :key="rent.id" class="rent-card">
+            <div class="rent-card-header">
+              <div class="rent-card-code">
+                <span class="code-badge">{{ rent.code }}</span>
+              </div>
+              <div class="rent-card-status">
+                <span class="status-badge active">ACTIVO</span>
+              </div>
+            </div>
+
+            <div class="rent-card-body">
+              <div class="rent-card-field">
+                <span class="rent-card-label">Producto</span>
+                <span class="rent-card-value product-name">{{ rent.productName }}</span>
+              </div>
+
+              <div class="rent-card-field">
+                <span class="rent-card-label">Cliente</span>
+                <span class="rent-card-value">{{ rent.clientName }}</span>
+              </div>
+
+              <div class="rent-card-field">
+                <span class="rent-card-label">RUT</span>
+                <span class="rent-card-value">{{ rent.clientRut }}</span>
+              </div>
+
+              <div class="rent-card-row">
+                <div class="rent-card-field">
+                  <span class="rent-card-label">Cantidad</span>
+                  <span class="rent-card-value">
+                    <span class="quantity-badge">{{ rent.quantity }}</span>
+                  </span>
+                </div>
+                <div class="rent-card-field">
+                  <span class="rent-card-label">Valor/Día</span>
+                  <span class="rent-card-value price">${{ formatCurrency(rent.totalValuePerDay) }}</span>
+                </div>
+              </div>
+
+              <div class="rent-card-field">
+                <span class="rent-card-label">Forma de Pago</span>
+                <span class="rent-card-value">
+                  <span :class="['payment-badge', getPaymentClass(rent.paymentMethod)]">
+                    {{ getPaymentText(rent.paymentMethod) }}
+                  </span>
+                </span>
+              </div>
+
+              <div class="rent-card-row">
+                <div class="rent-card-field">
+                  <span class="rent-card-label">Valor Garantía</span>
+                  <span class="rent-card-value">${{ formatCurrency(rent.warrantyValue) }}</span>
+                </div>
+                <div class="rent-card-field">
+                  <span class="rent-card-label">Tipo Garantía</span>
+                  <span class="rent-card-value">{{ getWarrantyTypeText(rent.warrantyType) }}</span>
+                </div>
+              </div>
+
+              <div class="rent-card-field">
+                <span class="rent-card-label">Fecha Creación</span>
+                <span class="rent-card-value">{{ formatDate(rent.createdAt) }}</span>
+              </div>
+            </div>
+
+            <div class="rent-card-footer">
+              <button @click="editRent(rent)" class="btn-edit" title="Editar">
+                <img src="/icons/edit.svg" alt="Editar" />
+              </button>
+              <button @click="viewImage(rent)" class="btn-view" title="Ver imagen">
+                <img src="/icons/eye.svg" alt="Ver" />
+              </button>
+              <button @click="finishRent(rent)" class="btn-finish" title="Finalizar arrendamiento">
+                <svg width="24" height="24" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="11" cy="11" r="9" stroke="#ffc107" stroke-width="2" fill="none" />
+                  <text x="11" y="15" text-anchor="middle" font-size="12" fill="#ffc107"
+                    font-family="Arial, sans-serif">$</text>
+                </svg>
+              </button>
+              <button @click="printReport(rent)" class="btn-print" title="Imprimir comprobante">
+                📄
+              </button>
+              <button @click="confirmDelete(rent)" class="btn-delete" title="Eliminar">
+                <img src="/icons/trash.svg" alt="Eliminar" />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Finished Rents Table -->
@@ -136,7 +228,8 @@
         </div>
 
         <div v-else>
-          <table class="rent-table">
+          <!-- Desktop Table -->
+          <table class="rent-table desktop-only">
             <thead>
               <tr>
                 <th>Código</th>
@@ -197,6 +290,115 @@
               </tr>
             </tbody>
           </table>
+
+          <!-- Mobile Cards -->
+          <div class="rent-cards mobile-only">
+            <div v-for="rent in filteredFinishedRents" :key="rent.id" class="rent-card">
+              <div class="rent-card-header">
+                <div class="rent-card-code">
+                  <span class="code-badge finished">{{ rent.code }}</span>
+                </div>
+                <div class="rent-card-status">
+                  <span class="status-badge finished">FINALIZADO</span>
+                </div>
+              </div>
+
+              <div class="rent-card-body">
+                <div class="rent-card-field">
+                  <span class="rent-card-label">Producto</span>
+                  <span class="rent-card-value product-name">{{ rent.productName }}</span>
+                </div>
+
+                <div class="rent-card-field">
+                  <span class="rent-card-label">Cliente</span>
+                  <span class="rent-card-value">{{ rent.clientName }}</span>
+                </div>
+
+                <div class="rent-card-field">
+                  <span class="rent-card-label">RUT</span>
+                  <span class="rent-card-value">{{ rent.clientRut }}</span>
+                </div>
+
+                <div class="rent-card-row">
+                  <div class="rent-card-field">
+                    <span class="rent-card-label">Cantidad</span>
+                    <span class="rent-card-value">
+                      <span class="quantity-badge">{{ rent.quantity }}</span>
+                    </span>
+                  </div>
+                  <div class="rent-card-field">
+                    <span class="rent-card-label">Valor/Día</span>
+                    <span class="rent-card-value price">${{ formatCurrency(rent.totalValuePerDay) }}</span>
+                  </div>
+                </div>
+
+                <div class="rent-card-row">
+                  <div class="rent-card-field">
+                    <span class="rent-card-label">Días Totales</span>
+                    <span class="rent-card-value">{{ formatDays(rent.totalDays) }}</span>
+                  </div>
+                  <div class="rent-card-field">
+                    <span class="rent-card-label">Precio Total</span>
+                    <span class="rent-card-value total-price">${{ formatCurrency(rent.totalPrice) }}</span>
+                  </div>
+                </div>
+
+                <div class="rent-card-field">
+                  <span class="rent-card-label">Fecha Entrega</span>
+                  <span class="rent-card-value">{{ formatDate(rent.deliveryDate) }}</span>
+                </div>
+
+                <div class="rent-card-field">
+                  <span class="rent-card-label">Forma de Pago</span>
+                  <span class="rent-card-value">
+                    <span :class="['payment-badge', getPaymentClass(rent.paymentMethod)]">
+                      {{ getPaymentText(rent.paymentMethod) }}
+                    </span>
+                  </span>
+                </div>
+
+                <div class="rent-card-row">
+                  <div class="rent-card-field">
+                    <span class="rent-card-label">Valor Garantía</span>
+                    <span class="rent-card-value">${{ formatCurrency(rent.warrantyValue) }}</span>
+                  </div>
+                  <div class="rent-card-field">
+                    <span class="rent-card-label">Tipo Garantía</span>
+                    <span class="rent-card-value">{{ getWarrantyTypeText(rent.warrantyType) }}</span>
+                  </div>
+                </div>
+
+                <div class="rent-card-field">
+                  <span class="rent-card-label">Estado de Pago</span>
+                  <span class="rent-card-value">
+                    <span :class="['payment-status-badge', getPaymentStatusClass(rent.isPaid)]">
+                      {{ getPaymentStatusText(rent.isPaid) }}
+                    </span>
+                  </span>
+                </div>
+
+                <div class="rent-card-field">
+                  <span class="rent-card-label">Fecha Creación</span>
+                  <span class="rent-card-value">{{ formatDate(rent.createdAt) }}</span>
+                </div>
+              </div>
+
+              <div class="rent-card-footer">
+                <button @click="editRent(rent)" class="btn-edit" title="Editar">
+                  <img src="/icons/edit.svg" alt="Editar" />
+                </button>
+                <button @click="viewImage(rent)" class="btn-view" title="Ver imagen">
+                  <img src="/icons/eye.svg" alt="Ver" />
+                </button>
+                <button @click="printReport(rent)" class="btn-print" title="Imprimir comprobante">
+                  📄
+                </button>
+                <button @click="confirmDelete(rent)" class="btn-delete" title="Eliminar">
+                  <img src="/icons/trash.svg" alt="Eliminar" />
+                </button>
+              </div>
+            </div>
+          </div>
 
           <!-- Pagination Controls -->
           <div v-if="finishedRentsPagination.totalPages > 1" class="pagination-controls">
@@ -1863,9 +2065,43 @@ const handleFinishRent = async (finishData: FinishRentData) => {
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+  .rent-container {
+    padding: 80px 15px 20px;
+  }
+
+  .view-selector {
+    gap: 1rem;
+  }
+
+  .view-btn {
+    min-height: 80px;
+    padding: 1rem;
+  }
+
+  .btn-text h3 {
+    font-size: 1.1rem;
+  }
+
+  .btn-text p {
+    font-size: 0.9rem;
+  }
+
+  .rent-table {
+    min-width: 1300px;
+    font-size: 0.9rem;
+  }
+
+  .rent-table th,
+  .rent-table td {
+    padding: 10px 8px;
+  }
+}
+
 @media (max-width: 768px) {
   .rent-container {
-    padding: 80px 10px 20px;
+    padding: 85px 10px 20px;
+    /* Updated for consistent mobile spacing */
   }
 
   .header {
@@ -1876,6 +2112,16 @@ const handleFinishRent = async (finishData: FinishRentData) => {
 
   .header h1 {
     font-size: 2rem;
+  }
+
+  .btn-primary {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  .search-box {
+    padding: 12px 16px;
+    font-size: 1rem;
   }
 
   .view-selector {
@@ -1889,8 +2135,14 @@ const handleFinishRent = async (finishData: FinishRentData) => {
     padding: 0.8rem 1.2rem;
   }
 
+  .btn-content {
+    flex-direction: row;
+    text-align: left;
+    gap: 1rem;
+  }
+
   .btn-icon {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
   }
 
   .btn-text h3 {
@@ -1909,17 +2161,12 @@ const handleFinishRent = async (finishData: FinishRentData) => {
 
   .rent-table {
     min-width: 1500px;
-    /* Ancho moderado en responsive también */
+    font-size: 0.85rem;
   }
 
-  .btn-content {
-    flex-direction: column;
-    text-align: center;
-    gap: 1rem;
-  }
-
-  .btn-icon {
-    font-size: 2.5rem;
+  .rent-table th,
+  .rent-table td {
+    padding: 8px 6px;
   }
 
   .pagination-controls {
@@ -1937,6 +2184,336 @@ const handleFinishRent = async (finishData: FinishRentData) => {
     padding: 8px 16px;
     font-size: 0.9rem;
   }
+
+  .pagination-info {
+    order: -1;
+    text-align: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .rent-container {
+    padding: 85px 8px 8px;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+  }
+
+  .btn-primary {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+
+  .search-box {
+    padding: 10px 14px;
+    font-size: 0.95rem;
+  }
+
+  .view-btn {
+    min-height: 60px;
+    padding: 0.6rem 1rem;
+  }
+
+  .btn-icon {
+    font-size: 1.5rem;
+  }
+
+  .btn-text h3 {
+    font-size: 0.9rem;
+  }
+
+  .btn-text p {
+    font-size: 0.75rem;
+  }
+
+  .rent-table-container {
+    padding: 0.5rem;
+  }
+
+  .rent-table {
+    font-size: 0.8rem;
+  }
+
+  .rent-table th,
+  .rent-table td {
+    padding: 6px 4px;
+  }
+
+  .actions {
+    gap: 2px;
+  }
+
+  .btn-edit,
+  .btn-delete,
+  .btn-finish,
+  .btn-view,
+  .btn-report {
+    padding: 4px;
+  }
+
+  .btn-edit img,
+  .btn-delete img,
+  .btn-finish img,
+  .btn-view img,
+  .btn-report img {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rent-container {
+    padding: 85px 5px 5px;
+  }
+
+  .header h1 {
+    font-size: 1.6rem;
+  }
+
+  .view-selector {
+    margin-bottom: 1rem;
+  }
+
+  .view-btn {
+    min-height: 50px;
+    padding: 0.5rem;
+  }
+
+  .btn-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+
+  .btn-icon {
+    font-size: 1.2rem;
+  }
+
+  .btn-text h3 {
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .btn-text p {
+    font-size: 0.7rem;
+  }
+
+  .rent-table {
+    min-width: 1200px;
+    font-size: 0.75rem;
+  }
+
+  .rent-table th,
+  .rent-table td {
+    padding: 4px 2px;
+  }
+
+  .code-badge {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+
+  .status-badge {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+
+  .warranty-badge {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+
+  .pagination-controls {
+    margin-top: 1rem;
+  }
+
+  .btn-pagination,
+  .btn-page {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    min-width: 80px;
+  }
+}
+
+/* Mobile Card Layout for Rent View (Optional Enhancement) */
+@media (max-width: 640px) {
+  /*
+   * For very small screens, consider implementing a card-based layout
+   * similar to what we did for Products and Clients.
+   * This would replace the horizontal scrolling table.
+   */
+
+  .rent-cards {
+    display: none;
+    /* Could be implemented as alternative to table */
+  }
+}
+
+/* Desktop/Mobile visibility classes */
+.desktop-only {
+  display: block;
+}
+
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: block !important;
+  }
+}
+
+/* Rent Card Styles for Mobile */
+.rent-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.rent-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px var(--shadow-primary);
+}
+
+.rent-card:hover {
+  background: var(--bg-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px var(--shadow-primary);
+}
+
+.rent-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.rent-card-code .code-badge {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.active {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-badge.finished {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+.rent-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.rent-card-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.rent-card-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.rent-card-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.rent-card-value {
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.rent-card-value.product-name {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.rent-card-value.price,
+.rent-card-value.total-price {
+  font-weight: 600;
+  color: var(--success-color);
+}
+
+.rent-card-footer {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-secondary);
+}
+
+.rent-card-footer button {
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border: 1px solid var(--border-primary);
+  background: var(--bg-primary);
+}
+
+.rent-card-footer button:hover {
+  background: var(--bg-secondary);
+  transform: scale(1.05);
+}
+
+.rent-card-footer .btn-edit:hover {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.rent-card-footer .btn-view:hover {
+  background: var(--info-color);
+  border-color: var(--info-color);
+}
+
+.rent-card-footer .btn-finish:hover {
+  background: var(--warning-color);
+  border-color: var(--warning-color);
+}
+
+.rent-card-footer .btn-print:hover {
+  background: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+.rent-card-footer .btn-delete:hover {
+  background: var(--danger-color);
+  border-color: var(--danger-color);
 }
 
 /* Reglas simples para acciones como las otras columnas */

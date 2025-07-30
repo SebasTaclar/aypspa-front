@@ -72,15 +72,53 @@
           </tbody>
         </table>
 
-        <!-- Pagination Controls -->
-        <div class="pagination">
-          <button class="btn-pagination" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">
-            ← Anterior
-          </button>
-          <span class="pagination-info">{{ currentPage }} / {{ totalPages }}</span>
-          <button class="btn-pagination" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">
-            Siguiente →
-          </button>
+        <!-- Mobile Cards Layout -->
+        <div class="client-cards">
+          <div v-for="client in filteredClients" :key="client.id + '-card'" class="client-card">
+            <div class="client-card-header">
+              <h3 class="client-card-name">{{ client.name }}</h3>
+              <div class="client-card-actions">
+                <button @click="openEditPopup(client)" class="btn-edit" title="Editar">
+                  <img src="/icons/edit.svg" alt="Editar" />
+                </button>
+                <button @click="fetchDocument(client.id)" class="btn-view" title="Ver documento">
+                  <img src="/icons/eye.svg" alt="Ver" />
+                </button>
+                <button @click="confirmDelete(client)" class="btn-delete" title="Eliminar">
+                  <img src="/icons/trash.svg" alt="Eliminar" />
+                </button>
+              </div>
+            </div>
+
+            <div class="client-card-info">
+              <div class="client-card-field">
+                <span class="client-card-label">RUT</span>
+                <span class="client-card-value">{{ client.rut }}</span>
+              </div>
+              <div class="client-card-field" v-if="client.companyName">
+                <span class="client-card-label">Empresa</span>
+                <span class="client-card-value">{{ client.companyName }}</span>
+              </div>
+              <div class="client-card-field" v-if="client.phoneNumber">
+                <span class="client-card-label">Teléfono</span>
+                <span class="client-card-value">{{ client.phoneNumber }}</span>
+              </div>
+              <div class="client-card-field" v-if="client.address">
+                <span class="client-card-label">Dirección</span>
+                <span class="client-card-value">{{ client.address }}</span>
+              </div>
+              <div class="client-card-field">
+                <span class="client-card-label">Fecha Creación</span>
+                <span class="client-card-value">{{ formatDate(client.creationDate) }}</span>
+              </div>
+            </div>
+
+            <div class="client-card-footer">
+              <span :class="['frequent-badge', client.frequentClient === 'Si' ? 'frequent-yes' : 'frequent-no']">
+                {{ client.frequentClient === 'Si' ? 'Cliente Frecuente' : 'Cliente Regular' }}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -123,8 +161,6 @@ defineOptions({
 
 const clients = ref<Client[]>([]);
 const searchQuery = ref('');
-const currentPage = ref(1);
-const totalPages = ref(1);
 const isUpsertPopupVisible = ref(false);
 const selectedClient = ref<Client | null>(null);
 const popupMode = ref<'edit' | 'create'>('edit');
@@ -154,9 +190,6 @@ const fetchClients = async () => {
       // Fallback if the response structure is different
       clients.value = Array.isArray(response.data) ? response.data : [];
     }
-
-    // Fix: totalPages might not be in the response, set a default
-    totalPages.value = response.data.totalPages || 1;
   } catch (error) {
     console.error('Error fetching clients:', error);
     clients.value = []; // Reset on error
@@ -715,10 +748,85 @@ onMounted(fetchClients);
   transform: none;
 }
 
+/* Mobile Card Styles */
+.client-cards {
+  display: none;
+  /* Hidden by default, shown on mobile */
+}
+
+.client-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.client-card:hover {
+  background: var(--bg-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px var(--shadow-primary);
+}
+
+.client-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.client-card-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.client-card-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.client-card-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.client-card-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.client-card-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+}
+
+.client-card-value {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.client-card-footer {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-secondary);
+  text-align: center;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .client-container {
-    padding: 70px 20px 20px;
+    padding: 85px 20px 20px;
+    /* Updated for consistent mobile spacing */
   }
 
   .header {
@@ -731,6 +839,16 @@ onMounted(fetchClients);
     font-size: 2rem;
   }
 
+  .btn-primary {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  .search-box {
+    padding: 12px 16px;
+    font-size: 1rem;
+  }
+
   .client-table-container {
     margin: 0;
     padding: 1rem;
@@ -739,6 +857,12 @@ onMounted(fetchClients);
 
   .client-table {
     min-width: 1000px;
+    font-size: 0.85rem;
+  }
+
+  .client-table th,
+  .client-table td {
+    padding: 10px 8px;
   }
 
   .pagination {
@@ -748,6 +872,113 @@ onMounted(fetchClients);
 
   .pagination-info {
     order: -1;
+  }
+
+  .btn-pagination {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 640px) {
+  .client-container {
+    padding: 85px 10px 10px;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+  }
+
+  .search-box {
+    padding: 10px 14px;
+    font-size: 0.95rem;
+  }
+
+  .client-table-container {
+    padding: 0.75rem;
+  }
+
+  /* Show card layout instead of table */
+  .client-table {
+    display: none;
+  }
+
+  .client-cards {
+    display: block;
+  }
+
+  .pagination {
+    margin-top: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .client-container {
+    padding: 85px 8px 8px;
+  }
+
+  .header h1 {
+    font-size: 1.6rem;
+  }
+
+  .btn-primary {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+
+  .search-box {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  .client-table-container {
+    padding: 0.5rem;
+  }
+
+  .client-card {
+    padding: 0.75rem;
+  }
+
+  .client-card-info {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .client-card-actions .btn-edit,
+  .client-card-actions .btn-view,
+  .client-card-actions .btn-delete {
+    padding: 6px;
+  }
+
+  .client-card-actions img {
+    width: 14px;
+    height: 14px;
+  }
+
+  .popup-content {
+    padding: 1.5rem;
+    width: 95%;
+  }
+
+  .delete-modal h3 {
+    font-size: 1.3rem;
+  }
+
+  .delete-modal p {
+    font-size: 1rem;
+  }
+
+  .btn-cancel,
+  .btn-delete-confirm {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    min-width: 100px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 }
 </style>

@@ -197,3 +197,269 @@ input::placeholder,
 textarea::placeholder {
   color: var(--text-muted);
 }
+
+/* ========== RESPONSIVE UTILITIES ========== */
+/* Base responsive design utilities */
+
+/* Container max-widths */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.container-fluid {
+  width: 100%;
+  padding: 0 1rem;
+}
+
+/* Responsive text utilities */
+.text-responsive {
+  font-size: clamp(0.875rem, 2.5vw, 1.125rem);
+}
+
+.heading-responsive {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.subheading-responsive {
+  font-size: clamp(1.125rem, 3vw, 1.5rem);
+}
+
+/* Responsive spacing utilities */
+.p-responsive {
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
+.m-responsive {
+  margin: clamp(1rem, 3vw, 2rem);
+}
+
+/* Flexbox responsive utilities */
+.flex-responsive {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .flex-responsive {
+    flex-direction: column;
+  }
+}
+
+/* Grid responsive utilities */
+.grid-responsive {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 480px) {
+  .grid-responsive {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========== GLOBAL RESPONSIVE BREAKPOINTS ========== */
+
+/* Desktop First Approach */
+@media (max-width: 1200px) {
+  .container {
+    max-width: 960px;
+  }
+
+  /* Reduce font sizes slightly */
+  html {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 992px) {
+  .container {
+    max-width: 720px;
+  }
+
+  /* Adjust padding for medium screens */
+  .p-responsive {
+    padding: clamp(0.75rem, 2.5vw, 1.5rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    max-width: 540px;
+    padding: 0 1rem;
+  }
+
+  /* Mobile optimizations */
+  html {
+    font-size: 14px;
+  }
+
+  /* Increase touch targets */
+  button,
+  .btn-primary,
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Stack elements vertically */
+  .flex-responsive {
+    flex-direction: column;
+  }
+
+  /* Adjust padding for mobile */
+  .p-responsive {
+    padding: clamp(0.5rem, 2vw, 1rem);
+  }
+
+  /* Mobile-friendly form elements */
+  input,
+  textarea,
+  select {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding: 0 0.75rem;
+  }
+
+  /* Very small screens */
+  html {
+    font-size: 13px;
+  }
+
+  /* Smaller buttons on very small screens */
+  .btn-primary {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+
+  /* Extra small screens */
+  .p-responsive {
+    padding: clamp(0.25rem, 1.5vw, 0.75rem);
+  }
+
+  /* Stack all content */
+  .flex-responsive,
+  .grid-responsive {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========== MOBILE-SPECIFIC OPTIMIZATIONS ========== */
+
+/* Prevent horizontal scroll */
+body {
+  overflow-x: hidden;
+}
+
+/* Improve tap targets on mobile */
+@media (max-width: 768px) {
+  button,
+  a,
+  input[type='button'],
+  input[type='submit'] {
+    padding: 0.75rem 1rem;
+    margin: 0.25rem;
+  }
+
+  /* Improve readability */
+  p {
+    line-height: 1.6;
+  }
+
+  /* Mobile-friendly tables */
+  table {
+    width: 100%;
+    overflow-x: auto;
+    display: block;
+    white-space: nowrap;
+  }
+
+  table thead,
+  table tbody,
+  table th,
+  table td,
+  table tr {
+    display: block;
+  }
+
+  table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  table tr {
+    border: 1px solid var(--border-primary);
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+  }
+
+  table td {
+    border: none;
+    position: relative;
+    padding-left: 50%;
+    white-space: normal;
+    text-align: left;
+  }
+
+  table td:before {
+    content: attr(data-label) ': ';
+    position: absolute;
+    left: 6px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    font-weight: bold;
+    color: var(--text-secondary);
+  }
+}
+
+/* ========== ACCESSIBILITY IMPROVEMENTS ========== */
+
+/* Focus styles for keyboard navigation */
+*:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --border-primary: #000000;
+    --text-primary: #000000;
+    --bg-secondary: #ffffff;
+  }
+
+  :root[data-theme='dark'] {
+    --border-primary: #ffffff;
+    --text-primary: #ffffff;
+    --bg-secondary: #000000;
+  }
+}

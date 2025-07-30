@@ -80,6 +80,55 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- Mobile Card Layout -->
+        <div class="product-cards">
+          <div v-for="product in filteredProducts" :key="product._id + '-card'" class="product-card">
+            <div class="product-card-header">
+              <span class="product-card-code">{{ product.code }}</span>
+              <div class="product-card-actions">
+                <button @click="editProduct(product)" class="btn-edit" title="Editar">
+                  <img src="/icons/edit.svg" alt="Editar" />
+                </button>
+                <button @click="confirmDelete(product)" class="btn-delete" title="Eliminar">
+                  <img src="/icons/trash.svg" alt="Eliminar" />
+                </button>
+              </div>
+            </div>
+
+            <h3 class="product-card-name">{{ product.name }}</h3>
+
+            <div class="product-card-info">
+              <div class="product-card-field">
+                <span class="product-card-label">Marca</span>
+                <span class="product-card-value">{{ product.brand }}</span>
+              </div>
+              <div class="product-card-field">
+                <span class="product-card-label">Precio Neto</span>
+                <span class="product-card-value price">${{ formatCurrency(product.priceNet) }}</span>
+              </div>
+              <div class="product-card-field">
+                <span class="product-card-label">IVA</span>
+                <span class="product-card-value price">${{ formatCurrency(product.priceIva) }}</span>
+              </div>
+              <div class="product-card-field">
+                <span class="product-card-label">Precio Total</span>
+                <span class="product-card-value price">${{ formatCurrency(product.priceTotal) }}</span>
+              </div>
+              <div class="product-card-field">
+                <span class="product-card-label">Garantía</span>
+                <span class="product-card-value price">${{ formatCurrency(product.priceWarranty) }}</span>
+              </div>
+            </div>
+
+            <div class="product-card-status">
+              <span class="status-badge status-active">Activo</span>
+              <span :class="['rental-badge', product.rented ? 'rented' : 'available']">
+                {{ product.rented ? 'Arrendado' : 'Disponible' }}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -645,9 +694,23 @@ onMounted(() => {
   transform: none;
 }
 
+/* Mobile Card Styles */
+.product-cards {
+  display: none;
+  /* Hidden by default, shown on mobile */
+}
+
+.product-card-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0.5rem 0;
+}
+
 @media (max-width: 768px) {
   .product-container {
-    padding: 70px 20px 20px;
+    padding: 85px 20px 20px;
+    /* Increased for better mobile spacing */
   }
 
   .header {
@@ -664,10 +727,197 @@ onMounted(() => {
     margin: 0;
     padding: 1rem;
     overflow-x: auto;
+    border-radius: 12px;
   }
 
   .product-table {
-    min-width: 1200px;
+    min-width: 800px;
+    font-size: 0.9rem;
+  }
+
+  .product-table th,
+  .product-table td {
+    padding: 12px 8px;
+  }
+
+  .code-badge {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+  }
+
+  .price {
+    font-size: 0.85rem;
+  }
+
+  .actions {
+    gap: 4px;
+  }
+
+  .btn-edit img,
+  .btn-delete img {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Mobile-friendly table approach */
+  .product-table-mobile {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .product-container {
+    padding: 85px 10px 10px;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+  }
+
+  .btn-primary {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  .search-box {
+    padding: 12px 16px;
+    font-size: 1rem;
+  }
+
+  .product-table-container {
+    padding: 0.75rem;
+  }
+
+  /* Show card-style layout on very small screens */
+  .product-table {
+    display: none;
+  }
+
+  .product-cards {
+    display: block;
+  }
+
+  .product-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .product-card:hover {
+    background: var(--bg-secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px var(--shadow-primary);
+  }
+
+  .product-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .product-card-code {
+    background: var(--primary-color-alpha-80);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .product-card-actions {
+    display: flex;
+    gap: 4px;
+  }
+
+  .product-card-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .product-card-field {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-card-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .product-card-value {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .product-card-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-secondary);
+  }
+}
+
+@media (max-width: 480px) {
+  .product-container {
+    padding: 85px 8px 8px;
+  }
+
+  .header h1 {
+    font-size: 1.6rem;
+  }
+
+  .btn-primary {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+
+  .search-box {
+    padding: 10px 14px;
+    font-size: 0.95rem;
+  }
+
+  .product-table-container {
+    padding: 0.5rem;
+  }
+
+  .product-card {
+    padding: 0.75rem;
+  }
+
+  .product-card-info {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .popup-content {
+    padding: 1.5rem;
+    width: 95%;
+  }
+
+  .delete-modal h3 {
+    font-size: 1.3rem;
+  }
+
+  .delete-modal p {
+    font-size: 1rem;
+  }
+
+  .btn-cancel,
+  .btn-delete-confirm {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    min-width: 100px;
   }
 }
 </style>
