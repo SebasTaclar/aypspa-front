@@ -209,11 +209,6 @@ const filteredClients = computed(() => {
   );
 });
 
-const changePage = (page: number) => {
-  currentPage.value = page;
-  fetchClients();
-};
-
 const openEditPopup = (client: Client) => {
   selectedClient.value = client;
   isUpsertPopupVisible.value = true;
