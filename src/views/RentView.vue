@@ -534,9 +534,7 @@ const fetchFinishedRents = async (page: number = 1, pageSize: number = 25) => {
     const queryParams = new URLSearchParams({
       type: 'finished',
       page: page.toString(),
-      pageSize: pageSize.toString(),
-      sortBy: 'updatedAt',
-      sortOrder: 'desc'
+      pageSize: pageSize.toString()
     })
 
     // Add search query if exists
@@ -565,8 +563,8 @@ const fetchFinishedRents = async (page: number = 1, pageSize: number = 25) => {
         finishedRents = finishedRents.sort((a: unknown, b: unknown) => {
           const rentA = a as Rent
           const rentB = b as Rent
-          const dateA = new Date(rentA.finishDate || rentA.updatedAt || rentA.createdAt)
-          const dateB = new Date(rentB.finishDate || rentB.updatedAt || rentB.createdAt)
+          const dateA = new Date(rentA.deliveryDate || rentA.updatedAt || rentA.createdAt)
+          const dateB = new Date(rentB.deliveryDate || rentB.updatedAt || rentB.createdAt)
           return dateB.getTime() - dateA.getTime() // Descending order
         })
 
@@ -580,8 +578,8 @@ const fetchFinishedRents = async (page: number = 1, pageSize: number = 25) => {
         finishedRents = finishedRents.sort((a: unknown, b: unknown) => {
           const rentA = a as Rent
           const rentB = b as Rent
-          const dateA = new Date(rentA.finishDate || rentA.updatedAt || rentA.createdAt)
-          const dateB = new Date(rentB.finishDate || rentB.updatedAt || rentB.createdAt)
+          const dateA = new Date(rentA.deliveryDate || rentA.updatedAt || rentA.createdAt)
+          const dateB = new Date(rentB.deliveryDate || rentB.updatedAt || rentB.createdAt)
           return dateB.getTime() - dateA.getTime() // Descending order
         })
 
@@ -756,8 +754,8 @@ const filteredFinishedRents = computed(() => {
   // If no search query, return all finished rents sorted by date
   return finishedRents.sort((a, b) => {
     // Sort by finishDate (or updatedAt/createdAt) descending - most recent first
-    const dateA = new Date(a.finishDate || a.updatedAt || a.createdAt)
-    const dateB = new Date(b.finishDate || b.updatedAt || b.createdAt)
+    const dateA = new Date(a.deliveryDate || a.updatedAt || a.createdAt)
+    const dateB = new Date(b.deliveryDate || b.updatedAt || b.createdAt)
     return dateB.getTime() - dateA.getTime()
   })
 })
