@@ -2350,7 +2350,7 @@ const handleFinishRent = async (finishData: FinishRentData) => {
 
 /* Desktop/Mobile visibility classes */
 .desktop-only {
-  display: block;
+  display: inline-table;
 }
 
 .mobile-only {
