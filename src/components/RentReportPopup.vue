@@ -77,7 +77,7 @@
               </tfoot>
             </table>
 
-            <div v-if="isFinished && rent?.observations" class="observations">
+            <div v-if="rent?.observations" class="observations">
               <p><strong>Observaciones:</strong></p>
               <p>{{ rent?.observations }}</p>
             </div>
