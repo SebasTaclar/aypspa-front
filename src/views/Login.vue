@@ -50,11 +50,9 @@ const handleLogin = async () => {
   loading.value = true;
   try {
     const url = `${getBaseUrl()}/api/v1/login`;
-    const response = await axios.get(url, {
-      params: {
-        username: email.value,
-        password: password.value,
-      },
+    const response = await axios.post(url, {
+      username: email.value,
+      password: password.value,
     });
     console.log('Login response:', response.data);
     if (response.data) {
