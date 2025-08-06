@@ -10,12 +10,12 @@
         <RouterLink v-if="isAdminRole" class="nav-link" to="/products">Productos</RouterLink>
         <RouterLink v-if="isAdminRole" class="nav-link" to="/rents">Arrendamientos</RouterLink>
         <RouterLink class="nav-link" to="/privacy">Privacidad</RouterLink>
-        <RouterLink class="nav-link" to="/contact">Contacto</RouterLink>
+        <RouterLink class="nav-link" to="/p_contact">Contacto</RouterLink>
       </div>
 
       <!-- Desktop Controls -->
       <div class="nav-controls desktop-controls">
-        <ThemeToggle />
+        <ThemeToggle v-if="route.name !== 'home'" />
         <RouterLink v-if="!isLoggedIn" class="nav-link access-btn" to="/login">Acceder</RouterLink>
         <span v-if="isLoggedIn" class="nav-link user-greeting">Hola, {{ username }}</span>
         <RouterLink v-if="isLoggedIn" @click="logout" class="nav-link logout-btn" to="/">Cerrar sesión</RouterLink>
@@ -57,14 +57,14 @@
             <span class="mobile-nav-icon">🔒</span>
             Privacidad
           </RouterLink>
-          <RouterLink class="mobile-nav-link" to="/contact" @click="closeMobileMenu">
+          <RouterLink class="mobile-nav-link" to="/p_contact" @click="closeMobileMenu">
             <span class="mobile-nav-icon">📞</span>
             Contacto
           </RouterLink>
         </div>
 
         <div class="mobile-menu-footer">
-          <div class="mobile-theme-toggle">
+          <div v-if="route.name !== 'home'" class="mobile-theme-toggle">
             <ThemeToggle />
           </div>
 
@@ -136,7 +136,6 @@ watch(route, () => {
 /* ========== DESKTOP NAVBAR ========== */
 .navbar {
   background: var(--bg-secondary);
-  backdrop-filter: var(--backdrop-blur);
   border-bottom: 1px solid var(--border-primary);
   margin: 0;
   width: 100%;
@@ -307,11 +306,11 @@ watch(route, () => {
   max-width: 85vw;
   height: 100%;
   background: var(--bg-secondary);
-  backdrop-filter: var(--backdrop-blur);
   border-left: 1px solid var(--border-primary);
   z-index: 1000;
   transition: right 0.3s ease;
   overflow-y: auto;
+  box-shadow: -2px 0 10px var(--shadow-primary);
 }
 
 .mobile-menu.active {

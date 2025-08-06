@@ -49,6 +49,19 @@
         </div>
       </div>
     </div>
+
+    <!-- Botón flotante de WhatsApp -->
+    <div class="whatsapp-float">
+      <a 
+        href="https://wa.me/56987531754?text=Hola,%20me%20interesa%20conocer%20más%20sobre%20sus%20servicios%20de%20construcción" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        class="whatsapp-btn"
+        aria-label="Contactar por WhatsApp"
+      >
+        <i class="fab fa-whatsapp"></i>
+      </a>
+    </div>
   </section>
 </template>
 
@@ -291,7 +304,8 @@ defineOptions({
     width: 100%;
     max-width: 500px;
     min-width: unset;
-    padding: 16px 8px;
+    padding: 1px 8px;
+    flex: none;
   }
 
   .mapa-section {
@@ -306,6 +320,170 @@ defineOptions({
   .mapa-contacto {
     min-height: 200px;
     max-width: 100%;
+  }
+}
+
+/* Estilos móviles mejorados */
+@media (max-width: 768px) {
+  .contacto-section {
+    padding: 1.5rem 1rem;
+  }
+
+  .contacto-section h2 {
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+
+  .subtexto {
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .contacto-grid {
+    gap: 1.5rem;
+  }
+
+  .card-contacto {
+    padding: 12px 15px;
+    font-size: 0.9rem;
+  }
+
+  .media-contacto {
+    padding: 15px 12px;
+  }
+
+  .foto-contacto {
+    margin-bottom: 12px;
+  }
+
+  .mapa-section {
+    margin-top: 1.5rem;
+  }
+
+  .mapa-titulo {
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+  }
+
+  .mapa-wrapper {
+    padding: 12px;
+  }
+
+  .mapa-contacto {
+    min-height: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  .contacto-section {
+    padding: 1rem 0.75rem;
+  }
+
+  .contacto-section h2 {
+    font-size: 1.8rem;
+  }
+
+  .subtexto {
+    font-size: 0.85rem;
+  }
+
+  .card-contacto {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+  }
+
+  .media-contacto {
+    padding: 12px 8px;
+  }
+
+  .mapa-titulo {
+    font-size: 1.2rem;
+  }
+
+  .mapa-wrapper {
+    padding: 8px;
+  }
+
+  .mapa-contacto {
+    min-height: 160px;
+  }
+}
+
+/* Botón flotante de WhatsApp */
+.whatsapp-float {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.whatsapp-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: #25D366;
+  border-radius: 50%;
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  color: white;
+  font-size: 2rem;
+}
+
+.whatsapp-btn:hover {
+  background: #128C7E;
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
+  color: white;
+  text-decoration: none;
+}
+
+.whatsapp-btn:focus {
+  outline: 2px solid #25D366;
+  outline-offset: 2px;
+}
+
+@keyframes whatsappPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+  }
+}
+
+/* Responsive para móvil */
+@media (max-width: 768px) {
+  .whatsapp-float {
+    bottom: 15px;
+    right: 15px;
+  }
+  
+  .whatsapp-btn {
+    width: 55px;
+    height: 55px;
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .whatsapp-float {
+    bottom: 10px;
+    right: 10px;
+  }
+  
+  .whatsapp-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 1.6rem;
   }
 }
 </style>

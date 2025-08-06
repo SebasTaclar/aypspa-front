@@ -74,7 +74,7 @@
   height: 200px;
   border-radius: 50%;
   object-fit: cover;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.0rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   background: white;
 }
@@ -191,8 +191,10 @@
 .letras {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   margin-bottom: 1rem;
+  width: 100%;
 }
 
 @keyframes titleGlow {
@@ -206,9 +208,9 @@
 }
 
 .subtitle {
-  font-size: 1.7rem;
+  font-size: 1.8rem;
   margin-bottom: 2rem;
-  margin-top: 6rem;
+  margin-top: 0.5rem;
   margin-right: -200px;
   text-align: center;
   color: #ecf0f1;

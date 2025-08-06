@@ -40,6 +40,11 @@ const router = createRouter({
       component: () => import('../views/Maintenance.vue'),
     },
     {
+      path: '/p_contact',
+      name: 'p_contact',
+      component: () => import('../views/ContactPage.vue'),
+    },
+    {
       path: '/maintenance',
       name: 'maintenance',
       component: () => import('../views/Maintenance.vue'),

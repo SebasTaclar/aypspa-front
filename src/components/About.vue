@@ -124,4 +124,81 @@ defineOptions({
   color: white;
   font-size: 2rem;
 }
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .conocenos-section {
+    padding: 1.5rem 1rem;
+  }
+
+  .conocenos-section .overlay {
+    padding: 1.5rem 1rem;
+  }
+
+  .conocenos-section h2 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+  }
+
+  .conocenos-section h4 {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+
+  .cards-container {
+    gap: 15px;
+    margin-top: 20px;
+  }
+
+  .card {
+    padding: 20px 15px;
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .card h3 {
+    font-size: 1.1rem;
+    margin: 8px 0 12px;
+  }
+
+  .card p {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .icon-card {
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .conocenos-section {
+    padding: 1rem 0.5rem;
+  }
+
+  .conocenos-section .overlay {
+    padding: 1rem 0.75rem;
+  }
+
+  .conocenos-section h2 {
+    font-size: 1.8rem;
+  }
+
+  .card {
+    padding: 15px 12px;
+  }
+
+  .card h3 {
+    font-size: 1rem;
+  }
+
+  .card p {
+    font-size: 0.85rem;
+  }
+
+  .icon-card {
+    font-size: 1.8rem;
+  }
+}
 </style>

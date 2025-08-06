@@ -175,4 +175,68 @@ defineOptions({
   background-image: none;
   color: white;
 }
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .services-section {
+    padding: 1rem 0.5rem;
+  }
+
+  .section-title-1 {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .service-grid {
+    gap: 1rem;
+    padding: 0 0.5rem;
+  }
+
+  .service-card {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  .service-card img {
+    height: 140px;
+  }
+
+  .service-card h3 {
+    margin: 10px 8px 5px;
+    font-size: 1rem;
+  }
+
+  .service-card p {
+    margin: 0 8px 10px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .services-section {
+    padding: 0.75rem 0.25rem;
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+  }
+
+  .service-card img {
+    height: 120px;
+  }
+
+  .service-card h3 {
+    font-size: 0.95rem;
+  }
+
+  .service-card p {
+    font-size: 0.8rem;
+  }
+}
 </style>
