@@ -24,8 +24,8 @@
 :root,
 :root[data-theme='dark'] {
   --bg-primary: #2d2d2d;
-  --bg-secondary: rgba(255, 255, 255, 0.1);
-  --bg-tertiary: rgba(255, 255, 255, 0.05);
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #333333;
 
   --text-primary: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.9);
@@ -54,7 +54,7 @@
 :root[data-theme='light'] {
   --bg-primary: #f8f9fa;
   --bg-secondary: #ffffff;
-  --bg-tertiary: #ffffff;
+  --bg-tertiary: #f8f9fa;
 
   --text-primary: #212529;
   --text-secondary: #495057;
@@ -77,12 +77,6 @@
     rgba(155, 59, 50, 0.05) 0%,
     transparent 50%
   );
-
-  /* Light theme overrides for glassmorphism */
-  --bg-secondary: rgba(255, 255, 255, 0.8);
-  --bg-tertiary: rgba(255, 255, 255, 0.6);
-  --border-primary: rgba(0, 0, 0, 0.1);
-  --border-secondary: rgba(0, 0, 0, 0.05);
 }
 
 * {

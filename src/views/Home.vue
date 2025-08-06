@@ -59,45 +59,19 @@
         </div>
       </section>
 
-      <!-- Mobile Services Grid -->
-      <section class="mobile-services">
-        <h2>Nuestros Servicios</h2>
-        <div class="services-grid">
-          <div class="service-card">
-            <div class="service-icon">🏗️</div>
-            <h3>Arriendo de Herramientas</h3>
-            <p>Equipos profesionales para construcción</p>
-          </div>
-          <div class="service-card">
-            <div class="service-icon">🔧</div>
-            <h3>Venta de Herramientas</h3>
-            <p>Herramientas de calidad para profesionales</p>
-          </div>
-          <div class="service-card">
-            <div class="service-icon">📋</div>
-            <h3>Gestión de Proyectos</h3>
-            <p>Administración completa de tus proyectos</p>
-          </div>
-        </div>
+      <!-- Mobile Offerings Section -->
+      <section class="mobile-offerings">
+        <Offerings />
       </section>
 
-      <!-- Mobile Contact -->
+      <!-- Mobile About Section -->
+      <section class="mobile-about">
+        <About />
+      </section>
+
+      <!-- Mobile Contact Section -->
       <section class="mobile-contact">
-        <h2>Contáctanos</h2>
-        <div class="contact-info">
-          <div class="contact-item">
-            <span class="contact-icon">📞</span>
-            <span>+56 9 XXXX XXXX</span>
-          </div>
-          <div class="contact-item">
-            <span class="contact-icon">📧</span>
-            <span>contacto@ayp.cl</span>
-          </div>
-          <div class="contact-item">
-            <span class="contact-icon">📍</span>
-            <span>Santiago, Chile</span>
-          </div>
-        </div>
+        <Contact />
       </section>
     </div>
   </main>
@@ -199,7 +173,7 @@ defineOptions({
 .mobile-service-icon {
   width: 40px;
   height: 40px;
-  filter: brightness(0) invert(1);
+
   animation: rotate 3s linear infinite;
 }
 
@@ -213,7 +187,7 @@ defineOptions({
 .mobile-letra-p {
   font-size: 3rem;
   font-weight: 900;
-  color: var(--primary-color);
+  color: white;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   animation: pulse 2s ease-in-out infinite alternate;
 }
@@ -258,7 +232,7 @@ defineOptions({
 .mobile-hexagon {
   width: 120px;
   height: 120px;
-  background: var(--primary-color);
+  background: rgba(26, 25, 25, 0.904);
   margin: 0 auto 1.5rem auto;
   position: relative;
   border-radius: 15px;
@@ -269,7 +243,7 @@ defineOptions({
 .mobile-logo-hexagon {
   width: 80px;
   height: 80px;
-  border-radius: 10px;
+  border-radius: 50px;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -346,99 +320,21 @@ defineOptions({
   }
 }
 
-.mobile-services {
-  padding: 2rem 1rem;
+/* Mobile Sections */
+.mobile-offerings {
+  padding: 1rem 0.75rem;
   background: var(--bg-primary);
 }
 
-.mobile-services h2 {
-  text-align: center;
-  color: var(--text-primary);
-  margin-bottom: 2rem;
-  font-size: 1.8rem;
-  font-weight: 600;
-}
-
-.services-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.service-card {
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-primary);
-  border-radius: 12px;
-  padding: 1.5rem;
-  text-align: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px var(--shadow-primary);
-}
-
-.service-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px var(--shadow-primary);
+.mobile-about {
+  padding: 1rem 0.75rem;
   background: var(--bg-secondary);
-}
-
-.service-icon {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-}
-
-.service-card h3 {
-  color: var(--text-primary);
-  margin: 0 0 0.75rem 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.service-card p {
-  color: var(--text-muted);
-  margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.4;
 }
 
 .mobile-contact {
-  padding: 2rem 1rem;
-  background: var(--bg-secondary);
+  padding: 1rem 0.75rem;
+  background: var(--bg-primary);
   border-top: 1px solid var(--border-primary);
-}
-
-.mobile-contact h2 {
-  text-align: center;
-  color: var(--text-primary);
-  margin-bottom: 2rem;
-  font-size: 1.8rem;
-  font-weight: 600;
-}
-
-.contact-info {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-width: 300px;
-  margin: 0 auto;
-}
-
-.contact-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: var(--bg-tertiary);
-  border-radius: 8px;
-  border: 1px solid var(--border-primary);
-  color: var(--text-primary);
-}
-
-.contact-icon {
-  font-size: 1.2rem;
-  width: 1.5rem;
-  text-align: center;
 }
 
 /* ========== RESPONSIVE BREAKPOINTS ========== */
