@@ -1363,7 +1363,7 @@ const handleFinishRent = async (finishData: FinishRentData) => {
 }
 
 .rent-table th {
-  background: var(--bg-secondary);
+  background: #242323;
   color: var(--text-primary);
   padding: 16px 12px;
   text-align: left;

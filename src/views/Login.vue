@@ -62,7 +62,17 @@ const handleLogin = async () => {
         sessionStorage.removeItem('token');
         alert('token invalid');
       } else {
-        router.push('/');
+        // Check if there's a saved redirect path
+        const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+        sessionStorage.removeItem('redirectAfterLogin'); // Clear it after use
+        
+        if (redirectPath) {
+          // Redirect to the saved path
+          router.push(redirectPath);
+        } else {
+          // Default redirect to home
+          router.push('/');
+        }
       }
     } else {
       alert('Login fallo: credenciales invalidas');
