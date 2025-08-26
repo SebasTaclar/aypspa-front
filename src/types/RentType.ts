@@ -12,6 +12,8 @@ export type Rent = {
   warrantyType?: string
   createdAt: string
   isFinished: boolean
+  productId: number
+  clientId?: number
   // Optional fields for finished rents
   totalDays?: number
   totalPrice?: number

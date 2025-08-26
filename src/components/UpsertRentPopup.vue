@@ -221,8 +221,8 @@ const { rentData, mode } = defineProps<{
 const emit = defineEmits(['close', 'save'])
 
 // Function to handle product status update when rent is deleted (called from parent)
-const handleRentDeletion = async (productCode: string) => {
-  await updateProductRentStatus(productCode, false)
+const handleRentDeletion = async (productId: number) => {
+  await updateProductRentStatus(productId, false)
 }
 
 // Expose the function so parent component can call it
@@ -235,6 +235,7 @@ const showConfirmation = ref(false)
 const loadingProduct = ref(false)
 const loadingClient = ref(false)
 const productBrand = ref('')
+const selectedProductId = ref<number | null>(null) // Store the exact product ID
 
 // Warning states
 const productExists = ref(true) // Assume exists until proven otherwise
@@ -256,6 +257,8 @@ const rent = ref({
   id: mode === 'create' ? '' : (rentData?.id || ''),
   code: mode === 'create' ? '' : (rentData?.code || ''),
   productName: mode === 'create' ? '' : (rentData?.productName || ''),
+  productId: mode === 'create' ? 0 : (rentData?.productId || 0),
+  clientId: mode === 'create' ? undefined : rentData?.clientId,
   quantity: mode === 'create' ? 1 : (rentData?.quantity || 1),
   totalValuePerDay: mode === 'create' ? 0 : (rentData?.totalValuePerDay || 0),
   clientRut: mode === 'create' ? '' : (rentData?.clientRut || ''),
@@ -329,6 +332,9 @@ const loadProductByCode = async () => {
         // Take the first exact match
         const exactMatch = exactMatches[0]
 
+        // Store the exact product ID for later use
+        selectedProductId.value = parseInt(exactMatch._id)
+
         // Product exists - update flag
         productExists.value = true
 
@@ -342,6 +348,7 @@ const loadProductByCode = async () => {
 
         // Auto-fill product information
         rent.value.productName = exactMatch.name || ''
+        rent.value.productId = parseInt(exactMatch._id)
         rent.value.totalValuePerDay = exactMatch.priceNet || 0
         rent.value.warrantyValue = exactMatch.priceWarranty || 0
         productBrand.value = exactMatch.brand || ''
@@ -349,10 +356,12 @@ const loadProductByCode = async () => {
         // Product doesn't exist - update flag
         productExists.value = false
         productIsRented.value = false
+        selectedProductId.value = null
 
         // Clear fields if no exact match found
         if (mode === 'create') {
           rent.value.productName = ''
+          rent.value.productId = 0
           rent.value.totalValuePerDay = 0
           rent.value.warrantyValue = 0
           productBrand.value = ''
@@ -362,10 +371,12 @@ const loadProductByCode = async () => {
       // Product doesn't exist - update flag
       productExists.value = false
       productIsRented.value = false
+      selectedProductId.value = null
 
       // Clear fields if no product found
       if (mode === 'create') {
         rent.value.productName = ''
+        rent.value.productId = 0
         rent.value.totalValuePerDay = 0
         rent.value.warrantyValue = 0
         productBrand.value = ''
@@ -761,36 +772,14 @@ const getWarrantyTypeText = (warrantyType: string) => {
 }
 
 // Update product rental status
-const updateProductRentStatus = async (productCode: string, isRented: boolean) => {
+const updateProductRentStatus = async (productId: number, isRented: boolean) => {
   try {
-    // First, get the product by code to get its ID
-    const getResponse = await axios.get(`${getBaseUrl()}/api/v1/products`, {
-      params: { code: productCode }
-    })
-
-    // Handle both new structure (data.data) and old structure (data)
-    const products = getResponse.data?.data || getResponse.data || []
-
-    if (Array.isArray(products) && products.length > 0) {
-      // Find exact match for the product code
-      const product = products.find(p =>
-        p.code && p.code.toLowerCase() === productCode.toLowerCase()
-      )
-
-      if (product) {
-        // Update the product's rented status
-        const updatePayload = {
-          ...product,
-          rented: isRented
-        }
-
-        await axios.put(`${getBaseUrl()}/api/v1/products/${product._id}`, updatePayload)
-      } else {
-        console.warn(`Product with exact code ${productCode} not found for status update`)
-      }
-    } else {
-      console.warn(`Product with code ${productCode} not found for status update`)
+    // Update the product's rented status directly using the productId
+    const updatePayload = {
+      rented: isRented
     }
+
+    await axios.put(`${getBaseUrl()}/api/v1/products/${productId}`, updatePayload)
   } catch (error) {
     console.error('Error updating product rental status:', error)
     // Don't throw here - let rent creation/deletion continue even if product update fails
@@ -803,6 +792,7 @@ const handleCreateRent = async (rentPayload: Rent) => {
   const backendPayload = {
     code: rentPayload.code,
     productName: rentPayload.productName,
+    productId: selectedProductId.value, // Send productId directly to backend
     quantity: Number(rentPayload.quantity) || 0,
     totalValuePerDay: Number(rentPayload.totalValuePerDay) || 0,
     warrantyValue: Number(rentPayload.warrantyValue) || 0,
@@ -820,7 +810,10 @@ const handleCreateRent = async (rentPayload: Rent) => {
   const response = await axios.post(`${getBaseUrl()}/api/v1/rents`, backendPayload)
 
   if (response.data?.success) {
-    await updateProductRentStatus(backendPayload.code, true)
+    // Use the selectedProductId to update product status
+    if (selectedProductId.value) {
+      await updateProductRentStatus(selectedProductId.value, true)
+    }
 
     emit('save', response.data.data)
     emit('close')
@@ -854,7 +847,10 @@ const handleEditRent = async (rentPayload: Rent) => {
   if (response.data?.success) {
     // If rent is marked as finished, make product available again
     if (backendPayload.isFinished) {
-      await updateProductRentStatus(backendPayload.code, false)
+      // Use the productId from the rent data in edit mode
+      if (rentPayload.productId) {
+        await updateProductRentStatus(rentPayload.productId, false)
+      }
     }
 
     emit('save', response.data.data)
@@ -869,6 +865,10 @@ const handleEditRent = async (rentPayload: Rent) => {
 // Initialize component - load product brand for edit mode
 onMounted(() => {
   if (mode === 'edit' && rentData?.code) {
+    // Set the selectedProductId from the existing rent data
+    if (rentData.productId) {
+      selectedProductId.value = rentData.productId
+    }
     loadProductByCode()
   }
 })

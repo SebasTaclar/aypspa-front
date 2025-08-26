@@ -991,7 +991,7 @@ const deleteRent = async () => {
       }
     })
 
-    await updateProductRentStatus(rentToDelete.value.code, false)
+    await updateProductRentStatus(rentToDelete.value.productId, false)
 
     // Refresh the appropriate view after successful deletion
     if (activeView.value === 'active') {
@@ -1076,37 +1076,21 @@ const getVisiblePages = () => {
 }
 
 // Update product rental status
-const updateProductRentStatus = async (productCode: string, isRented: boolean) => {
+const updateProductRentStatus = async (productId: number, isRented: boolean) => {
   try {
     const token = sessionStorage.getItem('token')
 
-    // First, get the product by code to get its ID
-    const getResponse = await axios.get(`${getBaseUrl()}/api/v1/products`, {
-      params: { code: productCode },
+    // Update the product's rented status directly using the productId
+    const updatePayload = {
+      rented: isRented
+    }
+
+    await axios.put(`${getBaseUrl()}/api/v1/products/${productId}`, updatePayload, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
     })
-
-    if (Array.isArray(getResponse.data.data) && getResponse.data.data.length > 0) {
-      const product = getResponse.data.data[0]
-
-      // Update the product's rented status
-      const updatePayload = {
-        ...product,
-        rented: isRented
-      }
-
-      await axios.put(`${getBaseUrl()}/api/v1/products/${product._id}`, updatePayload, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-    } else {
-      console.warn(`Product with code ${productCode} not found for status update`)
-    }
   } catch (error) {
     console.error('Error updating product rental status:', error)
     // Don't throw here - let rent operations continue even if product update fails
@@ -1141,7 +1125,7 @@ const handleFinishRent = async (finishData: FinishRentData) => {
     })
 
     // Update product status to not rented when finishing the rent
-    await updateProductRentStatus(rentToFinish.value.code, false)
+    await updateProductRentStatus(rentToFinish.value.productId, false)
 
     // Switch to finished rents view and refresh to show the newly finished rent
     activeView.value = 'finished'
