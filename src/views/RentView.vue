@@ -542,6 +542,7 @@ const fetchFinishedRents = async (page: number = 1, pageSize: number = 25) => {
       const query = searchQuery.value.trim()
       // The backend will search in multiple fields automatically
       queryParams.append('clientName', query)
+      queryParams.append('clientRut', query)
       queryParams.append('productName', query)
       queryParams.append('code', query)
     }
@@ -649,6 +650,7 @@ const fetchActiveRents = async () => {
     if (searchQuery.value.trim()) {
       const query = searchQuery.value.trim()
       queryParams.append('clientName', query)
+      queryParams.append('clientRut', query)
       queryParams.append('productName', query)
       queryParams.append('code', query)
     }
@@ -1344,6 +1346,12 @@ const handleFinishRent = async (finishData: FinishRentData) => {
   /* Ajustar ancho mínimo para acomodar la columna de acciones más grande */
   table-layout: fixed;
   /* Usar layout fijo para controlar anchos de columnas */
+}
+
+/* Asegurar que la tabla desktop se muestre correctamente */
+.rent-table.desktop-only {
+  display: table;
+  width: 100%;
 }
 
 .rent-table th {
@@ -2334,29 +2342,45 @@ const handleFinishRent = async (finishData: FinishRentData) => {
 
 /* Desktop/Mobile visibility classes */
 .desktop-only {
-  display: inline-table;
+  display: table;
+  width: 100%;
 }
 
 .mobile-only {
   display: none;
 }
 
+/* Responsive breakpoint */
 @media (max-width: 768px) {
-  .desktop-only {
+
+  .desktop-only,
+  .rent-table.desktop-only,
+  table.desktop-only {
     display: none !important;
   }
 
-  .mobile-only {
+  .mobile-only,
+  .rent-cards.mobile-only {
     display: block !important;
+  }
+
+  .rent-cards.mobile-only {
+    display: flex !important;
   }
 }
 
 /* Rent Card Styles for Mobile */
 .rent-cards {
-  display: flex;
+  display: none;
+  /* Ocultar por defecto en desktop */
   flex-direction: column;
   gap: 1rem;
   padding: 1rem 0;
+}
+
+/* Solo mostrar cards en mobile */
+.rent-cards.mobile-only {
+  display: none;
 }
 
 .rent-card {
